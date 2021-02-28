@@ -31,7 +31,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
         {
             var currentLidFrameReflected = _reflection.GetField<int>(chest, "currentLidFrame");
             var currentLidFrame = currentLidFrameReflected.GetValue();
-            if (currentLidFrame == 0)
+            if (currentLidFrame == 0 || currentLidFrame - chest.startingLidFrame.Value >= storage.Frames)
                 currentLidFrame = chest.startingLidFrame.Value;
 
             var drawColored = storage.PlayerColor
@@ -75,7 +75,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                     SpriteEffects.None,
                     layerDepth);
 
-                if (scaleSize < 4f)
+                if (storage.Frames == 1 || scaleSize < 4f)
                     return;
 
                 spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
