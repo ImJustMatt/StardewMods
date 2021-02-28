@@ -307,7 +307,7 @@ namespace ImJustMatt.ExpandedStorage
             location.objects.TryGetValue(pos, out var obj);
 
             // Carry Chest
-            if (obj != null && e.Button.IsUseToolButton())
+            if (obj != null && e.Button.IsUseToolButton() && Utility.withinRadiusOfPlayer((int) (64 * pos.X), (int) (64 * pos.Y), 1, Game1.player))
             {
                 storage = GetStorage(obj);
                 if (storage == null
