@@ -2,6 +2,14 @@
 
 ## 1.6.0
 
+- Added Resize Inventory Menu to Generic Mod Config Menu
+- Draw a hologram when placing Bigger Expanded Storages
+- Fix depth issue with bigger expanded storages
+- Patch Chests Anywhere so that shipping bin will refresh on item grab
+- Added a summary of Default Storage config to logs
+
+## 1.6.0-rc.1
+
 - Added Bigger Expanded Storages
 - Added Advanced Color Picker
 - Added ExpandedStorageAPI methods
