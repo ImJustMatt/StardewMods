@@ -173,6 +173,11 @@ namespace ImJustMatt.ExpandedStorage.Framework
                 () => config.Controller,
                 value => config.Controller = value);
             modConfigAPI.RegisterSimpleOption(manifest,
+                "Resize Inventory Menu",
+                "Allows the inventory menu to have 4-6 rows instead of the default 3",
+                () => config.ExpandInventoryMenu,
+                value => config.ExpandInventoryMenu = value);
+            modConfigAPI.RegisterSimpleOption(manifest,
                 "Search Symbol",
                 "Symbol used to search items by context tag",
                 () => config.SearchTagSymbol,
