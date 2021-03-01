@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpandedStorage", "Expanded
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{DFC3998C-0728-4E7F-A133-CA6C66AC4D6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GarbageDay", "GarbageDay\GarbageDay.csproj", "{76858AC8-BCD5-49DF-95D6-51F9D8B3F1F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,5 +17,9 @@ Global
 		{E753C461-CCB2-4CF7-8CCC-C75C161BA73B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E753C461-CCB2-4CF7-8CCC-C75C161BA73B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E753C461-CCB2-4CF7-8CCC-C75C161BA73B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{76858AC8-BCD5-49DF-95D6-51F9D8B3F1F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76858AC8-BCD5-49DF-95D6-51F9D8B3F1F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76858AC8-BCD5-49DF-95D6-51F9D8B3F1F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76858AC8-BCD5-49DF-95D6-51F9D8B3F1F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
