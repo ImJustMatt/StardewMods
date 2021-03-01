@@ -178,12 +178,8 @@ namespace ImJustMatt.ExpandedStorage
 
                 RegisterStorage(contentPack.Manifest, expandedStorage.Key, defaultConfig);
                 SetStorageConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
-
-                if (_storageConfigs.TryGetValue(expandedStorage.Key, out var storageConfig))
-                    RegisterConfig(contentPack.Manifest, expandedStorage.Key, storageConfig);
+                RegisterConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
             }
-
-            SaveToFile();
 
             // Add asset loader
             ExpandedStorage.AssetLoaders.Add(contentPack.Manifest.UniqueID, contentPack.LoadAsset<Texture2D>);
