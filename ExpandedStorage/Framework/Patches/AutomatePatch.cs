@@ -38,11 +38,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 Monitor.Log("Patching Automate for Restricted Storage");
                 var methodInfo = AccessTools.GetDeclaredMethods(_type)
                     .Find(m => m.Name.Equals("Store", StringComparison.OrdinalIgnoreCase));
-                harmony.Patch(methodInfo, new HarmonyMethod(GetType(), nameof(Store_Prefix)));
+                harmony.Patch(methodInfo, new HarmonyMethod(GetType(), nameof(StorePrefix)));
             }
         }
 
-        public static bool Store_Prefix(object __instance, ITrackedStack stack)
+        public static bool StorePrefix(object __instance, ITrackedStack stack)
         {
             var reflectedChest = _reflection.GetField<Chest>(__instance, "Chest");
             var reflectedSample = _reflection.GetProperty<Item>(stack, "Sample");

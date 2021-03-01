@@ -128,7 +128,8 @@ namespace ImJustMatt.ExpandedStorage
                 new DiscreteColorPickerPatch(Monitor, _config),
                 new DebrisPatch(Monitor, _config),
                 new UtilityPatch(Monitor, _config),
-                new AutomatePatch(Monitor, _config, helper.Reflection, helper.ModRegistry.IsLoaded("Pathoschild.Automate")));
+                new AutomatePatch(Monitor, _config, helper.Reflection, helper.ModRegistry.IsLoaded("Pathoschild.Automate")),
+                new ChestsAnywherePatch(Monitor, _config, helper.ModRegistry.IsLoaded("Pathoschild.ChestsAnywhere")));
         }
 
         /// <summary>Setup Generic Mod Config Menu</summary>
