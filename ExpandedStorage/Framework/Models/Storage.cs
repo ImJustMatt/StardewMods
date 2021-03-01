@@ -128,7 +128,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         {
             return context switch
             {
-                Item item when item.modData.Keys.Any(ExcludeModDataKeys.Contains) => false,
+                Item item when ExcludeModDataKeys.Any(item.modData.ContainsKey) => false,
                 AdventureGuild => false,
                 LibraryMuseum => false,
                 GameLocation => SpecialChestType == "MiniShippingBin",
