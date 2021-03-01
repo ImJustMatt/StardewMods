@@ -188,7 +188,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             }
             else
                 __instance.draw(spriteBatch, x / 64, y / 64, 0.5f);
-            
+
             return false;
         }
     }

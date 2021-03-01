@@ -10,11 +10,6 @@ namespace ImJustMatt.GarbageDay
     public class GarbageDay : Mod, IAssetEditor
     {
         private readonly IList<Vector2> _tiles = new List<Vector2>();
-        
-        public override void Entry(IModHelper helper)
-        {
-            
-        }
 
         /// <summary>Allows editing Maps to remove vanilla garbage cans</summary>
         public bool CanEdit<T>(IAssetInfo asset)
@@ -38,13 +33,13 @@ namespace ImJustMatt.GarbageDay
                     {
                         map.Data.GetLayer("Front").Tiles[x, y] = null;
                     }
-                    
+
                     // Remove Base
                     if (map.Data.GetLayer("Buildings").Tiles[x, y]?.TileIndex == 78)
                     {
                         map.Data.GetLayer("Buildings").Tiles[x, y] = null;
                     }
-                    
+
                     // Remove Action, Store Coordinates
                     PropertyValue property = null;
                     var tile = map.Data.GetLayer("Buildings").PickTile(new Location(x * 64, y * 64), Game1.viewport.Size);
@@ -54,6 +49,10 @@ namespace ImJustMatt.GarbageDay
                     _tiles.Add(new Vector2(x, y));
                 }
             }
+        }
+
+        public override void Entry(IModHelper helper)
+        {
         }
     }
 }

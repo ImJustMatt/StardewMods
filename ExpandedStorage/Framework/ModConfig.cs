@@ -105,15 +105,20 @@ namespace ImJustMatt.ExpandedStorage.Framework
             "Expanded Storage Configuration",
             $"{"Config Option",-20} | Current Value",
             $"{new string('-', 21)}|{new string('-', 15)}",
-            $"{"Resize Menu",-20} | {ExpandInventoryMenu}",
-            $"{"Search Tag Symbol",-20} | {SearchTagSymbol}",
-            $"{"Vacuum First Row",-20} | {VacuumToFirstRow}",
-            $"{"Enable Controller",-20} | {Controller}",
             $"{"Next Tab",-20} | {Controls.NextTab}",
             $"{"Previous Tab",-20} | {Controls.PreviousTab}",
             $"{"Scroll Up",-20} | {Controls.ScrollUp}",
             $"{"Scroll Down",-20} | {Controls.ScrollDown}",
-            $"{"Show Crafting",-20} | {Controls.OpenCrafting}"
+            $"{"Show Crafting",-20} | {Controls.OpenCrafting}",
+            $"{"Resize Menu",-20} | {ExpandInventoryMenu}",
+            $"{"Search Tag Symbol",-20} | {SearchTagSymbol}",
+            $"{"Vacuum First Row",-20} | {VacuumToFirstRow}",
+            $"{"Enable Controller",-20} | {Controller}",
+            string.Join("\n",
+                StorageConfig.StorageOptions.Keys
+                    .Where(option => DefaultStorage.Option(option) != StorageConfig.Choice.Unspecified)
+                    .Select(option => $"{option,-20} | {DefaultStorage.Option(option)}")
+            )
         );
 
         internal void CopyFrom(ModConfig config)
