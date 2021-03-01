@@ -151,10 +151,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 draw_y = Utility.Lerp(__instance.localKickStartTile.Value.Y, draw_y, __instance.kickProgress);
             }
 
-            var globalPosition = new Vector2(draw_x * 64f, (draw_y - 1f) * 64f);
+            var globalPosition = new Vector2(draw_x, (int) (draw_y - storage.Depth / 16f - 1f));
             var layerDepth = Math.Max(0.0f, ((draw_y + 1f) * 64f - 24f) / 10000f) + draw_x * 1E-05f;
 
-            __instance.Draw(storage, spriteBatch, Game1.GlobalToLocal(Game1.viewport, globalPosition), Vector2.Zero, alpha, layerDepth);
+            __instance.Draw(storage, spriteBatch, Game1.GlobalToLocal(Game1.viewport, globalPosition * 64), Vector2.Zero, alpha, layerDepth);
             return false;
         }
 

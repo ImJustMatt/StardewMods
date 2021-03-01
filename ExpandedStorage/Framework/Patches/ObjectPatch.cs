@@ -182,7 +182,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             });
 
             if (__instance is Chest chest)
-                chest.Draw(storage, spriteBatch, 64 * new Vector2(x / 64, y / 64 - 1) - new Vector2(Game1.viewport.X, Game1.viewport.Y), Vector2.Zero, 0.5f);
+            {
+                var globalPosition = new Vector2((int) (x / 64f), (int) (y / 64f - storage.Depth / 16f - 1f));
+                chest.Draw(storage, spriteBatch, Game1.GlobalToLocal(Game1.viewport, globalPosition * 64), Vector2.Zero, 0.5f);
+            }
             else
                 __instance.draw(spriteBatch, x / 64, y / 64, 0.5f);
             
