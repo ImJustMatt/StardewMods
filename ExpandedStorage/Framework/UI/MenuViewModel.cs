@@ -90,7 +90,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
 
         public static void RefreshItems()
         {
-            Instance.Value?.OnItemChanged(Instance.Value, null);
+            if (Instance.Value == null || Context.ScreenId != Instance.Value._screenId)
+                return;
+            Instance.Value.OnItemChanged(Instance.Value, null);
         }
 
         internal static void Init(IModEvents events, IInputHelper inputHelper, ModConfig config)
@@ -315,7 +317,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             }
 
             // Show/hide arrows
-            _view.ToggleArrows(_model.SkippedRows > 0, _model.SkippedRows < _model.MaxRows);
+            _view?.ToggleArrows(_model.SkippedRows > 0, _model.SkippedRows < _model.MaxRows);
         }
 
         private bool SearchMatches(Item item)
