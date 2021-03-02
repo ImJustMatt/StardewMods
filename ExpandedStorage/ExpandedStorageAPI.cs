@@ -222,7 +222,8 @@ namespace ImJustMatt.ExpandedStorage
 
                 RegisterStorage(contentPack.Manifest, expandedStorage.Key, defaultConfig);
                 SetStorageConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
-                RegisterConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
+                if (_modConfigAPI != null)
+                    RegisterConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
             }
 
             // Add asset loader
