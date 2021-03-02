@@ -3,8 +3,8 @@
 ## 1.6.1
 
 - Added Content Patcher support for SpriteSheets and Tab Images
-- Fix Null reference exception
-- Fix storage config not saving
+- Fixed Null reference exception
+- Fixed storage config not saving
 
 ## 1.6.0
 
