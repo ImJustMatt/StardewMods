@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+## 1.6.1
+
+- Added Content Patcher support for SpriteSheets and Tab Images
+- Fix Null reference exception
+- Fix storage config not saving
+
 ## 1.6.0
 
 - Added Resize Inventory Menu to Generic Mod Config Menu
