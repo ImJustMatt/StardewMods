@@ -4,6 +4,7 @@ using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
+using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -43,6 +44,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             harmony.Patch(
                 AccessTools.Method(typeof(Object), nameof(Object.drawPlacementBounds)),
                 new HarmonyMethod(GetType(), nameof(DrawPlacementBoundsPrefix))
+            );
+            
+            harmony.Patch(
+                AccessTools.Method(typeof(Chest), nameof(Chest.maximumStackSize)),
+                new HarmonyMethod(GetType(), nameof(MaximumStackSizePrefix))
             );
         }
 
@@ -189,6 +195,18 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             else
                 __instance.draw(spriteBatch, x / 64, y / 64, 0.5f);
 
+            return false;
+        }
+        
+        /// <summary>Disallow stacking carried chests.</summary>
+        public static bool MaximumStackSizePrefix(Object __instance, ref int __result)
+        {
+            var storage = ExpandedStorage.GetStorage(__instance);
+            if (storage == null
+                || storage.Option("CarryChest", true) != StorageConfig.Choice.Enable
+                && storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable)
+                return true;
+            __result = -1;
             return false;
         }
     }
