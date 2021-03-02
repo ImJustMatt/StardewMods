@@ -40,23 +40,17 @@ namespace ImJustMatt.ExpandedStorage
 
             // Events
             _helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            _helper.Events.GameLoop.DayStarted += OnDayStarted;
         }
 
         /// <summary>Get whether this instance can load the initial version of the given asset.</summary>
         /// <param name="asset">Basic metadata about the asset being loaded.</param>
         public bool CanEdit<T>(IAssetInfo asset)
         {
-            var assetPrefix = PathUtilities.NormalizePath("Mods/furyx639.ExpandedStorage");
-
             if (asset.AssetNameEquals("Data/BigCraftablesInformation"))
             {
                 // Load bigCraftable on next tick for vanilla storages
                 _helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
-            }
-            else if (asset.AssetName.StartsWith(assetPrefix))
-            {
-                // Clear local cache for assets
-                _assetCache.Remove(asset.AssetName);
             }
 
             return false;
@@ -363,6 +357,14 @@ namespace ImJustMatt.ExpandedStorage
             else
                 _monitor.Log("Json Assets not detected, Expanded Storages content will not be loaded", LogLevel.Warn);
             _helper.Events.GameLoop.UpdateTicked += OnReadyToLoad;
+        }
+        
+        /// <summary>Clear local asset cache on day started</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void OnDayStarted(object sender, DayStartedEventArgs e)
+        {
+            _assetCache.Clear();
         }
 
         /// <summary>Load Expanded Storage content packs.</summary>
