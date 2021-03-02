@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace ImJustMatt.ExpandedStorage.API
 {
@@ -10,8 +9,6 @@ namespace ImJustMatt.ExpandedStorage.API
 
         /// <summary>Image to display for tab, will search asset folder first and default next.</summary>
         string TabImage { get; set; }
-
-        Texture2D Texture { get; set; }
 
         /// <summary>When specified, tab will only show the listed item/category IDs.</summary>
         HashSet<string> AllowList { get; set; }

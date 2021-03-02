@@ -151,7 +151,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             Instance.Value = null;
         }
 
-        public void AddTab(Texture2D texture, string name)
+        public void AddTab(string tabName, Texture2D texture)
         {
             var lastTab = _tabs.LastOrDefault();
             var i = _tabs.Count;
@@ -163,7 +163,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
                 Game1.pixelZoom)
             {
                 name = i.ToString(),
-                hoverText = name
+                hoverText = tabName
             };
             _tabs.Add(tab);
         }

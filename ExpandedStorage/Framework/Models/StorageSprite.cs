@@ -6,24 +6,38 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
     internal class StorageSprite
     {
+        private static ExpandedStorageAPI _expandedStorageAPI;
+        private readonly int _depth;
+        private readonly int _frames;
+        private readonly string _path;
+        private readonly bool _playerColor;
+
         internal StorageSprite(Storage storage)
         {
-            Texture = !string.IsNullOrWhiteSpace(storage.Image) && ExpandedStorage.AssetLoaders.TryGetValue(storage.ModUniqueId, out var loadTexture)
-                ? loadTexture.Invoke($"assets/{storage.Image}")
-                : null;
-            Width = Texture != null ? Texture.Width / Math.Max(1, storage.Frames) : 16;
-            Height = Texture != null ? storage.PlayerColor ? Texture.Height / 3 : Texture.Height : 32;
-            TileWidth = Width / 16;
-            TileHeight = (storage.Depth is { } depth && depth > 0 ? depth : Height - 16) / 16;
+            _frames = storage.Frames;
+            _depth = storage.Depth;
+            _playerColor = storage.PlayerColor;
+            _path = storage.Path;
         }
 
         /// <summary>Property to access the SpriteSheet image.</summary>
-        internal Texture2D Texture { get; }
+        internal Texture2D Texture
+        {
+            get
+            {
+                var texture = _expandedStorageAPI.GetAsset(_path);
+                Width = texture.Width / Math.Max(1, _frames);
+                Height = _playerColor ? texture.Height / 3 : texture.Height;
+                TileWidth = Width / 16;
+                TileHeight = (_depth is { } depth && depth > 0 ? depth : Height - 16) / 16;
+                return texture;
+            }
+        }
 
-        internal int Width { get; }
-        internal int Height { get; }
-        internal int TileWidth { get; }
-        internal int TileHeight { get; }
+        internal int Width { get; private set; }
+        internal int Height { get; private set; }
+        internal int TileWidth { get; private set; }
+        internal int TileHeight { get; private set; }
 
         internal float ScaleSize
         {
@@ -49,6 +63,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                     }
                 };
             }
+        }
+
+        internal static void Init(ExpandedStorageAPI expandedStorageAPI)
+        {
+            _expandedStorageAPI = expandedStorageAPI;
         }
 
         internal void ForEachPos(int x, int y, Action<Vector2> doAction)

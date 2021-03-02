@@ -38,7 +38,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                               && !chest.playerChoiceColor.Value.Equals(Color.Black)
                               && !HideColorPickerIds.Contains(chest.ParentSheetIndex);
 
-            if (storage.SpriteSheet is {Texture: { }} spriteSheet)
+            if (storage.SpriteSheet is {Texture: { } texture} spriteSheet)
             {
                 currentLidFrame -= chest.startingLidFrame.Value;
                 var startLayer = drawColored && storage.PlayerColor ? 1 : 0;
@@ -49,7 +49,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                     var color = layer % 2 == 0 || !drawColored
                         ? chest.Tint
                         : chest.playerChoiceColor.Value;
-                    spriteBatch.Draw(spriteSheet.Texture,
+                    spriteBatch.Draw(texture,
                         pos + ShakeOffset(chest, -1, 2),
                         new Rectangle(spriteSheet.Width * currentLidFrame, spriteSheet.Height * layer, spriteSheet.Width, spriteSheet.Height),
                         color * alpha,

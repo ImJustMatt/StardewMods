@@ -2,7 +2,6 @@
 using System.Linq;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Framework.Models;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 
@@ -55,9 +54,6 @@ namespace ImJustMatt.ExpandedStorage.Framework
             {
                 // Localized Tab Name
                 storageTab.Value.TabName = _helper.Translation.Get(storageTab.Key).Default(storageTab.Key);
-
-                // Storage Tab Texture
-                storageTab.Value.Texture = _helper.Content.Load<Texture2D>($"assets/{storageTab.Value.TabImage}");
 
                 _expandedStorageAPI.RegisterStorageTab(_manifest, storageTab.Key, storageTab.Value);
             }

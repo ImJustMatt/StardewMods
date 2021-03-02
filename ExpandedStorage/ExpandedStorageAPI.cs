@@ -8,13 +8,16 @@ using ImJustMatt.ExpandedStorage.Framework.Patches;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage
 {
-    public class ExpandedStorageAPI : IExpandedStorageAPI, IAssetEditor
+    public class ExpandedStorageAPI : IExpandedStorageAPI, IAssetLoader, IAssetEditor
     {
+        private readonly IDictionary<string, Texture2D> _assetCache = new Dictionary<string, Texture2D>();
         private readonly IList<string> _contentDirs = new List<string>();
+        private readonly IDictionary<string, IContentPack> _contentPacks = new Dictionary<string, IContentPack>();
         private readonly IModHelper _helper;
         private readonly IMonitor _monitor;
         private readonly IDictionary<string, Storage> _storageConfigs;
@@ -43,9 +46,19 @@ namespace ImJustMatt.ExpandedStorage
         /// <param name="asset">Basic metadata about the asset being loaded.</param>
         public bool CanEdit<T>(IAssetInfo asset)
         {
-            // Load bigCraftable on next tick for vanilla storages
+            var assetPrefix = PathUtilities.NormalizePath("Mods/furyx639.ExpandedStorage");
+
             if (asset.AssetNameEquals("Data/BigCraftablesInformation"))
+            {
+                // Load bigCraftable on next tick for vanilla storages
                 _helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
+            }
+            else if (asset.AssetName.StartsWith(assetPrefix))
+            {
+                // Clear local cache for assets
+                _assetCache.Remove(asset.AssetName);
+            }
+
             return false;
         }
 
@@ -53,6 +66,43 @@ namespace ImJustMatt.ExpandedStorage
         /// <param name="asset">Basic metadata about the asset being loaded.</param>
         public void Edit<T>(IAssetData asset)
         {
+        }
+
+        public bool CanLoad<T>(IAssetInfo asset)
+        {
+            // Provide base versions of ExpandedStorage assets
+            var assetPrefix = PathUtilities.NormalizePath("Mods/furyx639.ExpandedStorage");
+            return asset.AssetName.StartsWith(assetPrefix);
+        }
+
+        public T Load<T>(IAssetInfo asset)
+        {
+            var assetParts = PathUtilities.GetSegments(asset.AssetName).Skip(2).ToList();
+            IContentPack contentPack = null;
+
+            switch (assetParts.ElementAtOrDefault(0))
+            {
+                case "SpriteSheets":
+                    var storageName = assetParts.ElementAtOrDefault(1);
+
+                    if (string.IsNullOrWhiteSpace(storageName)
+                        || !_storageConfigs.TryGetValue(storageName, out var storage)
+                        || !_contentPacks.TryGetValue(storage.ModUniqueId, out contentPack)
+                        || !contentPack.HasFile($"assets/{storage.Image}"))
+                        throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
+                    return contentPack.LoadAsset<T>($"assets/{storage.Image}");
+
+                case "Tabs":
+                    var tabId = $"{assetParts.ElementAtOrDefault(1)}/{assetParts.ElementAtOrDefault(2)}";
+
+                    if (!_tabConfigs.TryGetValue(tabId, out var tab))
+                        throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
+                    return _contentPacks.TryGetValue(tab.ModUniqueId, out contentPack) && contentPack.HasFile($"assets/{tab.TabImage}")
+                        ? contentPack.LoadAsset<T>($"assets/{tab.TabImage}")
+                        : _helper.Content.Load<T>($"assets/{tab.TabImage}");
+            }
+
+            throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
         }
 
         public event EventHandler ReadyToLoad;
@@ -182,7 +232,7 @@ namespace ImJustMatt.ExpandedStorage
             }
 
             // Add asset loader
-            ExpandedStorage.AssetLoaders.Add(contentPack.Manifest.UniqueID, contentPack.LoadAsset<Texture2D>);
+            _contentPacks.Add(contentPack.Manifest.UniqueID, contentPack);
 
             // Generate file for Json Assets
             if (_jsonAssetsAPI != null && !expandedStorages.Keys.All(Storage.VanillaNames.Contains))
@@ -209,11 +259,6 @@ namespace ImJustMatt.ExpandedStorage
             {
                 // Localized Tab Name
                 storageTab.Value.TabName = contentPack.Translation.Get(storageTab.Key).Default(storageTab.Key);
-
-                // Storage Tab Texture
-                storageTab.Value.Texture = contentPack.HasFile($"assets/{storageTab.Value.TabImage}")
-                    ? contentPack.LoadAsset<Texture2D>($"assets/{storageTab.Value.TabImage}")
-                    : _helper.Content.Load<Texture2D>($"assets/{storageTab.Value.TabImage}");
 
                 RegisterStorageTab(contentPack.Manifest, storageTab.Key, storageTab.Value);
             }
@@ -253,6 +298,7 @@ namespace ImJustMatt.ExpandedStorage
             storageConfig = new Storage(storageName);
             storageConfig.CopyFrom(storage);
             storageConfig.ModUniqueId = manifest.UniqueID;
+            storageConfig.Path = $"Mods/furyx639.ExpandedStorage/SpriteSheets/{storageName}";
             _storageConfigs.Add(storageName, storageConfig);
         }
 
@@ -269,6 +315,7 @@ namespace ImJustMatt.ExpandedStorage
                 var tab = new StorageTab();
                 tab.CopyFrom(storageTab);
                 tab.ModUniqueId = manifest.UniqueID;
+                tab.Path = $"Mods/furyx639.ExpandedStorage/Tabs/{tabId}";
                 _tabConfigs.Add(tabId, tab);
             }
         }
@@ -384,6 +431,14 @@ namespace ImJustMatt.ExpandedStorage
                 if (!storageConfig.ObjectIds.Contains(bigCraftable.Key))
                     storageConfig.ObjectIds.Add(bigCraftable.Key);
             }
+        }
+
+        internal Texture2D GetAsset(string path)
+        {
+            if (_assetCache.TryGetValue(path, out var texture)) return texture;
+            texture = _helper.Content.Load<Texture2D>(path, ContentSource.GameContent);
+            _assetCache.Add(path, texture);
+            return texture;
         }
 
         private void InvokeAll(EventHandler eventHandler)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework;
@@ -9,7 +8,6 @@ using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.Patches;
 using ImJustMatt.ExpandedStorage.Framework.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -35,9 +33,6 @@ namespace ImJustMatt.ExpandedStorage
         /// <summary>Dictionary of Expanded Storage tabs</summary>
         private static readonly IDictionary<string, StorageTab> StorageTabs = new Dictionary<string, StorageTab>();
 
-        /// <summary>Dictionary of Expanded Storage content pack asset loaders</summary>
-        public static readonly IDictionary<string, Func<string, Texture2D>> AssetLoaders = new Dictionary<string, Func<string, Texture2D>>();
-
         /// <summary>Tracks previously held chest lid frame.</summary>
         private readonly PerScreen<int> _currentLidFrame = new();
 
@@ -54,7 +49,7 @@ namespace ImJustMatt.ExpandedStorage
         private ExpandedStorageAPI _expandedStorageAPI;
 
         /// <summary>Returns ExpandedStorageConfig by item name.</summary>
-        public static Storage GetStorage(object context)
+        internal static Storage GetStorage(object context)
         {
             var storage = Storages
                 .Select(c => c.Value)
@@ -69,7 +64,7 @@ namespace ImJustMatt.ExpandedStorage
         }
 
         /// <summary>Returns ExpandedStorageTab by tab name.</summary>
-        public static StorageTab GetTab(string modUniqueId, string tabName)
+        internal static StorageTab GetTab(string modUniqueId, string tabName)
         {
             return StorageTabs
                 .Where(t => t.Key.EndsWith($"/{tabName}"))
@@ -92,12 +87,14 @@ namespace ImJustMatt.ExpandedStorage
 
             _expandedStorageAPI = new ExpandedStorageAPI(Helper, Monitor, Storages, StorageTabs);
             _contentLoader = new ContentLoader(Helper, ModManifest, Monitor, _config, _expandedStorageAPI);
+            helper.Content.AssetLoaders.Add(_expandedStorageAPI);
             helper.Content.AssetEditors.Add(_expandedStorageAPI);
 
-            ChestExtensions.Init(helper.Reflection);
-            MenuViewModel.Init(helper.Events, helper.Input, _config);
+            StorageSprite.Init(_expandedStorageAPI);
+            MenuViewModel.Init(_expandedStorageAPI, helper.Events, helper.Input, _config);
             MenuModel.Init(_config);
             HSLColorPicker.Init(helper.Content);
+            ChestExtensions.Init(helper.Reflection);
 
             // Events
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;

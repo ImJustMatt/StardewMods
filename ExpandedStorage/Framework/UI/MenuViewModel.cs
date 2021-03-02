@@ -20,6 +20,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
     {
         private static readonly PerScreen<MenuViewModel> Instance = new();
 
+        private static ExpandedStorageAPI _expandedStorageAPI;
         private static IModEvents _events;
         private static IInputHelper _inputHelper;
         private static ModConfig _config;
@@ -68,7 +69,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
 
             if (_model.Storage.Option("ShowTabs", true) == StorageConfig.Choice.Enable && _model.Storage.Tabs.Any())
             {
-                foreach (var tab in _model.StorageTabs) _view.AddTab(tab.Texture, tab.TabName);
+                foreach (var tab in _model.StorageTabs) _view.AddTab(tab.TabName, _expandedStorageAPI.GetAsset(tab.Path));
                 _view.CurrentTab = _model.CurrentTab;
             }
 
@@ -95,8 +96,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             Instance.Value.OnItemChanged(Instance.Value, null);
         }
 
-        internal static void Init(IModEvents events, IInputHelper inputHelper, ModConfig config)
+        internal static void Init(ExpandedStorageAPI expandedStorageAPI, IModEvents events, IInputHelper inputHelper, ModConfig config)
         {
+            _expandedStorageAPI = expandedStorageAPI;
             _events = events;
             _inputHelper = inputHelper;
             _config = config;

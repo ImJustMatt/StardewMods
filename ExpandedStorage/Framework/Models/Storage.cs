@@ -39,6 +39,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>The UniqueId of the Content Pack that storage data was loaded from.</summary>
         internal string ModUniqueId = "";
 
+        /// <summary>The Asset path to the mod's SpriteSheets.</summary>
+        internal string Path = "";
+
         internal Storage() : this("")
         {
         }
@@ -131,6 +134,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                 Item item when ExcludeModDataKeys.Any(item.modData.ContainsKey) => false,
                 AdventureGuild => false,
                 LibraryMuseum => false,
+                // Junimo Hut
                 GameLocation => SpecialChestType == "MiniShippingBin",
                 ShippingBin => SpecialChestType == "MiniShippingBin",
                 Chest chest when chest.fridge.Value => IsFridge,

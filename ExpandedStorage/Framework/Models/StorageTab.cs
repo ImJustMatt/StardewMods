@@ -1,9 +1,7 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
-using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -15,6 +13,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>The UniqueId of the Content Pack that storage data was loaded from.</summary>
         protected internal string ModUniqueId = "";
 
+        /// <summary>The Asset path to the mod's Tab Image.</summary>
+        internal string Path = "";
+
         internal StorageTab()
         {
         }
@@ -25,9 +26,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             AllowList = new HashSet<string>(allowList);
         }
 
-        public Texture2D? Texture { get; set; }
-        public string? TabName { get; set; }
-        public string? TabImage { get; set; }
+        public string TabName { get; set; }
+        public string TabImage { get; set; }
         public HashSet<string> AllowList { get; set; } = new();
         public HashSet<string> BlockList { get; set; } = new();
 
@@ -48,9 +48,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
         internal void CopyFrom(IStorageTab storageTab)
         {
-            TabName = storageTab.TabName ?? TabName;
+            TabName = storageTab.TabName;
             TabImage = storageTab.TabImage;
-            Texture = storageTab.Texture;
 
             foreach (var allowItem in storageTab.AllowList)
             {
