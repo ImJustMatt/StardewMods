@@ -45,7 +45,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 AccessTools.Method(typeof(Object), nameof(Object.drawPlacementBounds)),
                 new HarmonyMethod(GetType(), nameof(DrawPlacementBoundsPrefix))
             );
-            
+
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.maximumStackSize)),
                 new HarmonyMethod(GetType(), nameof(MaximumStackSizePrefix))
@@ -197,7 +197,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             return false;
         }
-        
+
         /// <summary>Disallow stacking carried chests.</summary>
         public static bool MaximumStackSizePrefix(Object __instance, ref int __result)
         {
