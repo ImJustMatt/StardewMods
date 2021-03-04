@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
@@ -25,7 +26,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         {
             get
             {
-                var texture = _expandedStorageAPI.GetAsset(_path);
+                var texture = Game1.content.Load<Texture2D>(_path);
                 Width = texture.Width / Math.Max(1, _frames);
                 Height = _playerColor ? texture.Height / 3 : texture.Height;
                 TileWidth = Width / 16;

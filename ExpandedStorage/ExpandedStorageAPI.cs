@@ -5,7 +5,6 @@ using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Framework.Integrations;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.Patches;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -15,7 +14,6 @@ namespace ImJustMatt.ExpandedStorage
 {
     public class ExpandedStorageAPI : IExpandedStorageAPI, IAssetLoader, IAssetEditor
     {
-        private readonly IDictionary<string, Texture2D> _assetCache = new Dictionary<string, Texture2D>();
         private readonly IList<string> _contentDirs = new List<string>();
         private readonly IDictionary<string, IContentPack> _contentPacks = new Dictionary<string, IContentPack>();
         private readonly IModHelper _helper;
@@ -40,7 +38,6 @@ namespace ImJustMatt.ExpandedStorage
 
             // Events
             _helper.Events.GameLoop.GameLaunched += OnGameLaunched;
-            _helper.Events.GameLoop.DayStarted += OnDayStarted;
         }
 
         /// <summary>Get whether this instance can load the initial version of the given asset.</summary>
@@ -359,14 +356,6 @@ namespace ImJustMatt.ExpandedStorage
                 _monitor.Log("Json Assets not detected, Expanded Storages content will not be loaded", LogLevel.Warn);
             _helper.Events.GameLoop.UpdateTicked += OnReadyToLoad;
         }
-        
-        /// <summary>Clear local asset cache on day started</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
-        private void OnDayStarted(object sender, DayStartedEventArgs e)
-        {
-            _assetCache.Clear();
-        }
 
         /// <summary>Load Expanded Storage content packs.</summary>
         /// <param name="sender">The event sender.</param>
@@ -434,14 +423,6 @@ namespace ImJustMatt.ExpandedStorage
                 if (!storageConfig.ObjectIds.Contains(bigCraftable.Key))
                     storageConfig.ObjectIds.Add(bigCraftable.Key);
             }
-        }
-
-        internal Texture2D GetAsset(string path)
-        {
-            if (_assetCache.TryGetValue(path, out var texture)) return texture;
-            texture = _helper.Content.Load<Texture2D>(path, ContentSource.GameContent);
-            _assetCache.Add(path, texture);
-            return texture;
         }
 
         private void InvokeAll(EventHandler eventHandler)

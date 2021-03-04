@@ -5,6 +5,7 @@ using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -69,7 +70,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
 
             if (_model.Storage.Option("ShowTabs", true) == StorageConfig.Choice.Enable && _model.Storage.Tabs.Any())
             {
-                foreach (var tab in _model.StorageTabs) _view.AddTab(tab.TabName, _expandedStorageAPI.GetAsset(tab.Path));
+                foreach (var tab in _model.StorageTabs) _view.AddTab(tab.TabName, Game1.content.Load<Texture2D>(tab.Path));
                 _view.CurrentTab = _model.CurrentTab;
             }
 
