@@ -1,0 +1,30 @@
+﻿{
+  "Name": "Garbage Can",
+  "Description": "You put garbage in this.",
+  "NameLocalization": {
+    //"es": "", //Spanish
+    //"ko": "",
+    //"de": "", //German
+    //"fr": "", //French
+    //"hu": "", //Hungarian
+    //"it": "", //Italian
+    //"ja": "", //Japanese
+    //"pt": "", //Portuguese
+    //"ru": "", //Russian
+    //"tr": "", //Turkish
+    //"zh": "" //Chinese (Simplified)
+  },
+  "DescriptionLocalization": {
+    //"es": "", //Spanish
+    //"ko": "",
+    //"de": "", //German
+    //"fr": "", //French
+    //"hu": "", //Hungarian
+    //"it": "", //Italian
+    //"ja": "", //Japanese
+    //"pt": "", //Portuguese
+    //"ru": "", //Russian
+    //"tr": "", //Turkish
+    //"zh": "" //Chinese (Simplified)
+  }
+}
