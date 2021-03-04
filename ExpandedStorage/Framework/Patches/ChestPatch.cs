@@ -84,15 +84,24 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (storage == null)
                 return true;
 
-            __instance.GetMutex().RequestLock(delegate
-            {
-                __instance.frameCounter.Value = 5;
-                Game1.playSound(storage.OpenSound);
-                Game1.player.Halt();
-                Game1.player.freezePause = 1000;
-            });
-
             __result = true;
+            
+            if (storage.SpecialChestType == "MiniShippingBin")
+            {
+                Game1.playSound(storage.OpenSound);
+                __instance.ShowMenu();
+            }
+            else
+            {
+                __instance.GetMutex().RequestLock(delegate
+                {
+                    __instance.frameCounter.Value = 5;
+                    Game1.playSound(storage.OpenSound);
+                    Game1.player.Halt();
+                    Game1.player.freezePause = 1000;
+                });
+            }
+            
             return false;
         }
 
