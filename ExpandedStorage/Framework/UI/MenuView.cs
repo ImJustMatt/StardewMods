@@ -143,7 +143,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
         internal static string SearchText =>
             Instance.Value == null || Instance.Value._screenId != Context.ScreenId
                 ? null
-                : Instance.Value._searchField.Text;
+                : Instance.Value._searchField?.Text;
 
         /// <summary>Unregister Event Handling</summary>
         public void Dispose()
