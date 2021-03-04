@@ -1,5 +1,14 @@
 ﻿# Release Notes
 
+## 1.6.2
+
+- Optimized image caching
+- Fixed Mini-Shipping Bin not opening
+- Fixed chests with less than 12 item slots not loading
+- Fixed crash when GMCM is not installed
+- Fixed crash when search bar is disabled
+- Prevent right-click on Carryable chests in inventory
+
 ## 1.6.1
 
 - Added Content Patcher support for SpriteSheets and Tab Images
