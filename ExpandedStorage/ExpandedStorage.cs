@@ -172,7 +172,7 @@ namespace ImJustMatt.ExpandedStorage
             if (removed.Value != null)
             {
                 var storage = GetStorage(removed.Value);
-                if (storage?.SpriteSheet is {Texture: { }} spriteSheet)
+                if (storage?.SpriteSheet is { } spriteSheet && (spriteSheet.TileWidth > 1 || spriteSheet.TileHeight > 1))
                 {
                     var x = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr)
                         ? int.Parse(xStr)
