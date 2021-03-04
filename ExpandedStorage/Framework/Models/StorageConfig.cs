@@ -33,6 +33,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowSearchBar", "ShowTabs"};
         public HashSet<string> DisabledFeatures { get; set; } = new();
         public IList<string> Tabs { get; set; } = new List<string>();
+        internal static IList<string> DefaultTabs => _defaultConfig?.Tabs;
 
         internal void SetDefault()
         {

@@ -59,11 +59,20 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             _skippedRows = 0;
             _searchText = "";
 
-            if (Storage?.Tabs != null)
+            if (Storage?.Tabs.Count > 0)
+            {
                 StorageTabs = Storage.Tabs
                     .Select(t => ExpandedStorage.GetTab(Storage.ModUniqueId, t))
                     .Where(t => t != null)
                     .ToList();
+            }
+            else if (Storage?.Option("ShowTabs", true) == StorageConfig.Choice.Enable && StorageConfig.DefaultTabs?.Count > 0)
+            {
+                StorageTabs = StorageConfig.DefaultTabs
+                    .Select(t => ExpandedStorage.GetTab(Storage.ModUniqueId, t))
+                    .Where(t => t != null)
+                    .ToList();
+            }
 
             RegisterEvents();
         }

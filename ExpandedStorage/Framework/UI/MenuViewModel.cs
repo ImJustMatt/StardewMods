@@ -68,7 +68,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             _events.Input.CursorMoved += OnCursorMoved;
             _events.Input.MouseWheelScrolled += OnMouseWheelScrolled;
 
-            if (_model.Storage.Option("ShowTabs", true) == StorageConfig.Choice.Enable && _model.Storage.Tabs.Any())
+            if (_model.Storage.Option("ShowTabs", true) == StorageConfig.Choice.Enable && _model.StorageTabs.Any())
             {
                 foreach (var tab in _model.StorageTabs) _view.AddTab(tab.TabName, Game1.content.Load<Texture2D>(tab.Path));
                 _view.CurrentTab = _model.CurrentTab;
