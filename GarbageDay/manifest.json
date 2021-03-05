@@ -6,7 +6,7 @@
   "UniqueID": "furyx639.GarbageDay",
   "EntryDll": "GarbageDay.dll",
   "MinimumApiVersion": "3.9.0",
-  "UpdateKeys": [ "Nexus:????" ],
+  "UpdateKeys": [ "Nexus:8204" ],
   "Dependencies": [
     {
       "UniqueID": "furyx639.ExpandedStorage",
