@@ -22,7 +22,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                 { } capacity when capacity < 12 => capacity,
                 { } capacity => Math.Min(72, capacity.RoundUp(12)) // Specific
             };
-            
+
             Rows = (int) Math.Ceiling(Capacity / 12f);
 
             Padding = storage.Option("ShowSearchBar") == StorageConfig.Choice.Enable ? 24 : 0;

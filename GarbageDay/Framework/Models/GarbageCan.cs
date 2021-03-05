@@ -53,27 +53,29 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                     Game1.player.changeFriendship(5, npc);
                     _multiplayer.globalChatInfoMessage("LinusTrashCan");
                 }
-                else switch (npc.Age)
-                {
-                    case 2:
-                        npc.doEmote(28);
-                        npc.setNewDialogue(Game1.content.LoadString("Data\\ExtraDialogue:Town_DumpsterDiveComment_Child"), true, true);
-                        Game1.player.changeFriendship(-25, npc);
-                        break;
-                    case 1:
-                        npc.doEmote(8);
-                        npc.setNewDialogue(Game1.content.LoadString("Data\\ExtraDialogue:Town_DumpsterDiveComment_Teen"), true, true);
-                        Game1.player.changeFriendship(-25, npc);
-                        break;
-                    default:
-                        npc.doEmote(12);
-                        npc.setNewDialogue(Game1.content.LoadString("Data\\ExtraDialogue:Town_DumpsterDiveComment_Adult"), true, true);
-                        Game1.player.changeFriendship(-25, npc);
-                        break;
-                }
+                else
+                    switch (npc.Age)
+                    {
+                        case 2:
+                            npc.doEmote(28);
+                            npc.setNewDialogue(Game1.content.LoadString("Data\\ExtraDialogue:Town_DumpsterDiveComment_Child"), true, true);
+                            Game1.player.changeFriendship(-25, npc);
+                            break;
+                        case 1:
+                            npc.doEmote(8);
+                            npc.setNewDialogue(Game1.content.LoadString("Data\\ExtraDialogue:Town_DumpsterDiveComment_Teen"), true, true);
+                            Game1.player.changeFriendship(-25, npc);
+                            break;
+                        default:
+                            npc.doEmote(12);
+                            npc.setNewDialogue(Game1.content.LoadString("Data\\ExtraDialogue:Town_DumpsterDiveComment_Adult"), true, true);
+                            Game1.player.changeFriendship(-25, npc);
+                            break;
+                    }
+
                 Game1.drawDialogue(npc);
             }
-            
+
             // Drop Item
             if (_dropQiBeans)
             {
@@ -81,7 +83,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                 Game1.createItemDebris(new Object(890, 1), origin, 2, Location, (int) origin.Y + 64);
                 return false;
             }
-            
+
             // Give Hat
             if (_doubleMega)
             {
@@ -90,10 +92,12 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                 Game1.player.addItemByMenuIfNecessary(new Hat(66));
                 return false;
             }
+
             if (_mega)
             {
                 Location!.playSound("crit");
             }
+
             return true;
         }
 
@@ -103,14 +107,14 @@ namespace ImJustMatt.GarbageDay.Framework.Models
             _garbageChecked = false;
             _dropQiBeans = false;
             Chest.playerChoiceColor.Value = Color.Black;
-            
-            var garbageRandom = new Random((int)Game1.uniqueIDForThisGame / 2 + (int)Game1.stats.DaysPlayed + 777 + WhichCan * 77);
+
+            var garbageRandom = new Random((int) Game1.uniqueIDForThisGame / 2 + (int) Game1.stats.DaysPlayed + 777 + WhichCan * 77);
             var prewarm = garbageRandom.Next(0, 100);
             for (var k = 0; k < prewarm; k++)
             {
                 garbageRandom.NextDouble();
             }
-        
+
             prewarm = garbageRandom.Next(0, 100);
             for (var j = 0; j < prewarm; j++)
             {
@@ -121,7 +125,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
             _doubleMega = Game1.stats.getStat("trashCansChecked") > 20 && garbageRandom.NextDouble() < 0.002;
             if (_doubleMega || !_mega && !(garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck))
                 return;
-            
+
             var item = garbageRandom.Next(10) switch
             {
                 0 => 168,
@@ -136,7 +140,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                 9 => 153,
                 _ => 168
             };
-            
+
             switch (WhichCan)
             {
                 case 3 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
@@ -165,11 +169,13 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                     {
                         item = 167;
                     }
+
                     if (Utility.doesMasterPlayerHaveMailReceivedButNotMailForTomorrow("ccMovieTheater")
                         && !Utility.doesMasterPlayerHaveMailReceivedButNotMailForTomorrow("ccMovieTheaterJoja"))
                     {
                         item = !(garbageRandom.NextDouble() < 0.25) ? 270 : 809;
                     }
+
                     break;
                 }
             }

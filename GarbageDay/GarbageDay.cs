@@ -63,13 +63,13 @@ namespace ImJustMatt.GarbageDay
                         };
                         GarbageCans.Add(garbageCan);
                     }
-                    
+
                     // Remove Base
                     if ((layer.Tiles[x, y]?.TileSheet.Id.Equals("Town") ?? false) && layer.Tiles[x, y].TileIndex == 78)
                     {
                         layer.Tiles[x, y] = null;
                     }
-                    
+
                     // Remove Lid
                     layer = map.Data.GetLayer("Front");
                     if ((layer.Tiles[x, y]?.TileSheet.Id.Equals("Town") ?? false) && layer.Tiles[x, y].TileIndex == 46)
@@ -104,17 +104,11 @@ namespace ImJustMatt.GarbageDay
         {
             // Load Expanded Storage content
             _expandedStorageAPI = Helper.ModRegistry.GetApi<IExpandedStorageAPI>("furyx639.ExpandedStorage");
-            _expandedStorageAPI.ReadyToLoad += delegate
-            {
-                _expandedStorageAPI.LoadContentPack(Path.Combine(Helper.DirectoryPath, "assets", "GarbageCan"));
-            };
+            _expandedStorageAPI.ReadyToLoad += delegate { _expandedStorageAPI.LoadContentPack(Path.Combine(Helper.DirectoryPath, "assets", "GarbageCan")); };
 
             // Get Sheet Index for object
             var jsonAssetsAPI = Helper.ModRegistry.GetApi<IJsonAssetsAPI>("spacechase0.JsonAssets");
-            jsonAssetsAPI.IdsAssigned += delegate
-            {
-                _objectId = jsonAssetsAPI.GetBigCraftableId("Garbage Can");
-            };
+            jsonAssetsAPI.IdsAssigned += delegate { _objectId = jsonAssetsAPI.GetBigCraftableId("Garbage Can"); };
         }
 
         /// <summary>Initiate adding garbage can spots</summary>

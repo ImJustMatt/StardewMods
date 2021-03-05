@@ -19,7 +19,7 @@ namespace ImJustMatt.GarbageDay.Framework.Patches
                 AccessTools.Method(typeof(Chest), nameof(Chest.performToolAction)),
                 new HarmonyMethod(GetType(), nameof(PerformToolActionPrefix))
             );
-            
+
             // Patch NPC reaction to chest open
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.ShowMenu)),

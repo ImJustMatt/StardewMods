@@ -85,7 +85,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 return true;
 
             __result = true;
-            
+
             if (storage.SpecialChestType == "MiniShippingBin")
             {
                 Game1.playSound(storage.OpenSound);
@@ -101,7 +101,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     Game1.player.freezePause = 1000;
                 });
             }
-            
+
             return false;
         }
 
