@@ -12,6 +12,12 @@
         <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="3.2.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ExpandedStorage\ExpandedStorage.csproj">
+          <Private>False</Private>
+      </ProjectReference>
+    </ItemGroup>
+
     <Import Project="..\build\common.targets" />
     <Import Project="..\Common\Common.projitems" Label="Shared" />
 </Project>

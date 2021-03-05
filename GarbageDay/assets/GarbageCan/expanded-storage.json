@@ -1,0 +1,10 @@
+﻿{
+  "Garbage Can": {
+    "Image": "GarbageCan.png",
+    "Frames": 1,
+    "PlayerColor": true,
+    "Capacity": 7,
+    "DisabledFeatures": ["CanCarry", "ShowSearchBar", "ShowColorPicker", "ShowTabs", "VacuumItems"],
+    "OpenSound": "trashcan"
+  }
+}

@@ -17,6 +17,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         {
             {"AccessCarried", "Allow storage to be access while carried"},
             {"CanCarry", "Allow storage to be picked up"},
+            {"ShowColorPicker", "Show color toggle and bars for colorable storages"},
             {"ShowSearchBar", "Show search bar above chest inventory"},
             {"ShowTabs", "Show tabs below chest inventory"},
             {"VacuumItems", "Allow storage to automatically collect dropped items"}
@@ -28,12 +29,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         internal StorageMenu Menu => new(Capacity == 0 ? _defaultConfig : this);
 
         internal int ActualCapacity => Capacity == 0 ? _defaultConfig.Capacity : Capacity;
+        internal static IList<string> DefaultTabs => _defaultConfig?.Tabs;
 
         public int Capacity { get; set; }
-        public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowSearchBar", "ShowTabs"};
+        public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowColorPicker", "ShowSearchBar", "ShowTabs"};
         public HashSet<string> DisabledFeatures { get; set; } = new();
         public IList<string> Tabs { get; set; } = new List<string>();
-        internal static IList<string> DefaultTabs => _defaultConfig?.Tabs;
 
         internal void SetDefault()
         {
@@ -68,18 +69,24 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         {
             if (config.Capacity != 0) Capacity = config.Capacity;
 
-            foreach (var enabledFeature in config.EnabledFeatures)
+            if (config.EnabledFeatures != null)
             {
-                SetOption(enabledFeature, Choice.Enable);
+                foreach (var enabledFeature in config.EnabledFeatures)
+                {
+                    SetOption(enabledFeature, Choice.Enable);
+                }
             }
 
-            foreach (var disabledFeature in config.DisabledFeatures)
+            if (config.DisabledFeatures != null)
             {
-                SetOption(disabledFeature, Choice.Disable);
+                foreach (var disabledFeature in config.DisabledFeatures)
+                {
+                    SetOption(disabledFeature, Choice.Disable);
+                }
             }
 
-            if (config.Tabs.Any())
-                Tabs.Clear();
+            if (config.Tabs == null || !config.Tabs.Any()) return;
+            Tabs.Clear();
             foreach (var tab in config.Tabs)
             {
                 Tabs.Add(tab);

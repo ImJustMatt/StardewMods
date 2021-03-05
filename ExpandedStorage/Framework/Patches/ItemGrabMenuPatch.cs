@@ -204,14 +204,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             if (__instance.chestColorPicker != null)
             {
-                if (!storage.PlayerColor)
+                if (!storage.PlayerColor || storage.Option("ShowColorPicker", true) != StorageConfig.Choice.Enable)
                     __instance.colorPickerToggleButton = null;
                 __instance.chestColorPicker = null;
                 __instance.discreteColorPickerCC = null;
                 __instance.populateClickableComponentList();
                 __instance.SetupBorderNeighbors();
             }
-            else if (storage.PlayerColor)
+            else if (storage.PlayerColor && storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable)
             {
                 __instance.colorPickerToggleButton = new ClickableTextureComponent(
                     new Rectangle(__instance.xPositionOnScreen + __instance.width,
@@ -259,7 +259,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (storage == null || __instance.context is ShippingBin)
                 return;
 
-            __instance.chestColorPicker = storage.PlayerColor ? MenuView.ColorPicker : null;
+            __instance.chestColorPicker = storage.PlayerColor && storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable ? MenuView.ColorPicker : null;
         }
 
         /// <summary>Set color picker to HSL Color Picker.</summary>
@@ -269,7 +269,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (storage == null || __instance.context is ShippingBin)
                 return;
 
-            __instance.chestColorPicker = storage.PlayerColor ? MenuView.ColorPicker : null;
+            __instance.chestColorPicker = storage.PlayerColor && storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable ? MenuView.ColorPicker : null;
         }
 
         /// <summary>Reposition side buttons with offset.</summary>

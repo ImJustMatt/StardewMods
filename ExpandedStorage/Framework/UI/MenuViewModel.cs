@@ -52,7 +52,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
                 new MenuView.Options
                 {
                     ShowSearch = _model.Storage.Option("ShowSearchBar", true) == StorageConfig.Choice.Enable,
-                    ShowColor = chest != null && _model.Storage.PlayerColor,
+                    ShowColor = chest != null && _model.Storage.PlayerColor && _model.Storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable,
                     Chest = chest,
                     Text = _model.SearchText
                 },

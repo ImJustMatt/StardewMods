@@ -180,7 +180,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             if (!IsFridge) IsFridge = storage.IsFridge;
             if (SpecialChestType == "None") SpecialChestType = storage.SpecialChestType;
             if (OpenSound == "openChest") OpenSound = storage.OpenSound;
-            if (CarrySound == "") CarrySound = storage.CarrySound;
+            if (string.IsNullOrWhiteSpace(CarrySound)) CarrySound = storage.CarrySound;
             if (PlaceSound == "axe") PlaceSound = storage.PlaceSound;
             if (IsPlaceable) IsPlaceable = storage.IsPlaceable;
             if (!string.IsNullOrWhiteSpace(storage.Image)) Image = storage.Image;
@@ -188,18 +188,20 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             PlayerColor = storage.PlayerColor;
             if (Depth == 0) Depth = storage.Depth;
 
-            if (storage.AllowList.Any())
+            if (storage.AllowList != null && storage.AllowList.Any())
                 AllowList = new HashSet<string>(storage.AllowList);
 
-            if (storage.BlockList.Any())
+            if (storage.BlockList != null && storage.BlockList.Any())
                 BlockList = new HashSet<string>(storage.BlockList);
 
-            if (storage.ModData.Any())
-                ModData.Clear();
-            foreach (var modData in storage.ModData)
+            if (storage.ModData != null && storage.ModData.Any())
             {
-                if (!ModData.ContainsKey(modData.Key))
-                    ModData.Add(modData.Key, modData.Value);
+                ModData.Clear();
+                foreach (var modData in storage.ModData)
+                {
+                    if (!ModData.ContainsKey(modData.Key))
+                        ModData.Add(modData.Key, modData.Value);
+                }
             }
 
             CopyFrom((IStorageConfig) storage);
