@@ -13,7 +13,7 @@ namespace ImJustMatt.Common.Extensions
         private const string CategoryArtifact = "category_artifact";
         private const string DonateMuseum = "donate_museum";
         private const string DonateBundle = "donate_bundle";
-        
+
         public static bool MatchesTagExt(this Item item, string search)
         {
             return item.MatchesTagExt(search, true);

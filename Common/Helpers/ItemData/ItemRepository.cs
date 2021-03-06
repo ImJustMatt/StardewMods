@@ -10,6 +10,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Tools;
 using Object = StardewValley.Object;
+
 // ReSharper disable All
 
 namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
@@ -57,6 +58,7 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
                     if (quality != Tool.iridium)
                         yield return this.TryCreate(ItemType.Tool, ToolFactory.fishingRod, _ => ToolFactory.getToolFromDescription(ToolFactory.fishingRod, quality));
                 }
+
                 yield return this.TryCreate(ItemType.Tool, this.CustomIDOffset, _ => new MilkPail()); // these don't have any sort of ID, so we'll just assign some arbitrary ones
                 yield return this.TryCreate(ItemType.Tool, this.CustomIDOffset + 1, _ => new Shears());
                 yield return this.TryCreate(ItemType.Tool, this.CustomIDOffset + 2, _ => new Pan());
@@ -85,11 +87,11 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
 
                 // wallpapers
                 for (int id = 0; id < 112; id++)
-                    yield return this.TryCreate(ItemType.Wallpaper, id, p => new Wallpaper(p.ID) { Category = Object.furnitureCategory });
+                    yield return this.TryCreate(ItemType.Wallpaper, id, p => new Wallpaper(p.ID) {Category = Object.furnitureCategory});
 
                 // flooring
                 for (int id = 0; id < 56; id++)
-                    yield return this.TryCreate(ItemType.Flooring, id, p => new Wallpaper(p.ID, isFloor: true) { Category = Object.furnitureCategory });
+                    yield return this.TryCreate(ItemType.Flooring, id, p => new Wallpaper(p.ID, isFloor: true) {Category = Object.furnitureCategory});
 
                 // equipment
                 foreach (int id in this.TryLoad<int, string>("Data\\Boots").Keys)
@@ -101,7 +103,7 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
                 foreach (int id in this.TryLoad<int, string>("Data\\weapons").Keys)
                 {
                     yield return this.TryCreate(ItemType.Weapon, id, p => (p.ID >= 32 && p.ID <= 34)
-                        ? (Item)new Slingshot(p.ID)
+                        ? (Item) new Slingshot(p.ID)
                         : new MeleeWeapon(p.ID)
                     );
                 }
@@ -145,9 +147,9 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
                         yield return this.TryCreate(ItemType.Object, id, p =>
                         {
                             return item = (p.ID == 812 // roe
-                                ? new ColoredObject(p.ID, 1, Color.White)
-                                : new Object(p.ID, 1)
-                            );
+                                    ? new ColoredObject(p.ID, 1, Color.White)
+                                    : new Object(p.ID, 1)
+                                );
                         });
                         if (item == null)
                             continue;
@@ -162,8 +164,8 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
                                 {
                                     Name = $"{item.Name} Wine",
                                     Price = item.Price * 3,
-                                    preserve = { Object.PreserveType.Wine },
-                                    preservedParentSheetIndex = { item.ParentSheetIndex }
+                                    preserve = {Object.PreserveType.Wine},
+                                    preservedParentSheetIndex = {item.ParentSheetIndex}
                                 });
 
                                 // jelly
@@ -171,8 +173,8 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
                                 {
                                     Name = $"{item.Name} Jelly",
                                     Price = 50 + item.Price * 2,
-                                    preserve = { Object.PreserveType.Jelly },
-                                    preservedParentSheetIndex = { item.ParentSheetIndex }
+                                    preserve = {Object.PreserveType.Jelly},
+                                    preservedParentSheetIndex = {item.ParentSheetIndex}
                                 });
                                 break;
 
@@ -182,9 +184,9 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
                                 yield return this.TryCreate(ItemType.Object, this.CustomIDOffset * 4 + item.ParentSheetIndex, _ => new Object(350, 1)
                                 {
                                     Name = $"{item.Name} Juice",
-                                    Price = (int)(item.Price * 2.25d),
-                                    preserve = { Object.PreserveType.Juice },
-                                    preservedParentSheetIndex = { item.ParentSheetIndex }
+                                    Price = (int) (item.Price * 2.25d),
+                                    preserve = {Object.PreserveType.Juice},
+                                    preservedParentSheetIndex = {item.ParentSheetIndex}
                                 });
 
                                 // pickled
@@ -192,8 +194,8 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
                                 {
                                     Name = $"Pickled {item.Name}",
                                     Price = 50 + item.Price * 2,
-                                    preserve = { Object.PreserveType.Pickle },
-                                    preservedParentSheetIndex = { item.ParentSheetIndex }
+                                    preserve = {Object.PreserveType.Pickle},
+                                    preservedParentSheetIndex = {item.ParentSheetIndex}
                                 });
                                 break;
 
@@ -204,7 +206,7 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
                                     Object honey = new Object(Vector2.Zero, 340, $"{item.Name} Honey", false, true, false, false)
                                     {
                                         Name = $"{item.Name} Honey",
-                                        preservedParentSheetIndex = { item.ParentSheetIndex }
+                                        preservedParentSheetIndex = {item.ParentSheetIndex}
                                     };
                                     honey.Price += item.Price * 2;
                                     return honey;
@@ -213,50 +215,50 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers.ItemData
 
                             // roe and aged roe (derived from FishPond.GetFishProduce)
                             case Object.sellAtFishShopCategory when item.ParentSheetIndex == 812:
+                            {
+                                this.GetRoeContextTagLookups(out HashSet<string> simpleTags, out List<List<string>> complexTags);
+
+                                foreach (var pair in Game1.objectInformation)
                                 {
-                                    this.GetRoeContextTagLookups(out HashSet<string> simpleTags, out List<List<string>> complexTags);
+                                    // get input
+                                    Object input = this.TryCreate(ItemType.Object, pair.Key, p => new Object(p.ID, 1))?.Item as Object;
+                                    var inputTags = input?.GetContextTags();
+                                    if (inputTags?.Any() != true)
+                                        continue;
 
-                                    foreach (var pair in Game1.objectInformation)
+                                    // check if roe-producing fish
+                                    if (!inputTags.Any(tag => simpleTags.Contains(tag)) && !complexTags.Any(set => set.All(tag => input.HasContextTag(tag))))
+                                        continue;
+
+                                    // yield roe
+                                    Object roe = null;
+                                    Color color = this.GetRoeColor(input);
+                                    yield return this.TryCreate(ItemType.Object, this.CustomIDOffset * 7 + item.ParentSheetIndex, _ =>
                                     {
-                                        // get input
-                                        Object input = this.TryCreate(ItemType.Object, pair.Key, p => new Object(p.ID, 1))?.Item as Object;
-                                        var inputTags = input?.GetContextTags();
-                                        if (inputTags?.Any() != true)
-                                            continue;
-
-                                        // check if roe-producing fish
-                                        if (!inputTags.Any(tag => simpleTags.Contains(tag)) && !complexTags.Any(set => set.All(tag => input.HasContextTag(tag))))
-                                            continue;
-                                        
-                                        // yield roe
-                                        Object roe = null;
-                                        Color color = this.GetRoeColor(input);
-                                        yield return this.TryCreate(ItemType.Object, this.CustomIDOffset * 7 + item.ParentSheetIndex, _ =>
+                                        roe = new ColoredObject(812, 1, color)
                                         {
-                                            roe = new ColoredObject(812, 1, color)
-                                            {
-                                                name = $"{input.Name} Roe",
-                                                preserve = { Value = Object.PreserveType.Roe },
-                                                preservedParentSheetIndex = { Value = input.ParentSheetIndex }
-                                            };
-                                            roe.Price += input.Price / 2;
-                                            return roe;
+                                            name = $"{input.Name} Roe",
+                                            preserve = {Value = Object.PreserveType.Roe},
+                                            preservedParentSheetIndex = {Value = input.ParentSheetIndex}
+                                        };
+                                        roe.Price += input.Price / 2;
+                                        return roe;
+                                    });
+
+                                    // aged roe
+                                    if (roe != null && pair.Key != 698) // aged sturgeon roe is caviar, which is a separate item
+                                    {
+                                        yield return this.TryCreate(ItemType.Object, this.CustomIDOffset * 7 + item.ParentSheetIndex, _ => new ColoredObject(447, 1, color)
+                                        {
+                                            name = $"Aged {input.Name} Roe",
+                                            Category = -27,
+                                            preserve = {Value = Object.PreserveType.AgedRoe},
+                                            preservedParentSheetIndex = {Value = input.ParentSheetIndex},
+                                            Price = roe.Price * 2
                                         });
-
-                                        // aged roe
-                                        if (roe != null && pair.Key != 698) // aged sturgeon roe is caviar, which is a separate item
-                                        {
-                                            yield return this.TryCreate(ItemType.Object, this.CustomIDOffset * 7 + item.ParentSheetIndex, _ => new ColoredObject(447, 1, color)
-                                            {
-                                                name = $"Aged {input.Name} Roe",
-                                                Category = -27,
-                                                preserve = { Value = Object.PreserveType.AgedRoe },
-                                                preservedParentSheetIndex = { Value = input.ParentSheetIndex },
-                                                Price = roe.Price * 2
-                                            });
-                                        }
                                     }
                                 }
+                            }
                                 break;
                         }
                     }

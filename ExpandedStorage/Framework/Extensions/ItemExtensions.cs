@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
-using StardewValley.Locations;
 using StardewValley.Objects;
-using Object = StardewValley.Object;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 {
