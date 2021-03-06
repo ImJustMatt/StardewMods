@@ -60,6 +60,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
 
             // Events
             _model.ItemChanged += OnItemChanged;
+            _events.Display.RenderedActiveMenu += OnRenderedActiveMenu;
             _events.Input.ButtonsChanged += OnButtonsChanged;
             _events.Input.ButtonPressed += OnButtonPressed;
             _events.Input.ButtonReleased += OnButtonReleased;
@@ -78,6 +79,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
         public void Dispose()
         {
             Instance.Value = null;
+            _events.Display.RenderedActiveMenu -= OnRenderedActiveMenu;
             _events.Input.ButtonsChanged -= OnButtonsChanged;
             _events.Input.ButtonPressed -= OnButtonPressed;
             _events.Input.ButtonReleased -= OnButtonReleased;
@@ -168,6 +170,16 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
         private void SetSearch(string searchText)
         {
             _model.SearchText = searchText;
+        }
+
+        internal static void BeforeDrawMenu(SpriteBatch spriteBatch)
+        {
+            Instance.Value?._view?.DrawUnderlay(spriteBatch);
+        }
+
+        private void OnRenderedActiveMenu(object sender, RenderedActiveMenuEventArgs e)
+        {
+            _view?.DrawOverlay(e.SpriteBatch);
         }
 
         /// <summary>Track if configured control buttons are pressed or pass input to overlay.</summary>

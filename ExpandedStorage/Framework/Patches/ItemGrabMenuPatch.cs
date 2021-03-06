@@ -306,7 +306,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 .Patch(delegate(LinkedList<CodeInstruction> list)
                 {
                     list.AddLast(new CodeInstruction(OpCodes.Ldarg_1));
-                    list.AddLast(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(MenuView), nameof(MenuView.DrawUnderlay))));
+                    list.AddLast(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(MenuViewModel), nameof(MenuViewModel.BeforeDrawMenu))));
                 });
 
             // Offset backpack icon
@@ -348,7 +348,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 )
                 .Log("Adding top padding offset to drawDialogueBox.height.")
                 .Patch(OffsetPatch(MenuPadding, OpCodes.Add));
-
+/*
             // Draw arrows under hover text
             patternPatches
                 .Find(
@@ -363,7 +363,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     list.AddLast(new CodeInstruction(OpCodes.Ldarg_1));
                     list.AddLast(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(MenuView), nameof(MenuView.DrawOverlay))));
                 });
-
+*/
             foreach (var patternPatch in patternPatches)
                 yield return patternPatch;
 

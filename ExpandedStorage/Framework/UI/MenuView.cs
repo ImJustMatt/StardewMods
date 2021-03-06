@@ -221,47 +221,38 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
 
         /// <summary>Draws overlay to screen (above menu but below tooltips/hover items)</summary>
         /// <param name="b">The SpriteBatch to draw to</param>
-        public static void DrawOverlay(SpriteBatch b)
+        internal void DrawOverlay(SpriteBatch b)
         {
-            if (Instance.Value == null || Instance.Value._screenId != Context.ScreenId)
+            if (_screenId != Context.ScreenId)
                 return;
 
-            if (Instance.Value._drawCount == 0
-                || Game1.uiViewport.Width != Instance.Value._lastViewport.Width
-                || Game1.uiViewport.Height != Instance.Value._lastViewport.Height)
-                Instance.Value.InitComponents();
+            _upArrow?.draw(b);
+            _downArrow?.draw(b);
+            _searchField?.Draw(b, false);
+            _searchIcon?.draw(b);
 
-            Instance.Value._drawCount++;
-
-            Instance.Value._upArrow?.draw(b);
-            Instance.Value._downArrow?.draw(b);
-            Instance.Value._searchField?.Draw(b, false);
-            Instance.Value._searchIcon?.draw(b);
-
-            if (Instance.Value._hoverText != null)
-                IClickableMenu.drawHoverText(b, Instance.Value._hoverText, Game1.smallFont);
+            if (_hoverText != null)
+                IClickableMenu.drawHoverText(b, _hoverText, Game1.smallFont);
         }
 
         /// <summary>Draws underlay to screen (below menu)</summary>
         /// <param name="b">The SpriteBatch to draw to</param>
-        public static void DrawUnderlay(SpriteBatch b)
+        internal void DrawUnderlay(SpriteBatch b)
         {
-            if (Instance.Value == null || Instance.Value._screenId != Context.ScreenId)
+            if (_screenId != Context.ScreenId)
                 return;
 
-            if (Instance.Value._drawCount == 0
-                || Game1.uiViewport.Width != Instance.Value._lastViewport.Width
-                || Game1.uiViewport.Height != Instance.Value._lastViewport.Height)
-                Instance.Value.InitComponents();
+            if (_drawCount == 0
+                || Game1.uiViewport.Width != _lastViewport.Width
+                || Game1.uiViewport.Height != _lastViewport.Height)
+                InitComponents();
 
-            Instance.Value._drawCount++;
+            _drawCount++;
 
-            for (var i = 0; i < Instance.Value._tabs.Count; i++)
+            for (var i = 0; i < _tabs.Count; i++)
             {
-                Instance.Value._tabs[i].bounds.Y = Instance.Value._tabY + (Instance.Value.CurrentTab == i ? 1 * Game1.pixelZoom : 0);
-                Instance.Value._tabs[i].draw(b,
-                    Instance.Value.CurrentTab == i ? Color.White : Color.Gray,
-                    0.86f + Instance.Value._tabs[i].bounds.Y / 20000f);
+                _tabs[i].bounds.Y = _tabY + (CurrentTab == i ? 1 * Game1.pixelZoom : 0);
+                _tabs[i].draw(b, CurrentTab == i ? Color.White : Color.Gray, 0.86f + _tabs[i].bounds.Y / 20000f);
             }
         }
 
