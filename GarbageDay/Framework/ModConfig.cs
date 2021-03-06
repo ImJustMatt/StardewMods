@@ -6,6 +6,6 @@
         public double GetRandomItemFromSeason { get; set; } = 0.1;
 
         /// <summary>Day of week that trash is emptied out</summary>
-        public int GarbageDay { get; set; } = 0;
+        public int GarbageDay { get; set; } = 1;
     }
 }
