@@ -118,6 +118,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             var storage = ExpandedStorage.GetStorage(__instance);
             if (storage == null || storage.Option("Indestructible", true) != StorageConfig.Choice.Enable)
                 return true;
+
             __result = false;
             return false;
         }

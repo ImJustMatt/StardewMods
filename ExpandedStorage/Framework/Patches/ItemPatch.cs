@@ -35,6 +35,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 && __instance is not Chest
                 && other is not Chest)
                 return true;
+
             __result = false;
             return false;
         }
