@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
-using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using StardewValley;
 
 // ReSharper disable MemberCanBePrivate.Global

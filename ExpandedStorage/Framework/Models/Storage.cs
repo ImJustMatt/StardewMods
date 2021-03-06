@@ -1,8 +1,8 @@
 ﻿#nullable enable
 using System.Collections.Generic;
 using System.Linq;
+using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
-using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
