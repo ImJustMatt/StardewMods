@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using StardewValley.Locations;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
 
@@ -139,17 +137,17 @@ namespace ImJustMatt.GarbageDay.Framework.Models
 
             var item = garbageRandom.Next(10) switch
             {
-                0 => 168,   // Trash
-                1 => 167,   // JojaMart Cola
-                2 => 170,   // Broken Glasses
-                3 => 171,   // Broken CD
-                4 => 172,   // Soggy Newspaper
-                5 => 216,   // Bread
+                0 => 168, // Trash
+                1 => 167, // JojaMart Cola
+                2 => 170, // Broken Glasses
+                3 => 171, // Broken CD
+                4 => 172, // Soggy Newspaper
+                5 => 216, // Bread
                 6 => Utility.getRandomItemFromSeason(Game1.currentSeason, (int) (Tile.X * 653 + Tile.Y * 777), false),
-                7 => 403,   // Field Snack
+                7 => 403, // Field Snack
                 8 => 309 + garbageRandom.Next(3), // Acorn, Maple Seed, Pine Cone
-                9 => 153,   // Green Algae
-                _ => 168    // Trash
+                9 => 153, // Green Algae
+                _ => 168 // Trash
             };
 
             switch (WhichCan)

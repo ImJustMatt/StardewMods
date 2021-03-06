@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ImJustMatt.GarbageDay.Framework
 {
     internal class ModConfig
     {
-        public int GarbageDay { get; set; } = 0;
-
         public bool GetRandomItemFromSeason = true;
+        public int GarbageDay { get; set; } = 0;
 
         public IList<string> GlobalLoot { get; set; } = new List<string>
         {
@@ -22,7 +20,6 @@ namespace ImJustMatt.GarbageDay.Framework
 
         public IDictionary<string, IList<string>> LocalLoot { get; set; } = new Dictionary<string, IList<string>>
         {
-            
         };
     }
 }
