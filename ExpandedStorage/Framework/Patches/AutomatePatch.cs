@@ -2,7 +2,6 @@
 using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.ExpandedStorage.Framework.Integrations;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
@@ -42,12 +41,36 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             }
         }
 
-        public static bool StorePrefix(object __instance, ITrackedStack stack)
+        private static bool StorePrefix(object __instance, ITrackedStack stack)
         {
             var reflectedChest = _reflection.GetField<Chest>(__instance, "Chest");
             var reflectedSample = _reflection.GetProperty<Item>(stack, "Sample");
             var storage = ExpandedStorage.GetStorage(reflectedChest.GetValue());
             return storage == null || storage.Filter(reflectedSample.GetValue());
+        }
+        
+        private interface ITrackedStack
+        {
+            /*********
+            ** Accessors
+            *********/
+            /// <summary>A sample item for comparison.</summary>
+            /// <remarks>This should be equivalent to the underlying item (except in stack size), but *not* a reference to it.</remarks>
+            Item Sample { get; }
+
+            /// <summary>The number of items in the stack.</summary>
+            int Count { get; }
+
+            /*********
+            ** Public methods
+            *********/
+            /// <summary>Remove the specified number of this item from the stack.</summary>
+            /// <param name="count">The number to consume.</param>
+            void Reduce(int count);
+
+            /// <summary>Remove the specified number of this item from the stack and return a new stack matching the count.</summary>
+            /// <param name="count">The number to get.</param>
+            Item Take(int count);
         }
     }
 }

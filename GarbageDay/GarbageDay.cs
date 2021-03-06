@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.API;
-using ImJustMatt.ExpandedStorage.Framework.Integrations;
 using ImJustMatt.GarbageDay.Framework;
 using ImJustMatt.GarbageDay.Framework.Models;
 using ImJustMatt.GarbageDay.Framework.Patches;
@@ -58,7 +57,7 @@ namespace ImJustMatt.GarbageDay
                         var garbageCan = new GarbageCan
                         {
                             MapName = PathUtilities.NormalizePath(map.AssetName),
-                            WhichCan = Convert.ToInt32(parts[1]),
+                            WhichCan = parts[1],
                             Tile = new Vector2(x, y)
                         };
                         GarbageCans.Add(garbageCan);
@@ -88,7 +87,7 @@ namespace ImJustMatt.GarbageDay
                 new ChestPatch(Monitor, _config)
             );
 
-            GarbageCan.Init(helper.Reflection);
+            GarbageCan.Init(helper.Reflection, _config);
 
             // Events
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
@@ -107,8 +106,9 @@ namespace ImJustMatt.GarbageDay
             _expandedStorageAPI.ReadyToLoad += delegate { _expandedStorageAPI.LoadContentPack(Path.Combine(Helper.DirectoryPath, "assets", "GarbageCan")); };
 
             // Get Sheet Index for object
-            var jsonAssetsAPI = Helper.ModRegistry.GetApi<IJsonAssetsAPI>("spacechase0.JsonAssets");
-            jsonAssetsAPI.IdsAssigned += delegate { _objectId = jsonAssetsAPI.GetBigCraftableId("Garbage Can"); };
+            var jsonAssetsIntegration = new JsonAssetsIntegration(Helper.ModRegistry, "spacechase0.JsonAssets");
+            if (jsonAssetsIntegration.IsLoaded)
+                jsonAssetsIntegration.API.IdsAssigned += delegate { _objectId = jsonAssetsIntegration.API.GetBigCraftableId("Garbage Can"); };
         }
 
         /// <summary>Initiate adding garbage can spots</summary>

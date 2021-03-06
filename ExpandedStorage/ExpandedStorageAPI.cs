@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ImJustMatt.Common.Integrations.GenericModConfigMenu;
+using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.ExpandedStorage.API;
-using ImJustMatt.ExpandedStorage.Framework.Integrations;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.Patches;
 using StardewModdingAPI;
@@ -22,8 +23,8 @@ namespace ImJustMatt.ExpandedStorage
         private readonly IDictionary<string, StorageTab> _tabConfigs;
 
         private bool _isContentLoaded;
-        private IJsonAssetsAPI _jsonAssetsAPI;
-        private IGenericModConfigMenuAPI _modConfigAPI;
+        private JsonAssetsIntegration _jsonAssets;
+        private GenericModConfigMenuIntegration _modConfigMenu;
 
         internal ExpandedStorageAPI(
             IModHelper helper,
@@ -189,7 +190,7 @@ namespace ImJustMatt.ExpandedStorage
                 contentPack.WriteJsonFile("config.json", playerConfigs);
             }
 
-            _modConfigAPI?.RegisterModConfig(contentPack.Manifest, RevertToDefault, SaveToFile);
+            _modConfigMenu.API?.RegisterModConfig(contentPack.Manifest, RevertToDefault, SaveToFile);
 
             // Load default if specified
             if (expandedStorages.TryGetValue("DefaultStorage", out var defaultStorage))
@@ -219,7 +220,7 @@ namespace ImJustMatt.ExpandedStorage
 
                 RegisterStorage(contentPack.Manifest, expandedStorage.Key, defaultConfig);
                 SetStorageConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
-                if (_modConfigAPI != null)
+                if (_modConfigMenu.IsLoaded)
                     RegisterConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
             }
 
@@ -227,7 +228,7 @@ namespace ImJustMatt.ExpandedStorage
             _contentPacks.Add(contentPack.Manifest.UniqueID, contentPack);
 
             // Generate file for Json Assets
-            if (_jsonAssetsAPI != null && !expandedStorages.Keys.All(Storage.VanillaNames.Contains))
+            if (_jsonAssets != null && !expandedStorages.Keys.All(Storage.VanillaNames.Contains))
             {
                 // Generate content-pack.json
                 contentPack.WriteJsonFile("content-pack.json", new ContentPack
@@ -330,15 +331,15 @@ namespace ImJustMatt.ExpandedStorage
                 };
             }
 
-            _modConfigAPI.RegisterLabel(manifest, storageName, manifest.Description);
+            _modConfigMenu.API?.RegisterLabel(manifest, storageName, manifest.Description);
 
-            _modConfigAPI.RegisterSimpleOption(manifest, "Capacity", "Number of item slots the storage will contain",
+            _modConfigMenu.API?.RegisterSimpleOption(manifest, "Capacity", "Number of item slots the storage will contain",
                 () => config.Capacity,
                 value => config.Capacity = value);
 
             foreach (var option in StorageConfig.StorageOptions)
             {
-                _modConfigAPI.RegisterChoiceOption(manifest, option.Key, option.Value,
+                _modConfigMenu.API?.RegisterChoiceOption(manifest, option.Key, option.Value,
                     OptionGet(option.Key), OptionSet(option.Key), optionChoices);
             }
         }
@@ -348,10 +349,10 @@ namespace ImJustMatt.ExpandedStorage
         /// <param name="e">The event arguments.</param>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            _modConfigAPI = _helper.ModRegistry.GetApi<IGenericModConfigMenuAPI>("spacechase0.GenericModConfigMenu");
-            _jsonAssetsAPI = _helper.ModRegistry.GetApi<IJsonAssetsAPI>("spacechase0.JsonAssets");
-            if (_jsonAssetsAPI != null)
-                _jsonAssetsAPI.IdsAssigned += OnIdsLoaded;
+            _modConfigMenu = new GenericModConfigMenuIntegration(_helper.ModRegistry, "spacechase0.GenericModConfigMenu");
+            _jsonAssets = new JsonAssetsIntegration(_helper.ModRegistry, "spacechase0.JsonAssets");
+            if (_jsonAssets.IsLoaded)
+                _jsonAssets.API.IdsAssigned += OnIdsLoaded;
             else
                 _monitor.Log("Json Assets not detected, Expanded Storages content will not be loaded", LogLevel.Warn);
             _helper.Events.GameLoop.UpdateTicked += OnReadyToLoad;
@@ -365,7 +366,7 @@ namespace ImJustMatt.ExpandedStorage
             _helper.Events.GameLoop.UpdateTicked -= OnReadyToLoad;
             InvokeAll(ReadyToLoad);
             foreach (var contentDir in _contentDirs)
-                _jsonAssetsAPI?.LoadAssets(contentDir);
+                _jsonAssets.API?.LoadAssets(contentDir);
             _isContentLoaded = true;
         }
 
@@ -380,7 +381,7 @@ namespace ImJustMatt.ExpandedStorage
                 storageConfig.Value.ObjectIds.Clear();
 
             // Add new object ids
-            var bigCraftables = _jsonAssetsAPI.GetAllBigCraftableIds();
+            var bigCraftables = _jsonAssets.API?.GetAllBigCraftableIds();
             foreach (var bigCraftable in bigCraftables)
             {
                 if (!_storageConfigs.TryGetValue(bigCraftable.Key, out var storageConfig))

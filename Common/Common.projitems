@@ -10,6 +10,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\CommonExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\GenericModConfigMenuIntegration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\IGenericModConfigMenuAPI.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\IJsonAssetsAPI.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\JsonAssetsIntegration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integrations\ModIntegration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\Patch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\Patcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\PatternPatch.cs" />

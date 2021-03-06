@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ImJustMatt.ExpandedStorage.Framework.Integrations
+namespace ImJustMatt.Common.Integrations.JsonAssets
 {
     public interface IJsonAssetsAPI
     {

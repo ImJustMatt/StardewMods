@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ImJustMatt.ExpandedStorage.Framework.Integrations;
+using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -139,55 +139,55 @@ namespace ImJustMatt.ExpandedStorage.Framework
             }
         }
 
-        public static void RegisterModConfig(IManifest manifest, IGenericModConfigMenuAPI modConfigAPI, ModConfig config)
+        public static void RegisterModConfig(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, ModConfig config)
         {
             // Controls
-            modConfigAPI.RegisterLabel(manifest,
+            modConfigMenu.API?.RegisterLabel(manifest,
                 "Controls",
                 "Controller/Keyboard controls");
 
-            modConfigAPI.RegisterSimpleOption(manifest,
+            modConfigMenu.API?.RegisterSimpleOption(manifest,
                 "Scroll Up",
                 "Button for scrolling up",
                 () => config.Controls.ScrollUp.Keybinds.Single(kb => kb.IsBound).Buttons.First(),
                 value => config.Controls.ScrollUp = KeybindList.ForSingle(value));
-            modConfigAPI.RegisterSimpleOption(manifest,
+            modConfigMenu.API?.RegisterSimpleOption(manifest,
                 "Scroll Down",
                 "Button for scrolling down",
                 () => config.Controls.ScrollDown.Keybinds.Single(kb => kb.IsBound).Buttons.First(),
                 value => config.Controls.ScrollDown = KeybindList.ForSingle(value));
-            modConfigAPI.RegisterSimpleOption(manifest,
+            modConfigMenu.API?.RegisterSimpleOption(manifest,
                 "Previous Tab",
                 "Button for switching to the previous tab",
                 () => config.Controls.PreviousTab.Keybinds.Single(kb => kb.IsBound).Buttons.First(),
                 value => config.Controls.PreviousTab = KeybindList.ForSingle(value));
-            modConfigAPI.RegisterSimpleOption(manifest,
+            modConfigMenu.API?.RegisterSimpleOption(manifest,
                 "Next Tab",
                 "Button for switching to the next tab",
                 () => config.Controls.NextTab.Keybinds.Single(kb => kb.IsBound).Buttons.First(),
                 value => config.Controls.NextTab = KeybindList.ForSingle(value));
 
             // Tweaks
-            modConfigAPI.RegisterLabel(manifest,
+            modConfigMenu.API?.RegisterLabel(manifest,
                 "Tweaks",
                 "Modify behavior for certain features");
 
-            modConfigAPI.RegisterSimpleOption(manifest,
+            modConfigMenu.API?.RegisterSimpleOption(manifest,
                 "Enable Controller",
                 "Enables settings designed to improve controller compatibility",
                 () => config.Controller,
                 value => config.Controller = value);
-            modConfigAPI.RegisterSimpleOption(manifest,
+            modConfigMenu.API?.RegisterSimpleOption(manifest,
                 "Resize Inventory Menu",
                 "Allows the inventory menu to have 4-6 rows instead of the default 3",
                 () => config.ExpandInventoryMenu,
                 value => config.ExpandInventoryMenu = value);
-            modConfigAPI.RegisterSimpleOption(manifest,
+            modConfigMenu.API?.RegisterSimpleOption(manifest,
                 "Search Symbol",
                 "Symbol used to search items by context tag",
                 () => config.SearchTagSymbol,
                 value => config.SearchTagSymbol = value);
-            modConfigAPI.RegisterSimpleOption(manifest,
+            modConfigMenu.API?.RegisterSimpleOption(manifest,
                 "Vacuum To First Row",
                 "Uncheck to allow vacuuming to any chest in player inventory",
                 () => config.VacuumToFirstRow,
@@ -210,17 +210,17 @@ namespace ImJustMatt.ExpandedStorage.Framework
                 };
             }
 
-            modConfigAPI.RegisterLabel(manifest,
+            modConfigMenu.API?.RegisterLabel(manifest,
                 "Default Storage",
                 "Default config for unconfigured storages.");
 
-            modConfigAPI.RegisterSimpleOption(manifest, "Capacity", "Number of item slots the storage will contain",
+            modConfigMenu.API?.RegisterSimpleOption(manifest, "Capacity", "Number of item slots the storage will contain",
                 () => config.DefaultStorage.Capacity,
                 value => config.DefaultStorage.Capacity = value);
 
             foreach (var option in StorageConfig.StorageOptions)
             {
-                modConfigAPI.RegisterChoiceOption(manifest, option.Key, option.Value,
+                modConfigMenu.API?.RegisterChoiceOption(manifest, option.Key, option.Value,
                     OptionGet(option.Key), OptionSet(option.Key), optionChoices);
             }
         }

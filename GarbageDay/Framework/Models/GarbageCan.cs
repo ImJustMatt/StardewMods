@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Globalization;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
+using StardewValley.Locations;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
 
@@ -11,6 +13,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
     internal class GarbageCan
     {
         private static IReflectionHelper _reflection;
+        private static ModConfig _config;
         private Chest _chest;
         private bool _doubleMega;
         private bool _dropQiBeans;
@@ -21,7 +24,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
         internal string MapName;
         internal Vector2 Tile;
 
-        internal int WhichCan;
+        internal string WhichCan;
 
         internal GarbageCan()
         {
@@ -30,9 +33,10 @@ namespace ImJustMatt.GarbageDay.Framework.Models
 
         internal Chest Chest => _chest ??= Location.Objects.TryGetValue(Tile, out var obj) && obj is Chest chest ? chest : null;
 
-        internal static void Init(IReflectionHelper reflection)
+        internal static void Init(IReflectionHelper reflection, ModConfig config)
         {
             _reflection = reflection;
+            _config = config;
         }
 
         internal bool OpenCan()
@@ -108,7 +112,14 @@ namespace ImJustMatt.GarbageDay.Framework.Models
             _dropQiBeans = false;
             Chest.playerChoiceColor.Value = Color.Black;
 
-            var garbageRandom = new Random((int) Game1.uniqueIDForThisGame / 2 + (int) Game1.stats.DaysPlayed + 777 + WhichCan * 77);
+            if (Game1.dayOfMonth % 7 == _config.GarbageDay)
+            {
+                Chest.items.Clear();
+            }
+
+            if (!int.TryParse(WhichCan, out var whichCan))
+                whichCan = 0;
+            var garbageRandom = new Random((int) Game1.uniqueIDForThisGame / 2 + (int) Game1.stats.DaysPlayed + 777 + whichCan * 77);
             var prewarm = garbageRandom.Next(0, 100);
             for (var k = 0; k < prewarm; k++)
             {
@@ -128,22 +139,22 @@ namespace ImJustMatt.GarbageDay.Framework.Models
 
             var item = garbageRandom.Next(10) switch
             {
-                0 => 168,
-                1 => 167,
-                2 => 170,
-                3 => 171,
-                4 => 172,
-                5 => 216,
+                0 => 168,   // Trash
+                1 => 167,   // JojaMart Cola
+                2 => 170,   // Broken Glasses
+                3 => 171,   // Broken CD
+                4 => 172,   // Soggy Newspaper
+                5 => 216,   // Bread
                 6 => Utility.getRandomItemFromSeason(Game1.currentSeason, (int) (Tile.X * 653 + Tile.Y * 777), false),
-                7 => 403,
-                8 => 309 + garbageRandom.Next(3),
-                9 => 153,
-                _ => 168
+                7 => 403,   // Field Snack
+                8 => 309 + garbageRandom.Next(3), // Acorn, Maple Seed, Pine Cone
+                9 => 153,   // Green Algae
+                _ => 168    // Trash
             };
 
             switch (WhichCan)
             {
-                case 3 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
+                case "3" when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
                 {
                     item = 535;
                     if (garbageRandom.NextDouble() < 0.05)
@@ -153,17 +164,17 @@ namespace ImJustMatt.GarbageDay.Framework.Models
 
                     break;
                 }
-                case 4 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
+                case "4" when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
                     item = 378 + garbageRandom.Next(3) * 2;
                     garbageRandom.Next(1, 5);
                     break;
-                case 5 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck && Game1.dishOfTheDay != null:
+                case "5" when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck && Game1.dishOfTheDay != null:
                     item = Game1.dishOfTheDay.ParentSheetIndex != 217 ? Game1.dishOfTheDay.ParentSheetIndex : 216;
                     break;
-                case 6 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
+                case "6" when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
                     item = 223;
                     break;
-                case 7 when garbageRandom.NextDouble() < 0.2:
+                case "7" when garbageRandom.NextDouble() < 0.2:
                 {
                     if (!Utility.HasAnyPlayerSeenEvent(191393))
                     {

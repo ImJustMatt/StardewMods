@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
-using ImJustMatt.ExpandedStorage.Framework.Integrations;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.Patches;
 using ImJustMatt.ExpandedStorage.Framework.UI;
@@ -135,8 +135,8 @@ namespace ImJustMatt.ExpandedStorage
         /// <param name="e">The event arguments.</param>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            var modConfigApi = Helper.ModRegistry.GetApi<IGenericModConfigMenuAPI>("spacechase0.GenericModConfigMenu");
-            if (modConfigApi == null)
+            var modConfigMenu = new GenericModConfigMenuIntegration(Helper.ModRegistry, "spacechase0.GenericModConfigMenu");
+            if (!modConfigMenu.IsLoaded)
                 return;
 
             var config = new ModConfig();
@@ -154,8 +154,8 @@ namespace ImJustMatt.ExpandedStorage
                 _contentLoader.ReloadDefaultStorageConfigs();
             }
 
-            modConfigApi.RegisterModConfig(ModManifest, DefaultConfig, SaveConfig);
-            ModConfig.RegisterModConfig(ModManifest, modConfigApi, config);
+            modConfigMenu.API?.RegisterModConfig(ModManifest, DefaultConfig, SaveConfig);
+            ModConfig.RegisterModConfig(ModManifest, modConfigMenu, config);
         }
 
         /// <summary>Track toolbar changes before user input.</summary>
