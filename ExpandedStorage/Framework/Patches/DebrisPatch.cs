@@ -27,7 +27,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         public static bool collect_Prefix(Debris __instance, ref bool __result, Farmer farmer, Chunk chunk)
         {
             chunk ??= __instance.Chunks.FirstOrDefault();
-            if (chunk == null)
+            if (chunk == null || !(ExpandedStorage.VacuumChests.Value?.Any() ?? false))
                 return true;
 
             var switcher = __instance.debrisType.Value.Equals(Debris.DebrisType.ARCHAEOLOGY) || __instance.debrisType.Value.Equals(Debris.DebrisType.OBJECT)
