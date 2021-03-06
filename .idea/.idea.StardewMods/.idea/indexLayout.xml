@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ContentModelUserStore">
     <attachedFolders>
+      <Path>.</Path>
       <Path>build</Path>
       <Path>releases</Path>
     </attachedFolders>
