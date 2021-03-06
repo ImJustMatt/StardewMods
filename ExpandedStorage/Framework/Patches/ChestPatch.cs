@@ -37,7 +37,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 AccessTools.Method(typeof(Chest), nameof(Chest.checkForAction)),
                 new HarmonyMethod(GetType(), nameof(CheckForActionPrefix))
             );
-            
+
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.performToolAction)),
                 new HarmonyMethod(GetType(), nameof(PerformToolActionPrefix))
@@ -111,7 +111,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             return false;
         }
-        
+
         /// <summary>Prevent breaking indestructible chests</summary>
         private static bool PerformToolActionPrefix(Chest __instance, ref bool __result, Tool t, GameLocation location)
         {

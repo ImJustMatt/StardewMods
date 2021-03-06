@@ -19,7 +19,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
     internal class MenuViewModel : IDisposable
     {
         private static readonly PerScreen<MenuViewModel> Instance = new();
-        
+
         private static IModEvents _events;
         private static IInputHelper _inputHelper;
         private static ModConfig _config;
