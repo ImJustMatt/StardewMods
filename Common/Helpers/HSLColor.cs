@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 
-namespace ImJustMatt.ExpandedStorage.Framework.UI
+namespace ImJustMatt.ExpandedStorage.Common.Helpers
 {
-    public struct HSLColor
+    internal struct HSLColor
     {
         private const float Tolerance = 1 / 255f;
 
