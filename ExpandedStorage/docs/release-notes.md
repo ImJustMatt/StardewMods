@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+## 1.6.3
+
+- Added indestructible chests option
+- Optimized Debris patch when no Vacuum chests
+- Optimized Overlay patch to use RenderedActiveMenu event
+
 ## 1.6.2
 
 - Optimized image caching
