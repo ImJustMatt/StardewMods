@@ -60,13 +60,14 @@ namespace ImJustMatt.ExpandedStorage
         {
         }
 
+        /// <summary>Load Data for Mods/furyx639.ExpandedStorage path</summary>
         public bool CanLoad<T>(IAssetInfo asset)
         {
-            // Provide base versions of ExpandedStorage assets
             var assetPrefix = PathUtilities.NormalizePath("Mods/furyx639.ExpandedStorage");
             return asset.AssetName.StartsWith(assetPrefix);
         }
 
+        /// <summary>Provide base versions of ExpandedStorage assets</summary>
         public T Load<T>(IAssetInfo asset)
         {
             var assetParts = PathUtilities.GetSegments(asset.AssetName).Skip(2).ToList();
@@ -381,7 +382,7 @@ namespace ImJustMatt.ExpandedStorage
                 storageConfig.Value.ObjectIds.Clear();
 
             // Add new object ids
-            var bigCraftables = _jsonAssets.API?.GetAllBigCraftableIds();
+            var bigCraftables = _jsonAssets.API.GetAllBigCraftableIds();
             foreach (var bigCraftable in bigCraftables)
             {
                 if (!_storageConfigs.TryGetValue(bigCraftable.Key, out var storageConfig))

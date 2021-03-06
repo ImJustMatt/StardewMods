@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ImJustMatt.Common.Integrations.JsonAssets;
@@ -21,7 +22,7 @@ using xTile.ObjectModel;
 
 namespace ImJustMatt.GarbageDay
 {
-    public class GarbageDay : Mod, IAssetEditor
+    public class GarbageDay : Mod, IAssetLoader, IAssetEditor
     {
         internal static readonly IList<GarbageCan> GarbageCans = new List<GarbageCan>();
         private ModConfig _config;
@@ -54,7 +55,7 @@ namespace ImJustMatt.GarbageDay
                     // Add to list
                     if (parts?.ElementAtOrDefault(0) == "Garbage" && !string.IsNullOrWhiteSpace(parts.ElementAtOrDefault(1)))
                     {
-                        var garbageCan = new GarbageCan
+                        var garbageCan = new GarbageCan(Helper.Content, Helper.Events, Helper.Reflection, _config)
                         {
                             MapName = PathUtilities.NormalizePath(map.AssetName),
                             WhichCan = parts[1],
@@ -79,6 +80,26 @@ namespace ImJustMatt.GarbageDay
             }
         }
 
+        /// <summary>Load Data for Mods/furyx639.GarbageDay path</summary>
+        public bool CanLoad<T>(IAssetInfo asset)
+        {
+            var assetPrefix = PathUtilities.NormalizePath("Mods/furyx639.GarbageDay");
+            return asset.AssetName.StartsWith(assetPrefix) && asset.DataType == typeof(Dictionary<string, double>);
+        }
+
+        /// <summary>Provide base versions of GarbageDay loot</summary>
+        public T Load<T>(IAssetInfo asset)
+        {
+            if (asset.DataType != typeof(Dictionary<string, double>))
+                throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
+            var assetParts = PathUtilities.GetSegments(asset.AssetName).Skip(2).ToList();
+            if (assetParts.ElementAtOrDefault(0) == "GlobalLoot")
+                return Helper.Content.Load<T>(Path.Combine("assets", "global-loot.json"));
+            if (assetParts.ElementAtOrDefault(0) != "Loot" || assetParts.Count != 2)
+                throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
+            return (T) (object) new Dictionary<string, double>();
+        }
+
         public override void Entry(IModHelper helper)
         {
             _config = new ModConfig();
@@ -86,8 +107,6 @@ namespace ImJustMatt.GarbageDay
             new Patcher<ModConfig>(ModManifest.UniqueID).ApplyAll(
                 new ChestPatch(Monitor, _config)
             );
-
-            GarbageCan.Init(helper.Reflection, _config);
 
             // Events
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
