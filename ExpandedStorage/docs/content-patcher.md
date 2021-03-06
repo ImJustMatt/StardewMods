@@ -10,7 +10,7 @@ Example:
 
 ```json
 {
-  "Format": "1.19.0",
+  "Format": "1.20.0",
   "Changes": [
     {
       "Action": "EditImage",
@@ -35,7 +35,7 @@ Example:
 
 ```json
 {
-  "Format": "1.19.0",
+  "Format": "1.20.0",
   "Changes": [
     {
       "Action": "EditImage",
