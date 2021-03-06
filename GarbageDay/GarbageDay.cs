@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.API;
@@ -102,7 +103,7 @@ namespace ImJustMatt.GarbageDay
 
         public override void Entry(IModHelper helper)
         {
-            _config = new ModConfig();
+            _config = helper.ReadConfig<ModConfig>();
 
             new Patcher<ModConfig>(ModManifest.UniqueID).ApplyAll(
                 new ChestPatch(Monitor, _config)
@@ -125,9 +126,43 @@ namespace ImJustMatt.GarbageDay
             _expandedStorageAPI.ReadyToLoad += delegate { _expandedStorageAPI.LoadContentPack(Path.Combine(Helper.DirectoryPath, "assets", "GarbageCan")); };
 
             // Get Sheet Index for object
-            var jsonAssetsIntegration = new JsonAssetsIntegration(Helper.ModRegistry, "spacechase0.JsonAssets");
-            if (jsonAssetsIntegration.IsLoaded)
-                jsonAssetsIntegration.API.IdsAssigned += delegate { _objectId = jsonAssetsIntegration.API.GetBigCraftableId("Garbage Can"); };
+            var jsonAssets = new JsonAssetsIntegration(Helper.ModRegistry);
+            if (jsonAssets.IsLoaded)
+                jsonAssets.API.IdsAssigned += delegate { _objectId = jsonAssets.API.GetBigCraftableId("Garbage Can"); };
+
+            var modConfigMenu = new GenericModConfigMenuIntegration(Helper.ModRegistry);
+            if (!modConfigMenu.IsLoaded) return;
+
+            var config = new ModConfig
+            {
+                GarbageDay = _config.GarbageDay,
+                GetRandomItemFromSeason = _config.GetRandomItemFromSeason
+            };
+
+            void RevertToDefault()
+            {
+                config.GarbageDay = _config.GarbageDay;
+                config.GetRandomItemFromSeason = _config.GetRandomItemFromSeason;
+            }
+
+            void SaveToFile()
+            {
+                _config.GarbageDay = config.GarbageDay;
+                _config.GetRandomItemFromSeason = config.GetRandomItemFromSeason;
+                Helper.WriteConfig(_config);
+            }
+            
+            modConfigMenu.API.RegisterModConfig(ModManifest, RevertToDefault, SaveToFile);
+            modConfigMenu.API.RegisterClampedOption(ModManifest,
+                "Garbage Pickup Day", "Day of week that garbage cans are emptied up (0 Sunday - 6 Saturday)",
+                () => config.GarbageDay,
+                value => config.GarbageDay = value,
+                0, 6);
+            modConfigMenu.API.RegisterClampedOption(ModManifest,
+                "Get Random Item from Season", "Chance that a random item from season is added to the garbage can",
+                () => (float) config.GetRandomItemFromSeason,
+                value => config.GetRandomItemFromSeason = value,
+                0, 1);
         }
 
         /// <summary>Initiate adding garbage can spots</summary>
