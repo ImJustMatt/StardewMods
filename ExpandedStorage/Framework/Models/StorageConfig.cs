@@ -17,6 +17,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         {
             {"AccessCarried", "Allow storage to be access while carried"},
             {"CanCarry", "Allow storage to be picked up"},
+            {"Indestructible", "Cannot be broken by tools even while empty"},
             {"ShowColorPicker", "Show color toggle and bars for colorable storages"},
             {"ShowSearchBar", "Show search bar above chest inventory"},
             {"ShowTabs", "Show tabs below chest inventory"},

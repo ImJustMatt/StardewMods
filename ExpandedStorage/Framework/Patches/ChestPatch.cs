@@ -4,6 +4,7 @@ using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
+using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -35,6 +36,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.checkForAction)),
                 new HarmonyMethod(GetType(), nameof(CheckForActionPrefix))
+            );
+            
+            harmony.Patch(
+                AccessTools.Method(typeof(Chest), nameof(Chest.performToolAction)),
+                new HarmonyMethod(GetType(), nameof(PerformToolActionPrefix))
             );
 
             harmony.Patch(
@@ -73,6 +79,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             );
         }
 
+        /// <summary>Play custom sound when opening chest</summary>
         public static bool CheckForActionPrefix(Chest __instance, ref bool __result, Farmer who, bool justCheckingForActivity)
         {
             if (justCheckingForActivity
@@ -102,6 +109,16 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 });
             }
 
+            return false;
+        }
+        
+        /// <summary>Prevent breaking indestructible chests</summary>
+        private static bool PerformToolActionPrefix(Chest __instance, ref bool __result, Tool t, GameLocation location)
+        {
+            var storage = ExpandedStorage.GetStorage(__instance);
+            if (storage == null || storage.Option("Indestructible", true) != StorageConfig.Choice.Enable)
+                return true;
+            __result = false;
             return false;
         }
 

@@ -4,6 +4,7 @@
     "Frames": 1,
     "PlayerColor": true,
     "Capacity": 12,
+    "EnabledFeatures": ["Indestructible"],
     "DisabledFeatures": ["CanCarry", "ShowSearchBar", "ShowColorPicker", "ShowTabs", "VacuumItems"],
     "OpenSound": "trashcan"
   }

@@ -2,7 +2,6 @@
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using StardewModdingAPI;
-using StardewValley;
 using StardewValley.Objects;
 
 namespace ImJustMatt.GarbageDay.Framework.Patches
@@ -16,23 +15,9 @@ namespace ImJustMatt.GarbageDay.Framework.Patches
         protected internal override void Apply(HarmonyInstance harmony)
         {
             harmony.Patch(
-                AccessTools.Method(typeof(Chest), nameof(Chest.performToolAction)),
-                new HarmonyMethod(GetType(), nameof(PerformToolActionPrefix))
-            );
-
-            // Patch NPC reaction to chest open
-            harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.ShowMenu)),
                 new HarmonyMethod(GetType(), nameof(ShowMenuPrefix))
             );
-        }
-
-        /// <summary>Do not allow trash cans to be broken</summary>
-        private static bool PerformToolActionPrefix(Chest __instance, ref bool __result, Tool t, GameLocation location)
-        {
-            if (!__instance.modData.ContainsKey("furyx639.GarbageDay")) return true;
-            __result = false;
-            return false;
         }
 
         /// <summary>Produce chest interactions on show menu</summary>
