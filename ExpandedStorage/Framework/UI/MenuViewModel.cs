@@ -19,8 +19,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
     internal class MenuViewModel : IDisposable
     {
         private static readonly PerScreen<MenuViewModel> Instance = new();
-
-        private static ExpandedStorageAPI _expandedStorageAPI;
+        
         private static IModEvents _events;
         private static IInputHelper _inputHelper;
         private static ModConfig _config;
@@ -96,9 +95,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             Instance.Value.OnItemChanged(Instance.Value, null);
         }
 
-        internal static void Init(ExpandedStorageAPI expandedStorageAPI, IModEvents events, IInputHelper inputHelper, ModConfig config)
+        internal static void Init(IModEvents events, IInputHelper inputHelper, ModConfig config)
         {
-            _expandedStorageAPI = expandedStorageAPI;
             _events = events;
             _inputHelper = inputHelper;
             _config = config;

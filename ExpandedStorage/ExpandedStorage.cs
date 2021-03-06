@@ -91,7 +91,7 @@ namespace ImJustMatt.ExpandedStorage
             helper.Content.AssetEditors.Add(_expandedStorageAPI);
 
             StorageSprite.Init(_expandedStorageAPI);
-            MenuViewModel.Init(_expandedStorageAPI, helper.Events, helper.Input, _config);
+            MenuViewModel.Init(helper.Events, helper.Input, _config);
             MenuModel.Init(_config);
             HSLColorPicker.Init(helper.Content);
             ChestExtensions.Init(helper.Reflection);
