@@ -10,6 +10,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\CommonExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\ItemExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\HSLColor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\ItemRepository.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\ItemType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\SearchableItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\GenericModConfigMenuIntegration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\IGenericModConfigMenuAPI.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\IJsonAssetsAPI.cs" />
@@ -19,5 +24,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\Patcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\PatternPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\PatternPatches.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Helpers\ItemData\LICENSE" />
+    <Content Include="$(MSBuildThisFileDirectory)Helpers\ItemData\README.md" />
   </ItemGroup>
 </Project>
