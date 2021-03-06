@@ -167,7 +167,7 @@ namespace ImJustMatt.GarbageDay
                         if (location.Objects.ContainsKey(garbageCan.Tile))
                             continue;
                         var chest = new Chest(true, garbageCan.Tile, _objectId);
-                        chest.modData.Add("furyx639.GarbageDay", garbageCan.WhichCan.ToString());
+                        chest.modData.Add("furyx639.GarbageDay", garbageCan.WhichCan);
                         location.Objects.Add(garbageCan.Tile, chest);
                     }
                 }

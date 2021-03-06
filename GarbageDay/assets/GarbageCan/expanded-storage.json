@@ -3,11 +3,8 @@
     "Image": "GarbageCan.png",
     "Frames": 1,
     "PlayerColor": true,
-    "Capacity": 7,
+    "Capacity": 12,
     "DisabledFeatures": ["CanCarry", "ShowSearchBar", "ShowColorPicker", "ShowTabs", "VacuumItems"],
-    "OpenSound": "trashcan",
-    "AllowList": [
-      "category_junk"
-    ]
+    "OpenSound": "trashcan"
   }
 }
