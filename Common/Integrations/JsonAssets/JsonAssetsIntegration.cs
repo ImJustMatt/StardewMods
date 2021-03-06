@@ -4,8 +4,8 @@ namespace ImJustMatt.Common.Integrations.JsonAssets
 {
     internal class JsonAssetsIntegration : ModIntegration<IJsonAssetsAPI>
     {
-        public JsonAssetsIntegration(IModRegistry modRegistry, string modUniqueId)
-            : base(modRegistry, modUniqueId)
+        public JsonAssetsIntegration(IModRegistry modRegistry)
+            : base(modRegistry, "spacechase0.JsonAssets")
         {
         }
     }

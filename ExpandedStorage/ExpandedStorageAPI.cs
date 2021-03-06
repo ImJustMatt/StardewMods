@@ -350,8 +350,8 @@ namespace ImJustMatt.ExpandedStorage
         /// <param name="e">The event arguments.</param>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            _modConfigMenu = new GenericModConfigMenuIntegration(_helper.ModRegistry, "spacechase0.GenericModConfigMenu");
-            _jsonAssets = new JsonAssetsIntegration(_helper.ModRegistry, "spacechase0.JsonAssets");
+            _modConfigMenu = new GenericModConfigMenuIntegration(_helper.ModRegistry);
+            _jsonAssets = new JsonAssetsIntegration(_helper.ModRegistry);
             if (_jsonAssets.IsLoaded)
                 _jsonAssets.API.IdsAssigned += OnIdsLoaded;
             else

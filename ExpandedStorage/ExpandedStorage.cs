@@ -135,7 +135,7 @@ namespace ImJustMatt.ExpandedStorage
         /// <param name="e">The event arguments.</param>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            var modConfigMenu = new GenericModConfigMenuIntegration(Helper.ModRegistry, "spacechase0.GenericModConfigMenu");
+            var modConfigMenu = new GenericModConfigMenuIntegration(Helper.ModRegistry);
             if (!modConfigMenu.IsLoaded)
                 return;
 
