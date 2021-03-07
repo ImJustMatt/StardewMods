@@ -23,8 +23,8 @@ namespace ImJustMatt.GarbageDay.Framework.Patches
         /// <summary>Produce chest interactions on show menu</summary>
         private static bool ShowMenuPrefix(Chest __instance)
         {
-            if (!__instance.modData.TryGetValue("furyx639.GarbageDay", out var whichCan)) return true;
-            var garbageCan = GarbageDay.GarbageCans.SingleOrDefault(c => c.WhichCan.Equals(whichCan));
+            if (!__instance.modData.ContainsKey("furyx639.GarbageDay")) return true;
+            var garbageCan = GarbageDay.GarbageCans.SingleOrDefault(c => ReferenceEquals(c.Chest, __instance));
             return garbageCan?.OpenCan() ?? true;
         }
     }

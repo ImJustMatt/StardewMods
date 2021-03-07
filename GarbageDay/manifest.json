@@ -24,6 +24,10 @@
     {
       "UniqueID": "Pathoschild.ContentPatcher",
       "IsRequired": false
-    }
+    },
+    {
+      "UniqueID": "Platonymous.TMXLoader",
+      "IsRequired": false
+    },
   ]
 }

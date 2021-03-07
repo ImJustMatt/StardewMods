@@ -117,6 +117,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public string Image { get; set; } = "";
         public int Frames { get; set; } = 5;
         public bool PlayerColor { get; set; } = true;
+        public bool PlayerConfig { get; set; } = true;
         public int Depth { get; set; }
         public IDictionary<string, string> ModData { get; set; } = new Dictionary<string, string>();
         public HashSet<string> AllowList { get; set; } = new();

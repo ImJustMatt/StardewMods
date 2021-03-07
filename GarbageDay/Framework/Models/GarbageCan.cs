@@ -43,7 +43,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
             modEvents.Display.MenuChanged += OnMenuChanged;
         }
 
-        private Chest Chest => _chest ??= Location.Objects.TryGetValue(Tile, out var obj) && obj is Chest chest ? chest : null;
+        internal Chest Chest => _chest ??= Location.Objects.TryGetValue(Tile, out var obj) && obj is Chest chest ? chest : null;
 
         private void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
