@@ -3,6 +3,7 @@
     "Image": "GarbageCan.png",
     "Frames": 3,
     "PlayerColor": true,
+    "PlayerConfig": false,
     "Capacity": 12,
     "EnabledFeatures": ["Indestructible"],
     "DisabledFeatures": ["CanCarry", "ShowSearchBar", "ShowColorPicker", "ShowTabs", "VacuumItems"],

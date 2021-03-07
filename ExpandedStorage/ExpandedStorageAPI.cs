@@ -210,7 +210,11 @@ namespace ImJustMatt.ExpandedStorage
                 defaultConfig.CopyFrom(expandedStorage.Value);
 
                 defaultConfigs.Add(expandedStorage.Key, defaultConfig);
+                RegisterStorage(contentPack.Manifest, expandedStorage.Key, defaultConfig);
 
+                if (!defaultConfig.PlayerConfig)
+                    continue;
+                
                 if (!playerConfigs.TryGetValue(expandedStorage.Key, out var playerConfig))
                 {
                     // Generate default player config
@@ -218,8 +222,7 @@ namespace ImJustMatt.ExpandedStorage
                     playerConfig.CopyFrom(defaultConfig);
                     playerConfigs.Add(expandedStorage.Key, playerConfig);
                 }
-
-                RegisterStorage(contentPack.Manifest, expandedStorage.Key, defaultConfig);
+                
                 SetStorageConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
                 if (_modConfigMenu.IsLoaded)
                     RegisterConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
