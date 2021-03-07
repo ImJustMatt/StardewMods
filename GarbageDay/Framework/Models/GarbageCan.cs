@@ -121,6 +121,9 @@ namespace ImJustMatt.GarbageDay.Framework.Models
 
         internal void DayStart()
         {
+            if (Chest == null)
+                return;
+
             // Reset State
             _garbageChecked = false;
             _dropQiBeans = false;
