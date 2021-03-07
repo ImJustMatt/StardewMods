@@ -187,6 +187,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             if (!string.IsNullOrWhiteSpace(storage.Image)) Image = storage.Image;
             if (storage.Frames > 0) Frames = storage.Frames;
             PlayerColor = storage.PlayerColor;
+            PlayerConfig = storage.PlayerConfig;
             if (Depth == 0) Depth = storage.Depth;
 
             if (storage.AllowList != null && storage.AllowList.Any())
