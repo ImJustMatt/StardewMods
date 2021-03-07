@@ -1,7 +1,7 @@
 ﻿{
   "Garbage Can": {
     "Image": "GarbageCan.png",
-    "Frames": 1,
+    "Frames": 3,
     "PlayerColor": true,
     "Capacity": 12,
     "EnabledFeatures": ["Indestructible"],

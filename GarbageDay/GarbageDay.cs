@@ -151,7 +151,7 @@ namespace ImJustMatt.GarbageDay
                 _config.GetRandomItemFromSeason = config.GetRandomItemFromSeason;
                 Helper.WriteConfig(_config);
             }
-            
+
             modConfigMenu.API.RegisterModConfig(ModManifest, RevertToDefault, SaveToFile);
             modConfigMenu.API.RegisterClampedOption(ModManifest,
                 "Garbage Pickup Day", "Day of week that garbage cans are emptied up (0 Sunday - 6 Saturday)",

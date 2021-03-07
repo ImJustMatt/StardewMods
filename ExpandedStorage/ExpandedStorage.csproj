@@ -3,7 +3,7 @@
     <PropertyGroup>
         <AssemblyName>ExpandedStorage</AssemblyName>
         <RootNamespace>ImJustMatt.ExpandedStorage</RootNamespace>
-        <Version>1.6.2</Version>
+        <Version>1.6.3-rc.1</Version>
         <TargetFramework>net452</TargetFramework>
         <EnableHarmony>true</EnableHarmony>
     </PropertyGroup>

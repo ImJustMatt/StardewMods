@@ -106,7 +106,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
             if (_doubleMega)
             {
                 Location!.playSound("explosion");
-                Chest.playerChoiceColor.Value = Color.White; // Remove Lid
+                Chest.playerChoiceColor.Value = Color.Black; // Remove Lid
                 Game1.player.addItemByMenuIfNecessary(new Hat(66));
                 return false;
             }
@@ -124,7 +124,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
             // Reset State
             _garbageChecked = false;
             _dropQiBeans = false;
-            Chest.playerChoiceColor.Value = Color.Black;
+            Chest.playerChoiceColor.Value = Color.Gray;
 
             if (Game1.dayOfMonth % 7 == _config.GarbageDay)
             {
