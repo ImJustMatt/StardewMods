@@ -42,6 +42,8 @@ namespace ImJustMatt.GarbageDay
         public void Edit<T>(IAssetData asset)
         {
             var map = asset.AsMap();
+            var additions = 0;
+            var edits = 0;
             for (var x = 0; x < map.Data.Layers[0].LayerWidth; x++)
             {
                 for (var y = 0; y < map.Data.Layers[0].LayerHeight; y++)
@@ -62,6 +64,8 @@ namespace ImJustMatt.GarbageDay
                             if (garbageCan != null)
                             {
                                 GarbageCans.Remove(garbageCan);
+                                edits++;
+                                additions--;
                             }
                             garbageCan = new GarbageCan(Helper.Content, Helper.Events, Helper.Reflection, _config)
                             {
@@ -70,6 +74,7 @@ namespace ImJustMatt.GarbageDay
                                 Tile = new Vector2(x, y)
                             };
                             GarbageCans.Add(garbageCan);
+                            additions++;
                         }
 
                         // Remove Base
@@ -84,6 +89,7 @@ namespace ImJustMatt.GarbageDay
                     }
                 }
             }
+            Monitor.Log($"Found {additions} new garbage cans, replaced {edits}");
         }
 
         /// <summary>Load Data for Mods/furyx639.GarbageDay path</summary>
@@ -116,6 +122,8 @@ namespace ImJustMatt.GarbageDay
 
             // Events
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            if (!Context.IsMainPlayer)
+                return;
             helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
             helper.Events.GameLoop.DayStarted += OnDayStarted;
@@ -192,7 +200,7 @@ namespace ImJustMatt.GarbageDay
         /// <param name="e">The event arguments.</param>
         private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
         {
-            if (_objectId == 0)
+            if (_objectId == 0 || !Context.IsWorldReady)
                 return;
             Helper.Events.GameLoop.UpdateTicked -= OnUpdateTicked;
             if (!_objectsPlaced)
