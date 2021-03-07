@@ -47,7 +47,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
 
         private void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
-            if (_npc == null || e.OldMenu is not ItemGrabMenu || e.NewMenu != null)
+            if (_npc == null || e.OldMenu is not ItemGrabMenu || !Context.IsPlayerFree)
                 return;
             Game1.drawDialogue(_npc);
             _npc = null;
