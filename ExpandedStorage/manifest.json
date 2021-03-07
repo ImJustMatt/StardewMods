@@ -1,7 +1,7 @@
 ﻿{
   "Name": "Expanded Storage",
   "Author": "furyx639",
-  "Version": "1.6.3-rc.1",
+  "Version": "1.6.3",
   "Description": "Mod which allows Content Packs to add custom storage.",
   "UniqueID": "furyx639.ExpandedStorage",
   "EntryDll": "ExpandedStorage.dll",
@@ -18,10 +18,6 @@
     },
     {
       "UniqueID": "spacechase0.JsonAssets",
-      "IsRequired": false
-    },
-    {
-      "UniqueID": "aedenthorn.CustomChestTypes",
       "IsRequired": false
     }
   ]
