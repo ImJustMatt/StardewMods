@@ -7,5 +7,8 @@
 
         /// <summary>Day of week that trash is emptied out</summary>
         public int GarbageDay { get; set; } = 1;
+
+        /// <summary>Edit all Maps instead of specific maps</summary>
+        public bool Debug { get; set; } = false;
     }
 }

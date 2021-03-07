@@ -26,6 +26,7 @@ namespace ImJustMatt.GarbageDay
     public class GarbageDay : Mod, IAssetLoader, IAssetEditor
     {
         internal static readonly IList<GarbageCan> GarbageCans = new List<GarbageCan>();
+        private readonly List<string> _maps = new();
         private ModConfig _config;
         private IExpandedStorageAPI _expandedStorageAPI;
         private bool _garbageChecked = true;
@@ -35,7 +36,9 @@ namespace ImJustMatt.GarbageDay
         /// <summary>Allows editing Maps to remove vanilla garbage cans</summary>
         public bool CanEdit<T>(IAssetInfo asset)
         {
-            return asset.AssetName.StartsWith("Maps") && asset.DataType == typeof(Map);
+            return asset.DataType == typeof(Map)
+                   && (_maps.Contains(PathUtilities.NormalizePath(asset.AssetName))
+                       || _config.Debug && asset.AssetName.StartsWith("Maps"));
         }
 
         /// <summary>Remove and store</summary>
@@ -67,6 +70,7 @@ namespace ImJustMatt.GarbageDay
                                 edits++;
                                 additions--;
                             }
+
                             garbageCan = new GarbageCan(Helper.Content, Helper.Events, Helper.Reflection, _config)
                             {
                                 MapName = PathUtilities.NormalizePath(map.AssetName),
@@ -89,7 +93,11 @@ namespace ImJustMatt.GarbageDay
                     }
                 }
             }
-            Monitor.Log($"Found {additions} new garbage cans, replaced {edits}");
+
+            if (additions != 0 || edits != 0)
+            {
+                Monitor.Log($"Found {additions} new garbage cans, replaced {edits} on {asset.AssetName}");
+            }
         }
 
         /// <summary>Load Data for Mods/furyx639.GarbageDay path</summary>
@@ -115,6 +123,17 @@ namespace ImJustMatt.GarbageDay
         public override void Entry(IModHelper helper)
         {
             _config = helper.ReadConfig<ModConfig>();
+
+            var files = Directory.GetFiles(Path.Combine(helper.DirectoryPath, "maps"), "*.json");
+            foreach (var path in files)
+            {
+                var file = Path.GetFileName(path);
+                var maps = helper.Content.Load<IList<string>>(Path.Combine("maps", file));
+                if (maps.Any())
+                {
+                    _maps.AddRange(maps);
+                }
+            }
 
             new Patcher<ModConfig>(ModManifest.UniqueID).ApplyAll(
                 new ChestPatch(Monitor, _config)
