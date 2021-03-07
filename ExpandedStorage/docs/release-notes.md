@@ -1,5 +1,10 @@
 ﻿# Release Notes
 
+## 1.6.4
+
+- Fixed Mini-Fridge not animating correctly
+- Fixed divide by zero errors
+
 ## 1.6.3
 
 - Added indestructible chests option
