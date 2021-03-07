@@ -30,7 +30,7 @@ namespace ImJustMatt.ExpandedStorage.API
 
         /// <summary>Enables the player color choice and overlay layers.</summary>
         bool PlayerColor { get; set; }
-        
+
         /// <summary>Allows config to override capacity and toggleable features.</summary>
         bool PlayerConfig { get; set; }
 

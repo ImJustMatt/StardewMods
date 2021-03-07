@@ -175,7 +175,7 @@ namespace ImJustMatt.ExpandedStorage
             var playerConfigs = contentPack.ReadJsonFile<Dictionary<string, StorageConfig>>("config.json")
                                 ?? new Dictionary<string, StorageConfig>();
             var defaultConfigs = new Dictionary<string, StorageConfig>();
-            
+
             void RevertToDefault()
             {
                 foreach (var defaultConfig in defaultConfigs)
@@ -217,7 +217,7 @@ namespace ImJustMatt.ExpandedStorage
 
                 if (!defaultConfig.PlayerConfig)
                     continue;
-                
+
                 if (!playerConfigs.TryGetValue(expandedStorage.Key, out var playerConfig))
                 {
                     // Generate default player config
@@ -225,7 +225,7 @@ namespace ImJustMatt.ExpandedStorage
                     playerConfig.CopyFrom(defaultConfig);
                     playerConfigs.Add(expandedStorage.Key, playerConfig);
                 }
-                
+
                 SetStorageConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
                 if (_modConfigMenu.IsLoaded)
                     RegisterConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
