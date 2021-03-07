@@ -52,36 +52,37 @@ namespace ImJustMatt.GarbageDay
                 for (var y = 0; y < map.Data.Layers[0].LayerHeight; y++)
                 {
                     var layer = map.Data.GetLayer("Buildings");
-                    if ((layer.Tiles[x, y]?.TileSheet.Id.Equals("Town") ?? false) && layer.Tiles[x, y].TileIndex == 78)
+                    
+                    // Look for Action: Garbage
+                    PropertyValue property = null;
+                    var tile = layer.PickTile(new Location(x, y) * Game1.tileSize, Game1.viewport.Size);
+                    tile?.Properties.TryGetValue("Action", out property);
+                    var parts = property?.ToString().Split(' ');
+                    
+                    // Add to list
+                    if (parts?.ElementAtOrDefault(0) == "Garbage" && !string.IsNullOrWhiteSpace(parts.ElementAtOrDefault(1)))
                     {
-                        // Look for Action: Garbage
-                        PropertyValue property = null;
-                        var tile = layer.PickTile(new Location(x, y) * Game1.tileSize, Game1.viewport.Size);
-                        tile?.Properties.TryGetValue("Action", out property);
-                        var parts = property?.ToString().Split(' ');
-
-                        // Add to list
-                        if (parts?.ElementAtOrDefault(0) == "Garbage" && !string.IsNullOrWhiteSpace(parts.ElementAtOrDefault(1)))
+                        var garbageCan = GarbageCans.SingleOrDefault(c => c.WhichCan.Equals(parts[1]));
+                        if (garbageCan != null)
                         {
-                            var garbageCan = GarbageCans.SingleOrDefault(c => c.WhichCan.Equals(parts[1]));
-                            if (garbageCan != null)
-                            {
-                                GarbageCans.Remove(garbageCan);
-                                edits++;
-                                additions--;
-                            }
-
-                            garbageCan = new GarbageCan(Helper.Content, Helper.Events, Helper.Reflection, _config)
-                            {
-                                MapName = PathUtilities.NormalizePath(map.AssetName),
-                                WhichCan = parts[1],
-                                Tile = new Vector2(x, y)
-                            };
-                            GarbageCans.Add(garbageCan);
-                            additions++;
+                            GarbageCans.Remove(garbageCan);
+                            edits++;
+                            additions--;
                         }
 
-                        // Remove Base
+                        garbageCan = new GarbageCan(Helper.Content, Helper.Events, Helper.Reflection, _config)
+                        {
+                            MapName = PathUtilities.NormalizePath(map.AssetName),
+                            WhichCan = parts[1],
+                            Tile = new Vector2(x, y)
+                        };
+                        GarbageCans.Add(garbageCan);
+                        additions++;
+                    }
+                    
+                    // Remove Base
+                    if ((layer.Tiles[x, y]?.TileSheet.Id.Equals("Town") ?? false) && layer.Tiles[x, y].TileIndex == 78)
+                    {
                         layer.Tiles[x, y] = null;
                     }
 
