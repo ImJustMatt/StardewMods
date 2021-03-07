@@ -17,8 +17,8 @@ Example:
 
 ```json
 [
-  "Maps\ModdedMap",
-  "Maps\AnotherMap",
+  "Maps\\ModdedMap",
+  "Maps\\AnotherMap",
 ]
 ```
 
