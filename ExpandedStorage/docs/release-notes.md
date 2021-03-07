@@ -3,6 +3,7 @@
 ## 1.6.3
 
 - Added indestructible chests option
+- Added option to disable player config for storages
 - Optimized Debris patch when no Vacuum chests
 - Optimized Overlay patch to use RenderedActiveMenu event
 
