@@ -75,56 +75,63 @@ Expanded Storages are loaded into the game using
 It's also possible to load storage or enable features using the [Expanded Storage API]().
 
 ```json
-"Capacity": 72,
-"CanCarry": true,
-"AccessCarried": true,
-"VacuumItems": true,
-"ShowSearchBar": true,
-"IsPlaceable": true,
-"OpenSound": "openChest",
-"IsFridge": false,
-"SpecialChestType": "None",
-"AllowList": [],
-"BlockList": [],
-"Tabs": ["Crops", "Materials", "Other"],
-"ModData": {
-  "ModDataKey": "ModDataValue"
+"StorageName": {
+  "SpecialChestType": "None",
+  "IsFridge": false,
+  "OpenSound": "openChest",
+  "PlaceSound": "axe",
+  "CarrySound": "pickUpItem",
+  "IsPlaceable": true,
+  "Image": "MyStorage.png",
+  "Frames": 1,
+  "Depth": 16,
+  "PlayerColor": true,
+  "PlayerConfig": true,
+  "ModData": {
+    "ModDataKey": "ModDataValue"
+  },
+  "AllowList": [],
+  "BlockList": [],
+  "Capacity": 72,
+  "EnabledFeatures": ["CanCarry", "AccessCarried"],
+  "DisabledFeatures": ["Indestructible", "VacuumItems"]
+  "Tabs": [
+    "Crops",
+    "Materials",
+    "Other"
+  ],
 }
 ```
 
 field               | description
 --------------------|-------------
 `StorageName`       | Name of the object, must match the Big Craftable name. **(Required)**
-`Image`             | Image in assets used as the spritesheet for this storage. (default `null`) <sup>[1](#spritesheet)</sup> 
+`SpecialChestType`  | `"None"`, `"MiniShippingBin"`, or `"JunimoChest"`. (default `"None"`)
+`IsFridge`          | Set to `true` if storage should be treated as a Mini-Fridge. (default `false`)
+`OpenSound`         | Sound to play when storage is being opened. (default `"openChest"`) <sup>[1](#handyheadphones)</sup>
+`PlaceSound`        | Sound to play when storage is placed. (default `"axe"`) <sup>[1](#handyheadphones)</sup>
+`CarrySound`        | Sound to play when storage is picked up. (default `"pickUpItem"`) <sup>[1](#handyheadphones)</sup>
+`IsPlaceable`       | Set to `false` to disallow chest from being placed. (default `true`)
+`Image`             | Image in assets used as the spritesheet for this storage. (default `null`) <sup>[2](#spritesheet)</sup> 
 `Frames`            | Number of frames to animate when opening the storage. (default `1`)
 `Depth`             | Distance from bottom of sprite that is used to determine placement/obstruction. (default `height-16`)
 `PlayerColor`       | Set to `true` to allow player color choice. (default `false`)
-`Capacity`          | Number of item slots this storage supports. `-1` will be treated as infinite items, `0` will use the default vanilla value. (default `0`) <sup>[2](#storagecapacity)</sup>
-`CanCarry`          | Allows this storage to be picked up when it contains items. (default `true`)
-`AccessCarried`     | Open the chest menu while item is currently being held. (default `false`)
-`VacuumItems`       | Storage will collect dropped items directly into it, bypassing the backpack. (default `false`)
-`ShowSearchBar`     | Add a search bar to the chest menu for this storage. (default `false`)
-`IsPlaceable`       | Set to `false` to disallow chest from being placed. (default `true`)
-`OpenSound`         | Sound to play when storage is being opened. (default `"openChest"`) <sup>[3](#handyheadphones)</sup>
-`PlaceSound`        | Sound to play when storage is placed. (default `"axe"`) <sup>[3](#handyheadphones)</sup>
-`CarrySound`        | Sound to play when storage is picked up. (default `"pickUpItem"`) <sup>[3](#handyheadphones)</sup>
-`IsFridge`          | Set to `true` if storage should be treated as a Mini-Fridge. (default `false`)
-`SpecialChestType`  | `"None"`, `"MiniShippingBin"`, or `"JunimoChest"`. (default `"None"`) 
+`PlayerConfig`      | Set to `false` to disallow a config.json from overriding options (default `true`)
+`ModData`           | Adds to the storage [modData](#mod-data) when placed. (default `null`)
 `AllowList`         | Restrict chest to only accept items containing these [tags](#context-tags). (default `[]`)
 `BlockList`         | Restrict chest to reject items containing these [tags](#context-tags). (default `[]`)
-`Tabs`              | Adds [tabs](#storage-tabs) to the chest menu for this storage by the tab name(s). (default `[]`)
-`ModData`           | Adds to the storage [modData](#mod-data) when placed. (default `null`)
+`Capacity`          | Number of item slots this storage supports. `-1` will be treated as infinite items, `0` will use the default vanilla value. (default `0`) <sup>[2](#storagecapacity)</sup>
 `EnabledFeatures`   | List of [config options](#config-options) to enable. (default `[]`)
 `DisabledFeatures`  | List of [config options](#config-options) to disable. (default `[]`)
+`Tabs`              | Adds [tabs](#storage-tabs) to the chest menu for this storage by the tab name(s). (default `[]`)
 
-
-<span id="spritesheet">1.</span> Refer to the [Sprite Sheets](#sprite-sheets)
-section for arranging sprites correctly.  
-<span id="storagecapacity">2.</span> Assign a capacity of at least one row (12)
-to avoid visual glitches.  
-<span id="handyheadphones">3.</span> I recommend
+<span id="handyheadphones">1.</span> I recommend
 [Handy Headphones](https://www.nexusmods.com/stardewvalley/mods/7936) to listen
 to sounds available to play from in-game.
+<span id="spritesheet">2.</span> Refer to the [Sprite Sheets](#sprite-sheets)
+section for arranging sprites correctly.  
+<span id="storagecapacity">3.</span> Assign a capacity of at least one row (12)
+to avoid visual glitches.
 
 ### Storage Tabs
 
@@ -179,6 +186,8 @@ field               | description
 --------------------|-------------
 `AccessCarried`     | Open the chest menu while item is currently being held. (default `disabled`)
 `CanCarry`          | Allows this storage to be picked up when it contains items. (default `enabled`)
+`Indestructible`    | Prevents chest from being broken by tools even while empty. (default `disabled`)
+`ShowColorPicker`   | Removes the chest color picker from the ItemGrabMenu (default `enabled`)
 `ShowSearchBar`     | Add a search bar to the chest menu for this storage. (default `enabled`)
 `ShowTabs`          | Add a search bar to the chest menu for this storage. (default `enabled`)
 `VacuumItems`       | Storage will collect dropped items directly into it, bypassing the backpack. (default `disabled`)
