@@ -62,6 +62,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                     OpenSound = "doorCreak";
                     PlaceSound = "hammer";
                     CarrySound = "pickUpItem";
+                    PlayerColor = false;
+                    Frames = 2;
                     break;
                 case "Junimo Chest":
                     SpecialChestType = "JunimoChest";
@@ -96,15 +98,21 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             $"{new string('-', 21)}|{new string('-', 15)}",
             $"{"Special Chest Type",-20} | {SpecialChestType}",
             $"{"Is Fridge",-20} | {IsFridge}",
-            $"{"Modded Capacity",-20} | {Capacity}",
             $"{"Open Sound",-20} | {OpenSound}",
             $"{"Place Sound",-20} | {PlaceSound}",
+            $"{"Carry Sound",-20} | {CarrySound}",
             $"{"Is Placeable",-20} | {IsPlaceable}",
+            $"{"Image",-20} | {Image}",
+            $"{"Frames",-20} | {Frames}",
+            $"{"Depth",-20} | {Depth}",
+            $"{"Player Color",-20} | {PlayerColor}",
+            $"{"Player Config",-20} | {PlayerConfig}",
+            $"{"Allow List",-20} | {string.Join(", ", AllowList)},",
+            $"{"Block List",-20} | {string.Join(", ", BlockList)},",
+            $"{"Modded Capacity",-20} | {Capacity}",
             string.Join("\n",
                 StorageOptions.Keys.Where(option => Option(option) != Choice.Unspecified).Select(option => $"{option,-20} | {Option(option)}")
             ),
-            $"{"Allow List",-20} | {string.Join(", ", AllowList)},",
-            $"{"Block List",-20} | {string.Join(", ", BlockList)},",
             $"{"Tabs",-20} | {string.Join(", ", Tabs)}"
         );
 
@@ -116,9 +124,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public bool IsPlaceable { get; set; } = true;
         public string Image { get; set; } = "";
         public int Frames { get; set; } = 5;
+        public int Depth { get; set; }
         public bool PlayerColor { get; set; } = true;
         public bool PlayerConfig { get; set; } = true;
-        public int Depth { get; set; }
         public IDictionary<string, string> ModData { get; set; } = new Dictionary<string, string>();
         public HashSet<string> AllowList { get; set; } = new();
         public HashSet<string> BlockList { get; set; } = new();
