@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
@@ -7,6 +8,7 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
+using Object = StardewValley.Object;
 
 // ReSharper disable InconsistentNaming
 
@@ -31,35 +33,33 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
         public static void Draw(this Chest chest, Storage storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha = 1f, float layerDepth = 0.89f, float scaleSize = 4f)
         {
             var currentLidFrameReflected = _reflection.GetField<int>(chest, "currentLidFrame");
-            var currentLidFrame = currentLidFrameReflected.GetValue();
             var startingLidFrame = chest.startingLidFrame.Value;
-            if (currentLidFrame <= 0 || currentLidFrame - startingLidFrame >= storage.Frames)
-                currentLidFrame = chest.startingLidFrame.Value;
 
-            void Animate()
+            if (!Enum.TryParse(storage.Animation, out Storage.AnimationType animationType))
             {
-                chest.frameCounter.Value--;
-                if (chest.frameCounter.Value > 0)
-                    return;
-                if (storage.Animation == "Color")
+                animationType = Storage.AnimationType.None;
+            }
+
+            var currentLidFrame = (int) MathHelper.Clamp(
+                animationType == Storage.AnimationType.None
+                    ? currentLidFrameReflected.GetValue()
+                    : (int) (Storage.Frame / storage.Delay) % storage.Frames + startingLidFrame,
+                startingLidFrame,
+                startingLidFrame + storage.Frames - 1);
+
+            if (animationType != Storage.AnimationType.None)
+            {
+                if (animationType == Storage.AnimationType.Color)
                 {
-                    var color = HSLColor.FromColor(storage.PlayerColor ? chest.playerChoiceColor.Value : chest.Tint);
-                    color.H += 0.05f;
-                    color.S = 1;
-                    color.L = 0.5f;
-                    if (color.H >= 1) color.H = 0;
                     if (storage.PlayerColor)
                     {
-                        chest.playerChoiceColor.Value = color.ToRgbColor();
+                        chest.playerChoiceColor.Value = Storage.ColorWheel.ToRgbColor();
                     }
                     else
                     {
-                        chest.Tint = color.ToRgbColor();
+                        chest.Tint = Storage.ColorWheel.ToRgbColor();
                     }
                 }
-
-                chest.frameCounter.Value = storage.Delay;
-                currentLidFrame++;
                 currentLidFrameReflected.SetValue(currentLidFrame);
             }
 
@@ -89,7 +89,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                         layerDepth + (1 + layer - startLayer) * 1E-05f);
                 }
 
-                if (storage.Animation != "None") Animate();
                 return;
             }
 
@@ -105,8 +104,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                     SpriteEffects.None,
                     layerDepth);
 
-                if (storage.Frames == 1 || scaleSize < 4f)
-                    return;
+                if (storage.Frames == 1 || scaleSize < 4f) return;
 
                 spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
                     pos + ShakeOffset(chest, -1, 2),
@@ -117,7 +115,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                     scaleSize,
                     SpriteEffects.None,
                     layerDepth + 1E-05f);
-                if (storage.Animation != "None") Animate();
                 return;
             }
 
@@ -157,11 +154,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 SpriteEffects.None,
                 layerDepth + 2E-05f);
 
-            if (!ShowBottomBraceIds.Contains(chest.ParentSheetIndex))
-            {
-                if (storage.Animation != "None") Animate();
-                return;
-            }
+            if (!ShowBottomBraceIds.Contains(chest.ParentSheetIndex)) return;
 
             // Draw Bottom Brace Layer (Non-Colorized)
             var rect = Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, chest.ParentSheetIndex + aboveOffset, 16, 32);
@@ -177,7 +170,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 scaleSize,
                 SpriteEffects.None,
                 layerDepth + 3E-05f);
-            if (storage.Animation != "None") Animate();
         }
 
         private static Vector2 ShakeOffset(Object instance, int minValue, int maxValue)

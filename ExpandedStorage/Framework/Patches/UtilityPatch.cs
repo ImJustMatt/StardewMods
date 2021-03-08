@@ -24,8 +24,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static bool PlayerCanPlaceItemHerePrefix(ref bool __result, GameLocation location, Item item, int x, int y, Farmer f)
         {
-            var storage = ExpandedStorage.GetStorage(item);
-            if (storage?.SpriteSheet is not {Texture: { }} spriteSheet)
+            if (!ExpandedStorage.TryGetStorage(item, out var storage) || storage.SpriteSheet is not {Texture: { }} spriteSheet)
                 return true;
 
             x = 64 * (x / 64);

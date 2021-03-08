@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.ExpandedStorage.API;
+using ImJustMatt.ExpandedStorage.Common.Helpers;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
@@ -13,7 +14,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             Disable
         }
 
-        public static readonly IDictionary<string, string> StorageOptions = new Dictionary<string, string>
+        internal static readonly IDictionary<string, string> StorageOptions = new Dictionary<string, string>
         {
             {"AccessCarried", "Allow storage to be access while carried"},
             {"CanCarry", "Allow storage to be picked up"},
@@ -26,6 +27,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
         /// <summary>Default storage settings for unspecified options</summary>
         private static StorageConfig _defaultConfig;
+
+        internal string StorageConfigSummary => string.Join("\n",
+            StorageOptions.Keys
+                .Where(option => Option(option) != Choice.Unspecified)
+                .Select(option => $"{option,-25} | {Option(option)}"));
 
         internal StorageMenu Menu => new(Capacity == 0 ? _defaultConfig : this);
         internal int ActualCapacity => Capacity == 0 ? _defaultConfig.Capacity : Capacity;

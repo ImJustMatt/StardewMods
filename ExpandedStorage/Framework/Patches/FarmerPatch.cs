@@ -26,8 +26,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Converted added items into Chests</summary>
         public static bool AddItemToInventoryPrefix(Farmer __instance, ref Item __result, Item item, List<Item> affected_items_list)
         {
-            var storage = ExpandedStorage.GetStorage(item);
-            if (storage == null || item.Stack > 1)
+            if (!ExpandedStorage.TryGetStorage(item, out var storage) || item.Stack > 1)
                 return true;
 
             var chest = item.ToChest(storage);

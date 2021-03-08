@@ -146,8 +146,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         private static void ConstructorPostfix(ItemGrabMenu __instance)
         {
-            var storage = ExpandedStorage.GetStorage(__instance.context);
-            if (storage == null || __instance.context is ShippingBin)
+            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
             var menuConfig = storage.Menu;
@@ -255,8 +254,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Set color picker to HSL Color Picker.</summary>
         private static void GameWindowSizeChangedPostfix(ItemGrabMenu __instance)
         {
-            var storage = ExpandedStorage.GetStorage(__instance.context);
-            if (storage == null || __instance.context is ShippingBin)
+            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
             __instance.chestColorPicker = storage.PlayerColor && storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable ? MenuView.ColorPicker : null;
@@ -265,8 +263,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Set color picker to HSL Color Picker.</summary>
         private static void SetSourceItemPostfix(ItemGrabMenu __instance, Item item)
         {
-            var storage = ExpandedStorage.GetStorage(__instance.context);
-            if (storage == null || __instance.context is ShippingBin)
+            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
             __instance.chestColorPicker = storage.PlayerColor && storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable ? MenuView.ColorPicker : null;
@@ -275,8 +272,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Reposition side buttons with offset.</summary>
         private static void RepositionSideButtonsPostfix(ItemGrabMenu __instance)
         {
-            var storage = ExpandedStorage.GetStorage(__instance.context);
-            if (storage == null || __instance.context is ShippingBin)
+            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
             var menuConfig = storage.Menu;
@@ -348,22 +344,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 )
                 .Log("Adding top padding offset to drawDialogueBox.height.")
                 .Patch(OffsetPatch(MenuPadding, OpCodes.Add));
-/*
-            // Draw arrows under hover text
-            patternPatches
-                .Find(
-                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ItemGrabMenu), nameof(ItemGrabMenu.junimoNoteIcon))),
-                    new CodeInstruction(OpCodes.Ldarg_1),
-                    new CodeInstruction(OpCodes.Callvirt, AccessTools.Method(typeof(ClickableTextureComponent), nameof(ClickableTextureComponent.draw), new[] {typeof(SpriteBatch)})),
-                    new CodeInstruction(OpCodes.Ldarg_0)
-                )
-                .Log("Adding DrawOverlay method to ItemGrabMenu.")
-                .Patch(delegate(LinkedList<CodeInstruction> list)
-                {
-                    list.AddLast(new CodeInstruction(OpCodes.Ldarg_1));
-                    list.AddLast(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(MenuView), nameof(MenuView.DrawOverlay))));
-                });
-*/
+            
             foreach (var patternPatch in patternPatches)
                 yield return patternPatch;
 

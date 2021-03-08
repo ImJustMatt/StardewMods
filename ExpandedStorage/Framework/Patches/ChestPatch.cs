@@ -91,14 +91,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 || !__instance.playerChest.Value
                 || !Game1.didPlayerJustRightClick(true))
                 return true;
-
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null)
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
                 return true;
 
             __result = true;
-
-            if (storage.SpecialChestType == "MiniShippingBin" || storage.Animation != "None")
+            if (storage.SpecialChestType == "MiniShippingBin"
+                || Enum.TryParse(storage.Animation, out Storage.AnimationType animationType)
+                && animationType != Storage.AnimationType.None)
             {
                 Game1.playSound(storage.OpenSound);
                 __instance.ShowMenu();
@@ -113,17 +112,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     Game1.player.freezePause = 1000;
                 });
             }
-
             return false;
         }
 
         /// <summary>Prevent breaking indestructible chests</summary>
         private static bool PerformToolActionPrefix(Chest __instance, ref bool __result, Tool t, GameLocation location)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null || storage.Option("Indestructible", true) != StorageConfig.Choice.Enable)
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Option("Indestructible", true) != StorageConfig.Choice.Enable)
                 return true;
-
             __result = false;
             return false;
         }
@@ -131,10 +127,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Prevent adding item if filtered.</summary>
         public static bool AddItemPrefix(Chest __instance, ref Item __result, Item item)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (!ReferenceEquals(__instance, item) && (storage == null || storage.Filter(item)))
+            if (!ReferenceEquals(__instance, item)
+                && (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Filter(item)))
                 return true;
-
             __result = item;
             return false;
         }
@@ -154,10 +149,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Returns modded capacity for storage.</summary>
         public static bool GetActualCapacityPrefix(Chest __instance, ref int __result)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null || storage.ActualCapacity == 0)
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.ActualCapacity == 0)
                 return true;
-
             __result = storage.ActualCapacity == -1 ? int.MaxValue : storage.ActualCapacity;
             return false;
         }
@@ -165,8 +158,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Draw chest with playerChoiceColor and lid animation when placed.</summary>
         public static bool DrawPrefix(Chest __instance, SpriteBatch spriteBatch, int x, int y, float alpha)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
                 return true;
 
             // Only draw origin sprite for bigger expanded storages
@@ -185,7 +177,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             var globalPosition = new Vector2(draw_x, (int) (draw_y - storage.Depth / 16f - 1f));
             var layerDepth = Math.Max(0.0f, ((draw_y + 1f) * 64f - 24f) / 10000f) + draw_x * 1E-05f;
-
             __instance.Draw(storage, spriteBatch, Game1.GlobalToLocal(Game1.viewport, globalPosition * 64), Vector2.Zero, alpha, layerDepth);
             return false;
         }
@@ -193,10 +184,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Draw chest with playerChoiceColor and lid animation when held.</summary>
         public static bool DrawLocalPrefix(Chest __instance, SpriteBatch spriteBatch, int x, int y, float alpha, bool local)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null || !local || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || !local || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
                 return true;
-
             __instance.Draw(storage, spriteBatch, new Vector2(x, y - 64), Vector2.Zero, alpha);
             return false;
         }
@@ -204,8 +193,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Draw chest with playerChoiceColor and lid animation in menu.</summary>
         public static bool DrawInMenuPrefix(Chest __instance, SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, StackDrawType drawStackNumber, Color color, bool drawShadow)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
                 return true;
 
             Vector2 origin;
@@ -242,8 +230,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static bool UpdateWhenCurrentLocationPrefix(Chest __instance, GameTime time, GameLocation environment)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            return storage == null || storage.Animation != "None";
+            return !ExpandedStorage.TryGetStorage(__instance, out var storage)
+                   || !Enum.TryParse(storage.Animation, out Storage.AnimationType animationType)
+                   || animationType == Storage.AnimationType.None;
         }
     }
 }

@@ -11,7 +11,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
         public static Chest ToChest(this Item item, Storage storage = null)
         {
             // Get config for chest
-            storage ??= ExpandedStorage.GetStorage(item);
+            if (storage == null && !ExpandedStorage.TryGetStorage(item, out storage))
+            {
+                throw new InvalidOperationException($"Unexpected item '{item.Name}'.");
+            }
 
             // Create Chest from Item
             var chest = new Chest(true, Vector2.Zero, item.ParentSheetIndex)

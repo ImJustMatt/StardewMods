@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
+using ImJustMatt.ExpandedStorage.Common.Helpers;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
@@ -13,6 +15,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
     public class Storage : StorageConfig, IStorage
     {
+        public enum AnimationType
+        {
+            None,
+            Loop,
+            Color
+        }
+
         public enum SourceType
         {
             Unknown,
@@ -21,12 +30,23 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             CustomChestTypes
         }
 
-        public static readonly IList<string> StorageProperties = new List<string>
+        internal static readonly TableSummary TableSummary = new TableSummary(new Dictionary<string, string>
         {
-            "SpecialChestType", "IsFridge", "OpenSound", "PlaceSound", "CarrySound",
-            "IsPlaceable", "Image", "Frames", "Depth", "Animation", "Delay", "Depth",
-            "PlayerColor", "PlayerConfig", "AllowList", "BlockList", "ModData"
-        };
+            {"SpecialChestType", "Can be one of None, MiniShippingBin, JunimoChest, AutoLoader, or Enricher"},
+            {"IsFridge", "Make the Storage into a Mini-Fridge when placed"},
+            {"OpenSound", "Sound played when storage object is opened"},
+            {"PlaceSound", "Sound played when storage object is placed"},
+            {"CarrySound", "Sound played when storage object is picked up"},
+            {"IsPlaceable", "Allow storage to be placed in a game location"},
+            {"Image", "SpriteSheet for the storage object"},
+            {"Frames", "Number of animation frames in the SpriteSheet"},
+            {"Depth", "Number of pixels from the bottom of the SpriteSheet that occupy the ground for placement"},
+            {"Animation", "Can be one of None, Loop, or Color"},
+            {"Delay", "Number of ticks for each Animation Frame"},
+            {"PlayerColor", "Enables the Player Color Selector from the Storage Menu"},
+            {"PlayerConfig", "Enables Storage Capacity and Features to be overriden by config file"},
+            {"Tabs", "Tabs used to filter this Storage Menu inventory"}
+        });
 
         private static readonly HashSet<string> ExcludeModDataKeys = new();
 
@@ -38,6 +58,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             "Mini-Shipping Bin",
             "Mini-Fridge"
         };
+
+        internal static uint Frame;
+
+        internal static HSLColor ColorWheel;
 
         /// <summary>List of ParentSheetIndex related to this item.</summary>
         internal readonly HashSet<int> ObjectIds = new();
@@ -101,22 +125,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             ? _storageSprite ??= new StorageSprite(this)
             : null;
 
-        internal string SummaryReport => string.Join("\n",
-            $"{"Storage Option",-20} | Current Value",
-            $"{new string('-', 21)}|{new string('-', 15)}",
-            string.Join("\n",
-                StorageProperties
-                    .Select(prop => $"{Regex.Replace(nameof(prop), "(\\B[A-Z])", " $1"),-20} | "
-                                    + GetType().GetProperty(prop)?.GetValue(this, null))
-                    .ToList()
-            ),
-            $"{"Allow List",-20} | {string.Join(", ", AllowList)},",
-            $"{"Block List",-20} | {string.Join(", ", BlockList)},",
-            $"{"Modded Capacity",-20} | {Capacity}",
-            string.Join("\n",
-                StorageOptions.Keys.Where(option => Option(option) != Choice.Unspecified).Select(option => $"{option,-20} | {Option(option)}")
-            ),
-            $"{"Tabs",-20} | {string.Join(", ", Tabs)}"
+        internal string StorageSummary => string.Join("\n",
+            TableSummary.Report(this),
+            StorageConfigSummary
         );
 
         public string SpecialChestType { get; set; }
@@ -135,6 +146,19 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public IDictionary<string, string> ModData { get; set; } = new Dictionary<string, string>();
         public HashSet<string> AllowList { get; set; } = new();
         public HashSet<string> BlockList { get; set; } = new();
+
+        internal static void Init(IModEvents events)
+        {
+            ColorWheel = new HSLColor(0, 1, 0.5f);
+            events.GameLoop.SaveLoaded += delegate { events.GameLoop.UpdateTicked += OnUpdateTicked; };
+            events.GameLoop.ReturnedToTitle += delegate { events.GameLoop.UpdateTicked -= OnUpdateTicked; };
+        }
+
+        private static void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
+        {
+            Frame = e.Ticks;
+            ColorWheel.H = e.Ticks / 5 % 100 / 100f;
+        }
 
         internal static void AddExclusion(string modDataKey)
         {

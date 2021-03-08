@@ -49,8 +49,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             Menu = menu;
             Context = menu.context;
             MenuRows = Menu.ItemsToGrabMenu.rows;
-
-            Storage = ExpandedStorage.GetStorage(Context);
+            ExpandedStorage.TryGetStorage(Context, out Storage);
             Items = menu.ItemsToGrabMenu.actualInventory;
             FilteredItems = Items;
             MaxRows = Math.Max(0, Items.Count.RoundUp(12) / 12 - MenuRows);
@@ -154,41 +153,35 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
         /// <summary>Returns Offset to lower menu for expanded menus.</summary>
         public static int GetOffset(MenuWithInventory menu)
         {
-            return _config.ExpandInventoryMenu && menu is ItemGrabMenu {shippingBin: false} igm
-                ? ExpandedStorage.GetStorage(igm.context)?.Menu.Offset ?? 0
+            return _config.ExpandInventoryMenu
+                   && menu is ItemGrabMenu {shippingBin: false} igm
+                   && ExpandedStorage.TryGetStorage(igm.context, out var storage)
+                ? storage.Menu?.Offset ?? 0
                 : 0;
         }
 
         /// <summary>Returns Padding to top menu for search box.</summary>
         public static int GetPadding(MenuWithInventory menu)
         {
-            return menu is ItemGrabMenu {shippingBin: false} igm
-                ? ExpandedStorage.GetStorage(igm.context)?.Menu.Padding ?? 0
-                : 0;
+            return menu is ItemGrabMenu {shippingBin: false} igm && ExpandedStorage.TryGetStorage(igm.context, out var storage) ? storage.Menu?.Padding ?? 0 : 0;
         }
 
         /// <summary>Returns Display Capacity of MenuWithInventory.</summary>
         public static int GetMenuCapacity(object context)
         {
-            return _config.ExpandInventoryMenu
-                ? ExpandedStorage.GetStorage(context)?.Menu.Capacity ?? 36
-                : 36;
+            return _config.ExpandInventoryMenu && ExpandedStorage.TryGetStorage(context, out var storage) ? storage.Menu?.Capacity ?? 36 : 36;
         }
 
         /// <summary>Returns Displayed Rows of MenuWithInventory.</summary>
         public static int GetRows(object context)
         {
-            return _config.ExpandInventoryMenu
-                ? ExpandedStorage.GetStorage(context)?.Menu?.Rows ?? 3
-                : 3;
+            return _config.ExpandInventoryMenu && ExpandedStorage.TryGetStorage(context, out var storage) ? storage.Menu?.Rows ?? 3 : 3;
         }
 
         /// <summary>Returns the filtered list of items in the InventoryMenu.</summary>
         public static IList<Item> GetItems(IList<Item> items)
         {
-            return Instance.Value != null && ReferenceEquals(Instance.Value.Items, items)
-                ? Instance.Value.FilteredItems
-                : items;
+            return Instance.Value != null && ReferenceEquals(Instance.Value.Items, items) ? Instance.Value.FilteredItems : items;
         }
 
         internal static void Init(ModConfig config)

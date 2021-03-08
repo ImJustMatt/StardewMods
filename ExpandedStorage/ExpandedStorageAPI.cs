@@ -275,7 +275,7 @@ namespace ImJustMatt.ExpandedStorage
             }
 
             storage.CopyFrom(config);
-            _monitor.Log($"{storageName} Config:\n{storage.SummaryReport}", LogLevel.Debug);
+            _monitor.Log($"{storageName} Config:\n{storage.StorageSummary}", LogLevel.Debug);
         }
 
         public void RegisterStorage(IManifest manifest, string storageName, IStorage storage)

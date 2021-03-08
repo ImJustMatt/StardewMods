@@ -45,8 +45,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             var reflectedChest = _reflection.GetField<Chest>(__instance, "Chest");
             var reflectedSample = _reflection.GetProperty<Item>(stack, "Sample");
-            var storage = ExpandedStorage.GetStorage(reflectedChest.GetValue());
-            return storage == null || storage.Filter(reflectedSample.GetValue());
+            return !ExpandedStorage.TryGetStorage(reflectedChest.GetValue(), out var storage)
+                   || storage.Filter(reflectedSample.GetValue());
         }
 
         private interface ITrackedStack

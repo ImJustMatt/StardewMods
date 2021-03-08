@@ -25,8 +25,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static bool CanStackWithPrefix(Item __instance, ref bool __result, ISalable other)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null)
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
                 return true;
 
             // Disallow stacking for any chest instance objects

@@ -54,8 +54,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static bool PlacementActionPrefix(Object __instance, ref bool __result, GameLocation location, int x, int y, Farmer who)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null)
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
                 return true;
 
             if (!storage.IsPlaceable)
@@ -130,8 +129,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static bool DrawWhenHeldPrefix(Object __instance, SpriteBatch spriteBatch, Vector2 objectPosition, Farmer f)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null || __instance is not Chest chest || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || __instance is not Chest chest || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
                 return true;
 
             if (storage.SpriteSheet is {Texture: { }} spriteSheet)
@@ -153,8 +151,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
                 return true;
 
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage != null && !storage.IsPlaceable)
+            if (ExpandedStorage.TryGetStorage(__instance, out var storage) && !storage.IsPlaceable)
                 return false;
 
             if (storage?.SpriteSheet is not {Texture: { }} spriteSheet)
@@ -205,8 +202,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Disallow stacking carried chests.</summary>
         public static bool MaximumStackSizePrefix(Object __instance, ref int __result)
         {
-            var storage = ExpandedStorage.GetStorage(__instance);
-            if (storage == null
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage)
                 || storage.Option("CarryChest", true) != StorageConfig.Choice.Enable
                 && storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable)
                 return true;

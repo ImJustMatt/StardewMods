@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
+using ImJustMatt.ExpandedStorage.Common.Helpers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -10,6 +11,14 @@ namespace ImJustMatt.ExpandedStorage.Framework
 {
     internal class ModConfig
     {
+        internal static readonly TableSummary TableSummary = new TableSummary(new Dictionary<string, string>
+        {
+            {"Controller", "Enables input designed to improve controller compatibility"},
+            {"ExpandInventoryMenu", "Allows storage menu to have up to 6 rows"},
+            {"SearchTagSymbol", "Symbol used to search items by context tag"},
+            {"VacuumToFirstRow", "Items will only be collected to Vacuum Storages in the active hotbar"}
+        });
+
         /// <summary>Enable controller config settings.</summary>
         public bool Controller { get; set; } = true;
 
@@ -101,24 +110,16 @@ namespace ImJustMatt.ExpandedStorage.Framework
         /// <summary>Symbol used to search items by context tags.</summary>
         public string SearchTagSymbol { get; set; } = "#";
 
+
         protected internal string SummaryReport => string.Join("\n",
             "Expanded Storage Configuration",
-            $"{"Config Option",-20} | Current Value",
-            $"{new string('-', 21)}|{new string('-', 15)}",
-            $"{"Next Tab",-20} | {Controls.NextTab}",
-            $"{"Previous Tab",-20} | {Controls.PreviousTab}",
-            $"{"Scroll Up",-20} | {Controls.ScrollUp}",
-            $"{"Scroll Down",-20} | {Controls.ScrollDown}",
-            $"{"Show Crafting",-20} | {Controls.OpenCrafting}",
-            $"{"Resize Menu",-20} | {ExpandInventoryMenu}",
-            $"{"Search Tag Symbol",-20} | {SearchTagSymbol}",
-            $"{"Vacuum First Row",-20} | {VacuumToFirstRow}",
-            $"{"Enable Controller",-20} | {Controller}",
-            string.Join("\n",
-                StorageConfig.StorageOptions.Keys
-                    .Where(option => DefaultStorage.Option(option) != StorageConfig.Choice.Unspecified)
-                    .Select(option => $"{option,-20} | {DefaultStorage.Option(option)}")
-            )
+            TableSummary.Report(this),
+            $"{"Next Tab",-25} | {Controls.NextTab}",
+            $"{"Previous Tab",-25} | {Controls.PreviousTab}",
+            $"{"Scroll Up",-25} | {Controls.ScrollUp}",
+            $"{"Scroll Down",-25} | {Controls.ScrollDown}",
+            $"{"Show Crafting",-25} | {Controls.OpenCrafting}",
+            DefaultStorage.StorageConfigSummary
         );
 
         internal void CopyFrom(ModConfig config)
