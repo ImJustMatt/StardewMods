@@ -30,7 +30,6 @@ namespace ImJustMatt.GarbageDay.Framework.Models
         internal GameLocation Location;
         internal string MapName;
         internal Vector2 Tile;
-
         internal string WhichCan;
 
         internal GarbageCan(IContentHelper contentHelper, IModEvents modEvents, IReflectionHelper reflection, ModConfig config)

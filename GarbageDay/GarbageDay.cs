@@ -251,7 +251,7 @@ namespace ImJustMatt.GarbageDay
         private void OnReturnedToTitle(object sender, ReturnedToTitleEventArgs e)
         {
             _objectId = 0;
-            GarbageCans.Clear();
+            _objectsPlaced = false;
         }
 
         /// <summary>Add storage to garbage can spot</summary>
@@ -279,6 +279,21 @@ namespace ImJustMatt.GarbageDay
                         location.Objects.Add(garbageCan.Tile, chest);
                     }
                 });
+
+                Monitor.Log(string.Join("\n",
+                    "Garbage Can Report",
+                    $"{"Name",-20} | {"Location",-30} | Coordinates",
+                    $"{new string('-', 21)}|{new string('-', 32)}|{new string('-', 15)}",
+                    string.Join("\n",
+                        GarbageCans
+                            .OrderBy(garbageCan => garbageCan.WhichCan)
+                            .Select(garbageCan => string.Join(" | ",
+                                $"{garbageCan.WhichCan,-20}",
+                                $"{garbageCan.Location.Name,-30}",
+                                $"{garbageCan.Tile.ToString()}")
+                            ).ToList()
+                    )
+                ));
             }
 
             if (_garbageChecked) return;
