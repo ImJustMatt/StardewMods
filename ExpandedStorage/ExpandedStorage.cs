@@ -262,13 +262,20 @@ namespace ImJustMatt.ExpandedStorage
                 return;
             }
 
+            var storage = GetStorage(chest);
+            if (storage == null)
+            {
+                HeldChest.Value = null;
+                return;
+            }
+
             if (!ReferenceEquals(HeldChest.Value, chest))
             {
                 HeldChest.Value = chest;
                 chest.fixLidFrame();
             }
 
-            if (chest.frameCounter.Value <= -1 || _currentLidFrame.Value > chest.getLastLidFrame())
+            if (storage.Animation != "None" || chest.frameCounter.Value <= -1 || _currentLidFrame.Value > chest.getLastLidFrame())
                 return;
 
             chest.frameCounter.Value--;
@@ -328,17 +335,25 @@ namespace ImJustMatt.ExpandedStorage
                 storage = GetStorage(HeldChest.Value);
                 if (storage == null || storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable)
                     return;
+                HeldChest.Value.checkForAction(Game1.player);
 
-                HeldChest.Value.GetMutex().RequestLock(delegate
+                location.playSound(storage.OpenSound);
+                if (storage.Animation != "None" || storage.Frames == 1)
                 {
-                    HeldChest.Value.fixLidFrame();
-                    HeldChest.Value.performOpenChest();
-                    _currentLidFrameReflected.Value = Helper.Reflection.GetField<int>(HeldChest.Value, "currentLidFrame");
-                    _currentLidFrame.Value = HeldChest.Value.startingLidFrame.Value;
-                    Game1.playSound(storage.OpenSound);
-                    Game1.player.Halt();
-                    Game1.player.freezePause = 1000;
-                });
+                    HeldChest.Value.ShowMenu();
+                }
+                else
+                {
+                    HeldChest.Value.GetMutex().RequestLock(delegate
+                    {
+                        HeldChest.Value.fixLidFrame();
+                        HeldChest.Value.performOpenChest();
+                        _currentLidFrameReflected.Value = Helper.Reflection.GetField<int>(HeldChest.Value, "currentLidFrame");
+                        _currentLidFrame.Value = HeldChest.Value.startingLidFrame.Value;
+                        Game1.player.Halt();
+                        Game1.player.freezePause = 1000;
+                    });
+                }
 
                 Helper.Input.Suppress(e.Button);
             }

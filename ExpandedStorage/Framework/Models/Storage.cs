@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
 using StardewValley;
@@ -19,6 +20,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             JsonAssets,
             CustomChestTypes
         }
+
+        public static readonly IList<string> StorageProperties = new List<string>
+        {
+            "SpecialChestType", "IsFridge", "OpenSound", "PlaceSound", "CarrySound",
+            "IsPlaceable", "Image", "Frames", "Depth", "Animation", "Delay", "Depth",
+            "PlayerColor", "PlayerConfig", "AllowList", "BlockList", "ModData"
+        };
 
         private static readonly HashSet<string> ExcludeModDataKeys = new();
 
@@ -96,17 +104,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         internal string SummaryReport => string.Join("\n",
             $"{"Storage Option",-20} | Current Value",
             $"{new string('-', 21)}|{new string('-', 15)}",
-            $"{"Special Chest Type",-20} | {SpecialChestType}",
-            $"{"Is Fridge",-20} | {IsFridge}",
-            $"{"Open Sound",-20} | {OpenSound}",
-            $"{"Place Sound",-20} | {PlaceSound}",
-            $"{"Carry Sound",-20} | {CarrySound}",
-            $"{"Is Placeable",-20} | {IsPlaceable}",
-            $"{"Image",-20} | {Image}",
-            $"{"Frames",-20} | {Frames}",
-            $"{"Depth",-20} | {Depth}",
-            $"{"Player Color",-20} | {PlayerColor}",
-            $"{"Player Config",-20} | {PlayerConfig}",
+            string.Join("\n",
+                StorageProperties
+                    .Select(prop => $"{Regex.Replace(nameof(prop), "(\\B[A-Z])", " $1"),-20} | "
+                                    + GetType().GetProperty(prop)?.GetValue(this, null))
+                    .ToList()
+            ),
             $"{"Allow List",-20} | {string.Join(", ", AllowList)},",
             $"{"Block List",-20} | {string.Join(", ", BlockList)},",
             $"{"Modded Capacity",-20} | {Capacity}",
@@ -125,6 +128,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public string Image { get; set; } = "";
         public int Frames { get; set; } = 5;
         public int Depth { get; set; }
+        public string Animation { get; set; } = "None";
+        public int Delay { get; set; } = 5;
         public bool PlayerColor { get; set; } = true;
         public bool PlayerConfig { get; set; } = true;
         public IDictionary<string, string> ModData { get; set; } = new Dictionary<string, string>();
@@ -193,7 +198,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             if (PlaceSound == "axe") PlaceSound = storage.PlaceSound;
             if (IsPlaceable) IsPlaceable = storage.IsPlaceable;
             if (!string.IsNullOrWhiteSpace(storage.Image)) Image = storage.Image;
+            if (!string.IsNullOrWhiteSpace(storage.Animation)) Animation = storage.Animation;
             if (storage.Frames > 0) Frames = storage.Frames;
+            if (storage.Delay > 0) Delay = storage.Delay;
             PlayerColor = storage.PlayerColor;
             PlayerConfig = storage.PlayerConfig;
             if (Depth == 0) Depth = storage.Depth;

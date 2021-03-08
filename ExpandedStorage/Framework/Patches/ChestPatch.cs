@@ -77,6 +77,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 AccessTools.Method(typeof(Chest), nameof(Chest.drawInMenu), new[] {typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float), typeof(float), typeof(StackDrawType), typeof(Color), typeof(bool)}),
                 new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
             );
+
+            harmony.Patch(
+                AccessTools.Method(typeof(Chest), nameof(Chest.updateWhenCurrentLocation)),
+                new HarmonyMethod(GetType(), nameof(UpdateWhenCurrentLocationPrefix))
+            );
         }
 
         /// <summary>Play custom sound when opening chest</summary>
@@ -93,7 +98,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             __result = true;
 
-            if (storage.SpecialChestType == "MiniShippingBin")
+            if (storage.SpecialChestType == "MiniShippingBin" || storage.Animation != "None")
             {
                 Game1.playSound(storage.OpenSound);
                 __instance.ShowMenu();
@@ -233,6 +238,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (items > 0)
                 Utility.drawTinyDigits(items, spriteBatch, location + new Vector2(64 - Utility.getWidthOfTinyDigitString(items, 3f * scaleSize) - 3f * scaleSize, 2f * scaleSize), 3f * scaleSize, 1f, color);
             return false;
+        }
+
+        public static bool UpdateWhenCurrentLocationPrefix(Chest __instance, GameTime time, GameLocation environment)
+        {
+            var storage = ExpandedStorage.GetStorage(__instance);
+            return storage == null || storage.Animation != "None";
         }
     }
 }

@@ -137,7 +137,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (storage.SpriteSheet is {Texture: { }} spriteSheet)
             {
                 objectPosition.X -= spriteSheet.Width * 2f - 32;
-                objectPosition.Y -= spriteSheet.Height * 2f - 64;
+                objectPosition.Y -= spriteSheet.Height * 2f - 64 - (storage.IsPlaceable ? 0 : spriteSheet.Height / 2f);
+            }
+            else if (!storage.IsPlaceable)
+            {
+                objectPosition.Y += 16;
             }
 
             chest.Draw(storage, spriteBatch, objectPosition, Vector2.Zero);

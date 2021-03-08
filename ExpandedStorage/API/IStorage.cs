@@ -28,6 +28,12 @@ namespace ImJustMatt.ExpandedStorage.API
         /// <summary>The number of animation frames in the spritesheet.</summary>
         int Frames { get; set; }
 
+        /// <summary>Set to true for storage to constantly animate.</summary>
+        string Animation { get; set; }
+
+        /// <summary>The number of ticks between each animation frame.</summary>
+        int Delay { get; set; }
+
         /// <summary>Enables the player color choice and overlay layers.</summary>
         bool PlayerColor { get; set; }
 

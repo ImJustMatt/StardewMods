@@ -28,10 +28,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         private static StorageConfig _defaultConfig;
 
         internal StorageMenu Menu => new(Capacity == 0 ? _defaultConfig : this);
-
         internal int ActualCapacity => Capacity == 0 ? _defaultConfig.Capacity : Capacity;
         internal static IList<string> DefaultTabs => _defaultConfig?.Tabs;
-
         public int Capacity { get; set; }
         public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowColorPicker", "ShowSearchBar", "ShowTabs"};
         public HashSet<string> DisabledFeatures { get; set; } = new();
