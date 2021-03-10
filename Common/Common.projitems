@@ -15,7 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\ItemRepository.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\ItemType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\SearchableItem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helpers\TableSummary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ConfigHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\GenericModConfigMenuIntegration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\IGenericModConfigMenuAPI.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\IJsonAssetsAPI.cs" />

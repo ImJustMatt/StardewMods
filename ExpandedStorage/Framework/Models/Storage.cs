@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
@@ -30,22 +29,22 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             CustomChestTypes
         }
 
-        internal static readonly TableSummary TableSummary = new TableSummary(new Dictionary<string, string>
+        internal new static readonly ConfigHelper ConfigHelper = new(new List<KeyValuePair<string, string>>
         {
-            {"SpecialChestType", "Can be one of None, MiniShippingBin, JunimoChest, AutoLoader, or Enricher"},
-            {"IsFridge", "Make the Storage into a Mini-Fridge when placed"},
-            {"OpenSound", "Sound played when storage object is opened"},
-            {"PlaceSound", "Sound played when storage object is placed"},
-            {"CarrySound", "Sound played when storage object is picked up"},
-            {"IsPlaceable", "Allow storage to be placed in a game location"},
-            {"Image", "SpriteSheet for the storage object"},
-            {"Frames", "Number of animation frames in the SpriteSheet"},
-            {"Depth", "Number of pixels from the bottom of the SpriteSheet that occupy the ground for placement"},
-            {"Animation", "Can be one of None, Loop, or Color"},
-            {"Delay", "Number of ticks for each Animation Frame"},
-            {"PlayerColor", "Enables the Player Color Selector from the Storage Menu"},
-            {"PlayerConfig", "Enables Storage Capacity and Features to be overriden by config file"},
-            {"Tabs", "Tabs used to filter this Storage Menu inventory"}
+            new("SpecialChestType", "Can be one of None, MiniShippingBin, JunimoChest, AutoLoader, or Enricher"),
+            new("IsFridge", "Make the Storage into a Mini-Fridge when placed"),
+            new("OpenSound", "Sound played when storage object is opened"),
+            new("PlaceSound", "Sound played when storage object is placed"),
+            new("CarrySound", "Sound played when storage object is picked up"),
+            new("IsPlaceable", "Allow storage to be placed in a game location"),
+            new("Image", "SpriteSheet for the storage object"),
+            new("Frames", "Number of animation frames in the SpriteSheet"),
+            new("Depth", "Number of pixels from the bottom of the SpriteSheet that occupy the ground for placement"),
+            new("Animation", "Can be one of None, Loop, or Color"),
+            new("Delay", "Number of ticks for each Animation Frame"),
+            new("PlayerColor", "Enables the Player Color Selector from the Storage Menu"),
+            new("PlayerConfig", "Enables Storage Capacity and Features to be overriden by config file"),
+            new("Tabs", "Tabs used to filter this Storage Menu inventory")
         });
 
         private static readonly HashSet<string> ExcludeModDataKeys = new();
@@ -124,11 +123,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         internal StorageSprite? SpriteSheet => !string.IsNullOrWhiteSpace(Image)
             ? _storageSprite ??= new StorageSprite(this)
             : null;
-
-        internal string StorageSummary => string.Join("\n",
-            TableSummary.Report(this),
-            StorageConfigSummary
-        );
 
         public string SpecialChestType { get; set; }
         public bool IsFridge { get; set; }

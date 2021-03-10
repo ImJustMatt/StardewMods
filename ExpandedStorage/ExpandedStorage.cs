@@ -77,7 +77,7 @@ namespace ImJustMatt.ExpandedStorage
         {
             _config = helper.ReadConfig<ModConfig>();
             _config.DefaultStorage.SetDefault();
-            Monitor.Log(_config.SummaryReport, LogLevel.Debug);
+            Monitor.Log("Mod Config:\n" + ModConfig.ConfigHelper.Summary(_config), LogLevel.Debug);
 
             _expandedStorageAPI = new ExpandedStorageAPI(Helper, Monitor, Storages, StorageTabs);
             _contentLoader = new ContentLoader(Helper, ModManifest, Monitor, _config, _expandedStorageAPI);
@@ -113,7 +113,7 @@ namespace ImJustMatt.ExpandedStorage
                 new ItemPatch(Monitor, _config),
                 new ObjectPatch(Monitor, _config),
                 new FarmerPatch(Monitor, _config),
-                new ChestPatch(Monitor, _config),
+                new ChestPatch(Monitor, helper.Reflection, _config),
                 new ItemGrabMenuPatch(Monitor, _config, helper.Reflection),
                 new InventoryMenuPatch(Monitor, _config),
                 new MenuWithInventoryPatch(Monitor, _config),
@@ -171,12 +171,14 @@ namespace ImJustMatt.ExpandedStorage
                 {
                     var x = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
                     var y = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
+
                     void RemoveObject(Vector2 pos)
                     {
                         if (pos.Equals(removed.Key) || !location.Objects.ContainsKey(pos))
                             return;
                         location.Objects.Remove(pos);
                     }
+
                     Helper.Events.World.ObjectListChanged -= OnObjectListChanged;
                     spriteSheet.ForEachPos(x, y, RemoveObject);
                     Helper.Events.World.ObjectListChanged += OnObjectListChanged;
@@ -331,6 +333,7 @@ namespace ImJustMatt.ExpandedStorage
                         Game1.player.freezePause = 1000;
                     });
                 }
+
                 Helper.Input.Suppress(e.Button);
             }
         }

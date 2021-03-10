@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
+using StardewModdingAPI;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
@@ -14,24 +17,19 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             Disable
         }
 
-        internal static readonly IDictionary<string, string> StorageOptions = new Dictionary<string, string>
+        internal static readonly ConfigHelper ConfigHelper = new(ValueOfProperty, new List<KeyValuePair<string, string>>
         {
-            {"AccessCarried", "Allow storage to be access while carried"},
-            {"CanCarry", "Allow storage to be picked up"},
-            {"Indestructible", "Cannot be broken by tools even while empty"},
-            {"ShowColorPicker", "Show color toggle and bars for colorable storages"},
-            {"ShowSearchBar", "Show search bar above chest inventory"},
-            {"ShowTabs", "Show tabs below chest inventory"},
-            {"VacuumItems", "Allow storage to automatically collect dropped items"}
-        };
+            new("AccessCarried", "Allow storage to be access while carried"),
+            new("CanCarry", "Allow storage to be picked up"),
+            new("Indestructible", "Cannot be broken by tools even while empty"),
+            new("ShowColorPicker", "Show color toggle and bars for colorable storages"),
+            new("ShowSearchBar", "Show search bar above chest inventory"),
+            new("ShowTabs", "Show tabs below chest inventory"),
+            new("VacuumItems", "Allow storage to automatically collect dropped items")
+        });
 
         /// <summary>Default storage settings for unspecified options</summary>
         private static StorageConfig _defaultConfig;
-
-        internal string StorageConfigSummary => string.Join("\n",
-            StorageOptions.Keys
-                .Where(option => Option(option) != Choice.Unspecified)
-                .Select(option => $"{option,-25} | {Option(option)}"));
 
         internal StorageMenu Menu => new(Capacity == 0 ? _defaultConfig : this);
         internal int ActualCapacity => Capacity == 0 ? _defaultConfig.Capacity : Capacity;
@@ -40,6 +38,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowColorPicker", "ShowSearchBar", "ShowTabs"};
         public HashSet<string> DisabledFeatures { get; set; } = new();
         public IList<string> Tabs { get; set; } = new List<string>();
+
+        private static object ValueOfProperty(string property, object instance)
+        {
+            var value = ((StorageConfig) instance).Option(property);
+            return value != Choice.Unspecified ? value : null;
+        }
 
         internal void SetDefault()
         {
@@ -95,6 +99,31 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             foreach (var tab in config.Tabs)
             {
                 Tabs.Add(tab);
+            }
+        }
+
+        internal void RegisterModConfig(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu)
+        {
+            if (!modConfigMenu.IsLoaded)
+                return;
+
+            Func<string> OptionGet(string option) => () => Option(option).ToString();
+
+            Action<string> OptionSet(string option) => value =>
+            {
+                if (Enum.TryParse(value, out Choice choice)) SetOption(option, choice);
+            };
+
+            var optionChoices = Enum.GetNames(typeof(Choice));
+
+            modConfigMenu.API.RegisterSimpleOption(manifest, "Capacity", "Number of item slots the storage will contain",
+                () => Capacity,
+                value => Capacity = value);
+
+            foreach (var option in ConfigHelper.Properties)
+            {
+                modConfigMenu.API.RegisterChoiceOption(manifest, option.Key, option.Value,
+                    OptionGet(option.Key), OptionSet(option.Key), optionChoices);
             }
         }
     }

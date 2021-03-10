@@ -176,24 +176,24 @@ namespace ImJustMatt.ExpandedStorage
                                 ?? new Dictionary<string, StorageConfig>();
             var defaultConfigs = new Dictionary<string, StorageConfig>();
 
-            void RevertToDefault()
+            if (_modConfigMenu.IsLoaded && expandedStorages.Any(config => config.Value.PlayerConfig))
             {
-                foreach (var defaultConfig in defaultConfigs)
-                    if (playerConfigs.TryGetValue(defaultConfig.Key, out var playerConfig))
-                        playerConfig.CopyFrom(defaultConfig.Value);
-            }
+                void RevertToDefault()
+                {
+                    foreach (var defaultConfig in defaultConfigs)
+                        if (playerConfigs.TryGetValue(defaultConfig.Key, out var playerConfig))
+                            playerConfig.CopyFrom(defaultConfig.Value);
+                }
 
-            void SaveToFile()
-            {
-                foreach (var playerConfig in playerConfigs)
-                    if (_storageConfigs.TryGetValue(playerConfig.Key, out var storage) && storage.ModUniqueId == contentPack.Manifest.UniqueID)
-                        storage.CopyFrom(playerConfig.Value);
-                contentPack.WriteJsonFile("config.json", playerConfigs);
-            }
+                void SaveToFile()
+                {
+                    foreach (var playerConfig in playerConfigs)
+                        if (_storageConfigs.TryGetValue(playerConfig.Key, out var storage) && storage.ModUniqueId == contentPack.Manifest.UniqueID)
+                            storage.CopyFrom(playerConfig.Value);
+                    contentPack.WriteJsonFile("config.json", playerConfigs);
+                }
 
-            if (expandedStorages.Any(config => config.Value.PlayerConfig))
-            {
-                _modConfigMenu.API?.RegisterModConfig(contentPack.Manifest, RevertToDefault, SaveToFile);
+                _modConfigMenu.API.RegisterModConfig(contentPack.Manifest, RevertToDefault, SaveToFile);
             }
 
             // Load default if specified
@@ -227,8 +227,11 @@ namespace ImJustMatt.ExpandedStorage
                 }
 
                 SetStorageConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
-                if (_modConfigMenu.IsLoaded)
-                    RegisterConfig(contentPack.Manifest, expandedStorage.Key, playerConfig);
+
+                if (!_modConfigMenu.IsLoaded)
+                    continue;
+                _modConfigMenu.API.RegisterLabel(contentPack.Manifest, expandedStorage.Key, contentPack.Manifest.Description);
+                playerConfig.RegisterModConfig(contentPack.Manifest, _modConfigMenu);
             }
 
             // Add asset loader
@@ -275,7 +278,11 @@ namespace ImJustMatt.ExpandedStorage
             }
 
             storage.CopyFrom(config);
-            _monitor.Log($"{storageName} Config:\n{storage.StorageSummary}", LogLevel.Debug);
+            _monitor.Log(string.Join("\n",
+                $"{storageName} Config:",
+                Storage.ConfigHelper.Summary(storage),
+                StorageConfig.ConfigHelper.Summary(storage, false)
+            ), LogLevel.Debug);
         }
 
         public void RegisterStorage(IManifest manifest, string storageName, IStorage storage)
@@ -317,37 +324,6 @@ namespace ImJustMatt.ExpandedStorage
                 tab.ModUniqueId = manifest.UniqueID;
                 tab.Path = $"Mods/furyx639.ExpandedStorage/Tabs/{tabId}";
                 _tabConfigs.Add(tabId, tab);
-            }
-        }
-
-        private void RegisterConfig(IManifest manifest, string storageName, StorageConfig config)
-        {
-            var optionChoices = Enum.GetNames(typeof(StorageConfig.Choice));
-
-            Func<string> OptionGet(string option)
-            {
-                return () => config.Option(option).ToString();
-            }
-
-            Action<string> OptionSet(string option)
-            {
-                return value =>
-                {
-                    if (Enum.TryParse(value, out StorageConfig.Choice choice))
-                        config.SetOption(option, choice);
-                };
-            }
-
-            _modConfigMenu.API?.RegisterLabel(manifest, storageName, manifest.Description);
-
-            _modConfigMenu.API?.RegisterSimpleOption(manifest, "Capacity", "Number of item slots the storage will contain",
-                () => config.Capacity,
-                value => config.Capacity = value);
-
-            foreach (var option in StorageConfig.StorageOptions)
-            {
-                _modConfigMenu.API?.RegisterChoiceOption(manifest, option.Key, option.Value,
-                    OptionGet(option.Key), OptionSet(option.Key), optionChoices);
             }
         }
 

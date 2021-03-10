@@ -4,19 +4,28 @@ using System.Text.RegularExpressions;
 
 namespace ImJustMatt.ExpandedStorage.Common.Helpers
 {
-    internal class TableSummary
+    internal class ConfigHelper
     {
-        private readonly IDictionary<string, string> _properties;
+        private const int ColumnWidth = 25;
+        private readonly IList<KeyValuePair<string, string>> _properties;
+        private GetValueOfProperty _getValue;
 
-        internal TableSummary(IDictionary<string, string> properties)
+        internal ConfigHelper(IList<KeyValuePair<string, string>> properties) : this(null, properties)
         {
-            _properties = properties;
         }
 
-        internal string Report(object instance, bool header = true) =>
-            (header ? $"{"Property",-25} | Value\n{new string('-', 26)}|{new string('-', 7)}\n" : "") +
+        internal ConfigHelper(GetValueOfProperty getValue, IList<KeyValuePair<string, string>> properties)
+        {
+            _properties = properties;
+            _getValue = getValue ?? ValueOfProperty;
+        }
+
+        internal IDictionary<string, string> Properties => _properties.ToDictionary(p => p.Key, p => p.Value);
+
+        internal string Summary(object instance, bool header = true) =>
+            (header ? $"{"Property",-ColumnWidth} | Value\n{new string('-', ColumnWidth)}-|-{new string('-', ColumnWidth)}\n" : "") +
             string.Join("\n", _properties
-                .Select(property => new KeyValuePair<string, object>(PascalCaseToSpace(property.Key), ValueOfProperty(property.Key, instance)))
+                .Select(property => new KeyValuePair<string, object>(PascalCaseToSpace(property.Key), _getValue.Invoke(property.Key, instance)))
                 .Where(property => property.Value != null && (property.Value is not string value || !string.IsNullOrWhiteSpace(value)))
                 .Select(property => $"{property.Key,-25} | {property.Value}")
                 .ToList());
@@ -34,5 +43,7 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers
                 _ => value
             };
         }
+
+        internal delegate object GetValueOfProperty(string property, object instance);
     }
 }
