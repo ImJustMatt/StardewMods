@@ -95,11 +95,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 return true;
             if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
                 return true;
-
             __result = true;
-            if (storage.SpecialChestType == "MiniShippingBin"
-                || Enum.TryParse(storage.Animation, out Storage.AnimationType animationType)
-                && animationType != Storage.AnimationType.None)
+            if (storage.OpenNearby)
+            {
+                __instance.ShowMenu();
+            }
+            else if (Enum.TryParse(storage.Animation, out Storage.AnimationType animationType) && animationType != Storage.AnimationType.None)
             {
                 Game1.playSound(storage.OpenSound);
                 __instance.ShowMenu();
@@ -234,11 +235,109 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static bool UpdateWhenCurrentLocationPrefix(Chest __instance, GameTime time, GameLocation environment)
         {
-            var value = __instance.SpecialChestType == Chest.SpecialChestTypes.MiniShippingBin
-                        || !ExpandedStorage.TryGetStorage(__instance, out var storage)
-                        || !Enum.TryParse(storage.Animation, out Storage.AnimationType animationType)
-                        || animationType == Storage.AnimationType.None;
-            return value;
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
+            if (Enum.TryParse(storage.Animation, out Storage.AnimationType animationType)
+                && animationType != Storage.AnimationType.None) return false;
+            if (!storage.OpenNearby) return true;
+            if (__instance.synchronized.Value)
+            {
+                __instance.openChestEvent.Poll();
+            }
+
+            if (__instance.localKickStartTile.HasValue)
+            {
+                if (ReferenceEquals(Game1.currentLocation, environment))
+                {
+                    if (__instance.kickProgress == 0f)
+                    {
+                        if (Utility.isOnScreen((__instance.localKickStartTile.Value + new Vector2(0.5f, 0.5f)) * 64f, 64))
+                        {
+                            Game1.playSound("clubhit");
+                        }
+
+                        __instance.shakeTimer = 100;
+                    }
+                }
+                else
+                {
+                    __instance.localKickStartTile = null;
+                    __instance.kickProgress = -1f;
+                }
+
+                if (__instance.kickProgress >= 0f)
+                {
+                    __instance.kickProgress += (float) (time.ElapsedGameTime.TotalSeconds / 0.25f);
+                    if (__instance.kickProgress >= 1f)
+                    {
+                        __instance.kickProgress = -1f;
+                        __instance.localKickStartTile = null;
+                    }
+                }
+            }
+            else
+            {
+                __instance.kickProgress = -1f;
+            }
+
+            __instance.fixLidFrame();
+            __instance.mutex.Update(environment);
+            if (__instance.shakeTimer > 0)
+            {
+                __instance.shakeTimer -= time.ElapsedGameTime.Milliseconds;
+                if (__instance.shakeTimer <= 0)
+                {
+                    _reflection.GetField<int>(__instance, "health").SetValue(10);
+                }
+            }
+
+            // Update Farmer Nearby
+            var shouldOpen = false;
+            if (storage.SpriteSheet is {Texture: { }} spriteSheet)
+            {
+                var x = __instance.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
+                var y = __instance.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
+                for (var i = 0; i < spriteSheet.TileWidth; i++)
+                {
+                    for (var j = 0; j < spriteSheet.TileHeight; j++)
+                    {
+                        shouldOpen = environment.farmers.Any(f => Math.Abs(f.getTileX() - x - i) <= 1f && Math.Abs(f.getTileY() - y - j) <= 1f);
+                        if (shouldOpen) break;
+                    }
+
+                    if (shouldOpen) break;
+                }
+            }
+            else
+            {
+                shouldOpen = environment.farmers.Any(f => Math.Abs(f.getTileX() - __instance.TileLocation.X) <= 1f && Math.Abs(f.getTileY() - __instance.TileLocation.Y) <= 1f);
+            }
+
+            var farmerNearby = _reflection.GetField<bool>(__instance, "_farmerNearby");
+            if (shouldOpen != farmerNearby.GetValue())
+            {
+                if (__instance.uses.Value > 0)
+                {
+                    var currentLidFrame = _reflection.GetField<int>(__instance, "_shippingBinFrameCounter");
+                    var currentFrame = currentLidFrame.GetValue() + (shouldOpen ? -1 : 1) * (int) (Storage.Frame - __instance.uses.Value) / storage.Delay;
+                    currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
+                    currentLidFrame.SetValue(currentFrame);
+                }
+                else
+                {
+                    _reflection.GetField<int>(__instance, "_shippingBinFrameCounter").SetValue(0);
+                }
+
+                __instance.uses.Value = (int) Storage.Frame;
+                farmerNearby.SetValue(shouldOpen);
+                environment.localSound(shouldOpen ? "doorCreak" : "doorCreakReverse");
+            }
+
+            if (Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
+            {
+                __instance.GetMutex().ReleaseLock();
+            }
+
+            return false;
         }
     }
 }

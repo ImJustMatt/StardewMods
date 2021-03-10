@@ -195,7 +195,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
                     new Rectangle(
                         xPositionOnScreen + borderWidth / 2 + 36,
                         yPositionOnScreen + borderWidth / 2 + 36 + i * CellHeight + CellsHeight + Gap,
-                        22, (int) CellHeight),
+                        22, CellHeight),
                     new HSLColor {H = _color.H, S = _color.S, L = i / 16f}.ToRgbColor());
             }
 

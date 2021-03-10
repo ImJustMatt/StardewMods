@@ -162,7 +162,7 @@ namespace ImJustMatt.ExpandedStorage
                 return;
 
             var location = e.Location;
-            var removed = e.Removed.LastOrDefault(p => p.Value is Chest);
+            var removed = e.Removed.LastOrDefault(p => p.Value.modData.ContainsKey("furyx639.ExpandedStorage/X"));
             if (removed.Value != null)
             {
                 if (TryGetStorage(removed.Value, out var storage)

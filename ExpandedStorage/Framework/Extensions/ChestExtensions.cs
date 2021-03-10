@@ -56,12 +56,27 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 }
                 else if (chest.uses.Value > 0)
                 {
-                    currentFrame = Math.Max(0, (int) ((Storage.Frame - chest.uses.Value) / storage.Delay) % storage.Frames);
-                    if (currentFrame == storage.Frames - 1)
+                    if (storage.OpenNearby)
                     {
-                        chest.uses.Value = 0;
-                        chest.frameCounter.Value = 0;
-                        _reflection.GetField<int>(chest, "currentLidFrame").SetValue(chest.getLastLidFrame());
+                        var farmerNearby = _reflection.GetField<bool>(chest, "_farmerNearby").GetValue();
+                        var currentLidFrameReflected = _reflection.GetField<int>(chest, "_shippingBinFrameCounter");
+                        var currentLidFrame = currentLidFrameReflected.GetValue();
+                        currentFrame = currentLidFrame + (farmerNearby ? 1 : -1) * (int) (Storage.Frame - chest.uses.Value) / storage.Delay;
+                        currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
+                        if (!farmerNearby && currentFrame == 0 || farmerNearby && currentFrame == storage.Frames - 1)
+                        {
+                            currentLidFrameReflected.SetValue(currentFrame);
+                        }
+                    }
+                    else
+                    {
+                        currentFrame = Math.Max(0, (int) ((Storage.Frame - chest.uses.Value) / storage.Delay) % storage.Frames);
+                        if (currentFrame == storage.Frames - 1)
+                        {
+                            chest.uses.Value = 0;
+                            chest.frameCounter.Value = 5;
+                            _reflection.GetField<int>(chest, "currentLidFrame").SetValue(chest.getLastLidFrame());
+                        }
                     }
                 }
 
@@ -72,7 +87,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                     var color = layer % 2 == 0 || !drawColored
                         ? chest.Tint
                         : chest.playerChoiceColor.Value;
-
                     spriteBatch.Draw(texture,
                         pos + ShakeOffset(chest, -1, 2),
                         new Rectangle(spriteSheet.Width * currentFrame, spriteSheet.Height * layer, spriteSheet.Width, spriteSheet.Height),
@@ -87,26 +101,27 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 return;
             }
 
-            if (!drawColored)
-            {
-                DrawVanillaDefault(chest, storage, spriteBatch, pos, origin, alpha, layerDepth, scaleSize);
-            }
-            else
-            {
-                DrawVanillaColored(chest, storage, spriteBatch, pos, origin, alpha, layerDepth, scaleSize);
-            }
+            if (!drawColored) DrawVanillaDefault(chest, storage, spriteBatch, pos, origin, alpha, layerDepth, scaleSize);
+            else DrawVanillaColored(chest, storage, spriteBatch, pos, origin, alpha, layerDepth, scaleSize);
         }
 
         private static void DrawVanillaDefault(Chest chest, Storage storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha, float layerDepth, float scaleSize)
         {
             var currentFrame = 0;
-            if (chest.uses.Value > 0)
+            if (storage.OpenNearby)
+            {
+                var farmerNearby = _reflection.GetField<bool>(chest, "_farmerNearby").GetValue();
+                var currentLidFrame = _reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue();
+                currentFrame = currentLidFrame + (farmerNearby ? 1 : -1) * (int) (Storage.Frame - chest.uses.Value) / storage.Delay;
+                currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
+            }
+            else if (chest.uses.Value > 0)
             {
                 currentFrame = Math.Max(0, (int) ((Storage.Frame - chest.uses.Value) / storage.Delay) % storage.Frames);
                 if (currentFrame == storage.Frames - 1)
                 {
                     chest.uses.Value = 0;
-                    chest.frameCounter.Value = 0;
+                    chest.frameCounter.Value = 5;
                     _reflection.GetField<int>(chest, "currentLidFrame").SetValue(chest.getLastLidFrame());
                 }
             }
@@ -141,13 +156,20 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             var baseOffset = GetBaseOffset(chest);
             var aboveOffset = GetAboveOffset(chest);
             var currentFrame = 0;
-            if (chest.uses.Value > 0)
+            if (storage.OpenNearby)
+            {
+                var farmerNearby = _reflection.GetField<bool>(chest, "_farmerNearby").GetValue();
+                var currentLidFrame = _reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue();
+                currentFrame = currentLidFrame + (farmerNearby ? 1 : -1) * (int) (Storage.Frame - chest.uses.Value) / storage.Delay;
+                currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
+            }
+            else if (chest.uses.Value > 0)
             {
                 currentFrame = Math.Max(0, (int) ((Storage.Frame - chest.uses.Value) / storage.Delay) % storage.Frames);
                 if (currentFrame == storage.Frames - 1)
                 {
                     chest.uses.Value = 0;
-                    chest.frameCounter.Value = 0;
+                    chest.frameCounter.Value = 5;
                     _reflection.GetField<int>(chest, "currentLidFrame").SetValue(chest.getLastLidFrame());
                 }
             }

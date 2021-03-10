@@ -33,6 +33,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         {
             new("SpecialChestType", "Can be one of None, MiniShippingBin, JunimoChest, AutoLoader, or Enricher"),
             new("IsFridge", "Make the Storage into a Mini-Fridge when placed"),
+            new("OpenNearby", "Play opening animation when player is nearby"),
             new("OpenSound", "Sound played when storage object is opened"),
             new("PlaceSound", "Sound played when storage object is placed"),
             new("CarrySound", "Sound played when storage object is picked up"),
@@ -83,6 +84,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             {
                 case "Mini-Shipping Bin":
                     SpecialChestType = "MiniShippingBin";
+                    OpenNearby = true;
                     OpenSound = "shwip";
                     PlaceSound = "axe";
                     CarrySound = "pickUpItem";
@@ -126,6 +128,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
         public string SpecialChestType { get; set; }
         public bool IsFridge { get; set; }
+        public bool OpenNearby { get; set; }
         public string OpenSound { get; set; }
         public string PlaceSound { get; set; }
         public string CarrySound { get; set; }
@@ -211,6 +214,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         {
             if (!IsFridge) IsFridge = storage.IsFridge;
             if (SpecialChestType == "None") SpecialChestType = storage.SpecialChestType;
+            OpenNearby = storage.OpenNearby;
             if (OpenSound == "openChest") OpenSound = storage.OpenSound;
             if (string.IsNullOrWhiteSpace(CarrySound)) CarrySound = storage.CarrySound;
             if (PlaceSound == "axe") PlaceSound = storage.PlaceSound;

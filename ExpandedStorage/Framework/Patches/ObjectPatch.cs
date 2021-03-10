@@ -32,8 +32,18 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         protected internal override void Apply(HarmonyInstance harmony)
         {
             harmony.Patch(
+                AccessTools.Method(typeof(Object), nameof(Object.checkForAction)),
+                new HarmonyMethod(GetType(), nameof(CheckForActionPrefix))
+            );
+
+            harmony.Patch(
                 AccessTools.Method(typeof(Object), nameof(Object.placementAction)),
                 new HarmonyMethod(GetType(), nameof(PlacementActionPrefix))
+            );
+
+            harmony.Patch(
+                AccessTools.Method(typeof(Object), nameof(Object.draw), new[] {typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)}),
+                new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
 
             harmony.Patch(
@@ -50,6 +60,22 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 AccessTools.Method(typeof(Chest), nameof(Chest.maximumStackSize)),
                 new HarmonyMethod(GetType(), nameof(MaximumStackSizePrefix))
             );
+        }
+
+        /// <summary>Trigger primary chest check for action</summary>
+        public static bool CheckForActionPrefix(Object __instance, ref bool __result, Farmer who, bool justCheckingForActivity)
+        {
+            if (justCheckingForActivity || !Game1.didPlayerJustRightClick(true))
+                return true;
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
+                return true;
+            __result = true;
+            var x = __instance.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
+            var y = __instance.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
+            if (!Game1.currentLocation.Objects.TryGetValue(new Vector2(x, y), out var obj) || obj is not Chest chest)
+                return true;
+            __result = chest.checkForAction(who);
+            return false;
         }
 
         public static bool PlacementActionPrefix(Object __instance, ref bool __result, GameLocation location, int x, int y, Farmer who)
@@ -119,12 +145,25 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 {
                     if (offset.Equals(Vector2.Zero))
                         return;
-                    location.Objects.Add(pos + offset, chest);
+                    var obj = new Object(pos, __instance.ParentSheetIndex);
+                    foreach (var modData in __instance.modData)
+                        obj.modData.CopyFrom(modData);
+                    location.Objects.Add(pos + offset, obj);
                 });
             }
 
             __result = true;
             return false;
+        }
+
+        /// <summary>Do not draw object extensions of bigger expanded storages.</summary>
+        public static bool DrawPrefix(Object __instance, SpriteBatch spriteBatch, int x, int y, float alpha)
+        {
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
+                return true;
+            return storage.SpriteSheet is not { } spriteSheet
+                   || spriteSheet.TileWidth <= 1 && spriteSheet.TileHeight <= 1
+                   || (int) __instance.TileLocation.X == x && (int) __instance.TileLocation.Y == y;
         }
 
         public static bool DrawWhenHeldPrefix(Object __instance, SpriteBatch spriteBatch, Vector2 objectPosition, Farmer f)
