@@ -344,7 +344,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 )
                 .Log("Adding top padding offset to drawDialogueBox.height.")
                 .Patch(OffsetPatch(MenuPadding, OpCodes.Add));
-            
+
             foreach (var patternPatch in patternPatches)
                 yield return patternPatch;
 

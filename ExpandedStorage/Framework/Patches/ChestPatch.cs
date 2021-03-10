@@ -21,9 +21,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
     internal class ChestPatch : Patch<ModConfig>
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
+        private static IReflectionHelper _reflection;
 
-        internal ChestPatch(IMonitor monitor, ModConfig config) : base(monitor, config)
+        internal ChestPatch(IMonitor monitor, IReflectionHelper reflection, ModConfig config) : base(monitor, config)
         {
+            _reflection = reflection;
         }
 
         internal static void AddExclusion(string modDataKey)
@@ -106,12 +108,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             {
                 __instance.GetMutex().RequestLock(delegate
                 {
-                    __instance.frameCounter.Value = 5;
+                    if (storage.Frames > 1) __instance.uses.Value = (int) Storage.Frame;
+                    else __instance.frameCounter.Value = storage.Delay;
                     Game1.playSound(storage.OpenSound);
                     Game1.player.Halt();
                     Game1.player.freezePause = 1000;
                 });
             }
+
             return false;
         }
 
@@ -230,9 +234,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static bool UpdateWhenCurrentLocationPrefix(Chest __instance, GameTime time, GameLocation environment)
         {
-            return !ExpandedStorage.TryGetStorage(__instance, out var storage)
-                   || !Enum.TryParse(storage.Animation, out Storage.AnimationType animationType)
-                   || animationType == Storage.AnimationType.None;
+            var value = __instance.SpecialChestType == Chest.SpecialChestTypes.MiniShippingBin
+                        || !ExpandedStorage.TryGetStorage(__instance, out var storage)
+                        || !Enum.TryParse(storage.Animation, out Storage.AnimationType animationType)
+                        || animationType == Storage.AnimationType.None;
+            return value;
         }
     }
 }
