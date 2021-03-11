@@ -4,9 +4,12 @@
     "Frames": 3,
     "PlayerColor": true,
     "PlayerConfig": false,
+    "OpenNearby": true,
+    "OpenNearbySound": "trashcanlid",
+    "CloseNearbySound": "trashcanlid",
+    "OpenSound": "trashcan",
     "Capacity": 12,
     "EnabledFeatures": ["Indestructible"],
-    "DisabledFeatures": ["CanCarry", "ShowSearchBar", "ShowColorPicker", "ShowTabs", "VacuumItems"],
-    "OpenSound": "trashcan"
+    "DisabledFeatures": ["CanCarry", "ShowSearchBar", "ShowColorPicker", "ShowTabs", "VacuumItems"]
   }
 }

@@ -30,7 +30,6 @@ namespace ImJustMatt.GarbageDay.Framework.Models
         internal GameLocation Location;
         internal string MapName;
         internal Vector2 Tile;
-        internal string WhichCan;
 
         internal GarbageCan(IContentHelper contentHelper, IModEvents modEvents, IReflectionHelper reflection, ModConfig config)
         {
@@ -46,10 +45,14 @@ namespace ImJustMatt.GarbageDay.Framework.Models
 
         private void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
-            if (_npc == null || e.OldMenu is not ItemGrabMenu || !Context.IsPlayerFree)
-                return;
-            Game1.drawDialogue(_npc);
-            _npc = null;
+            if (e.OldMenu is not ItemGrabMenu || !Context.IsPlayerFree) return;
+            if (_npc != null)
+            {
+                Game1.drawDialogue(_npc);
+                _npc = null;
+            }
+            if (Chest.items.Any() || Chest.playerChoiceColor.Value.Equals(Color.Black)) return;
+            Chest.playerChoiceColor.Value = Color.DarkGray;
         }
 
         internal bool OpenCan()
@@ -118,15 +121,16 @@ namespace ImJustMatt.GarbageDay.Framework.Models
             return true;
         }
 
-        internal void DayStart()
+        internal void DayStart(float luck = 0)
         {
-            if (Chest == null)
-                return;
+            if (Chest == null) return;
 
             // Reset State
             _garbageChecked = false;
             _dropQiBeans = false;
-            Chest.playerChoiceColor.Value = Color.Gray;
+            Chest.playerChoiceColor.Value = Color.DarkGray;
+            Chest.modData["Pathoschild.ChestsAnywhere/IsIgnored"] = "true";
+            if (!Chest.modData.TryGetValue("furyx639.GarbageDay", out var whichCan)) whichCan = "0";
 
             if (Game1.dayOfMonth % 7 == _config.GarbageDay)
             {
@@ -134,40 +138,42 @@ namespace ImJustMatt.GarbageDay.Framework.Models
             }
 
             // Seed Random
-            if (!int.TryParse(WhichCan, out var whichCan)) whichCan = 0;
-            var garbageRandom = SeedRandom(whichCan);
+            if (!int.TryParse(whichCan, out var vanillaCanNumber)) vanillaCanNumber = 0;
+            var garbageRandom = SeedRandom(vanillaCanNumber);
 
             // Mega/Double-Mega
             _mega = Game1.stats.getStat("trashCansChecked") > 20 && garbageRandom.NextDouble() < 0.01;
             _doubleMega = Game1.stats.getStat("trashCansChecked") > 20 && garbageRandom.NextDouble() < 0.002;
-            if (_doubleMega || !_mega && !(garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck))
+            if (_doubleMega || !_mega && !(garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck + luck))
                 return;
 
             // Qi Beans
-            if (Game1.random.NextDouble() <= 0.25 && Game1.player.team.SpecialOrderRuleActive("DROP_QI_BEANS"))
+            if (Game1.random.NextDouble() <= 0.25 * luck && Game1.player.team.SpecialOrderRuleActive("DROP_QI_BEANS"))
             {
                 _dropQiBeans = true;
                 return;
             }
 
             // Vanilla Local Loot
-            if (whichCan >= 3 && whichCan <= 7)
+            if (vanillaCanNumber >= 3 && vanillaCanNumber <= 7)
             {
-                var localLoot = GetVanillaLocalLoot(garbageRandom, whichCan);
+                var localLoot = GetVanillaLocalLoot(garbageRandom, vanillaCanNumber, luck);
                 if (localLoot != -1)
                 {
                     Chest.addItem(new Object(localLoot, 1));
+                    Chest.playerChoiceColor.Value = RandomChestColor();
                     return;
                 }
             }
 
             // Custom Local Loot
-            if (garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck)
+            if (garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck + luck)
             {
-                var localItem = GetLocalLoot(garbageRandom, WhichCan);
+                var localItem = GetLocalLoot(garbageRandom, whichCan);
                 if (localItem != null)
                 {
                     Chest.addItem(localItem.CreateItem());
+                    Chest.playerChoiceColor.Value = RandomChestColor();
                     return;
                 }
             }
@@ -179,6 +185,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                 if (globalLoot != -1)
                 {
                     Chest.addItem(new Object(globalLoot, 1));
+                    Chest.playerChoiceColor.Value = RandomChestColor();
                     return;
                 }
             }
@@ -187,7 +194,37 @@ namespace ImJustMatt.GarbageDay.Framework.Models
             if (globalItem != null)
             {
                 Chest.addItem(globalItem.CreateItem());
+                Chest.playerChoiceColor.Value = RandomChestColor();
             }
+        }
+
+        private Color RandomChestColor()
+        {
+            if (Chest == null) return Color.DarkGray;
+            var items = Chest.items.Shuffle();
+            foreach (var item in items)
+            {
+                if (item.MatchesTagExt("color_red", true)
+                    || item.MatchesTagExt("color_dark_red", true)) return Color.DarkRed;
+                if (item.MatchesTagExt("color_pale_violet_red", true)) return Color.DarkViolet;
+                if (item.MatchesTagExt("color_blue", true)) return Color.DarkBlue;
+                if (item.MatchesTagExt("color_green", true)
+                    || item.MatchesTagExt("color_dark_green", true)
+                    || item.MatchesTagExt("color_jade", true)) return Color.DarkGreen;
+                if (item.MatchesTagExt("color_brown", true)
+                    || item.MatchesTagExt("color_dark_brown", true)) return Color.Brown;
+                if (item.MatchesTagExt("color_yellow", true)
+                    || item.MatchesTagExt("color_dark_yellow", true)) return Color.Yellow;
+                if (item.MatchesTagExt("color_aquamarine", true)) return Color.Aquamarine;
+                    if (item.MatchesTagExt("color_purple", true)
+                        || item.MatchesTagExt("color_dark_purple", true)) return Color.Purple;
+                if (item.MatchesTagExt("color_cyan", true)) return Color.DarkCyan;
+                if (item.MatchesTagExt("color_white", true)
+                    || item.MatchesTagExt("color_gray", true)) return Color.Gray;
+                if (item.MatchesTagExt("color_pink", true)) return Color.Pink;
+                if (item.MatchesTagExt("color_orange", true)) return Color.DarkOrange;
+            }
+            return Color.Gray;
         }
 
         private SearchableItem GetGlobalLoot(Random randomizer)
@@ -219,34 +256,31 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                     .Shuffle()
                     .FirstOrDefault();
             }
-
             return null;
         }
 
-        private static int GetVanillaLocalLoot(Random garbageRandom, int whichCan)
+        private static int GetVanillaLocalLoot(Random garbageRandom, int whichCan, float luck = 1f)
         {
             var item = -1;
             switch (whichCan)
             {
-                case 3 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
+                case 3 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck + luck:
                     return garbageRandom.NextDouble() < 0.05 ? 749 : 535;
-                case 4 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
+                case 4 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck + luck:
                     return 378 + garbageRandom.Next(3) * 2;
-                case 5 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck && Game1.dishOfTheDay != null:
+                case 5 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck + luck && Game1.dishOfTheDay != null:
                     return Game1.dishOfTheDay.ParentSheetIndex != 217 ? Game1.dishOfTheDay.ParentSheetIndex : 216;
-                case 6 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck:
+                case 6 when garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck + luck:
                     return 223;
-                case 7 when garbageRandom.NextDouble() < 0.2:
+                case 7 when garbageRandom.NextDouble() < 0.2 * luck:
                     if (!Utility.HasAnyPlayerSeenEvent(191393)) item = 167;
                     if (Utility.doesMasterPlayerHaveMailReceivedButNotMailForTomorrow("ccMovieTheater")
                         && !Utility.doesMasterPlayerHaveMailReceivedButNotMailForTomorrow("ccMovieTheaterJoja"))
                     {
-                        item = !(garbageRandom.NextDouble() < 0.25) ? 270 : 809;
+                        item = !(garbageRandom.NextDouble() < 0.25 * luck) ? 270 : 809;
                     }
-
                     break;
             }
-
             return item;
         }
 

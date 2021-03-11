@@ -24,7 +24,7 @@ namespace ImJustMatt.GarbageDay.Framework.Patches
         private static bool ShowMenuPrefix(Chest __instance)
         {
             if (!__instance.modData.ContainsKey("furyx639.GarbageDay")) return true;
-            var garbageCan = GarbageDay.GarbageCans.SingleOrDefault(c => ReferenceEquals(c.Chest, __instance));
+            var garbageCan = GarbageDay.GarbageCans.Values.SingleOrDefault(gc => ReferenceEquals(gc.Chest, __instance));
             return garbageCan?.OpenCan() ?? true;
         }
     }
