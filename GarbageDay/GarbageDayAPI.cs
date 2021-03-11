@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ImJustMatt.GarbageDay.API;
+using StardewModdingAPI.Utilities;
 
 namespace ImJustMatt.GarbageDay
 {
@@ -22,13 +23,13 @@ namespace ImJustMatt.GarbageDay
         {
             foreach (var path in paths)
             {
-                _maps.Add(path);
+                _maps.Add(PathUtilities.NormalizePath(path));
             }
         }
 
         public void AddMap(string path)
         {
-            _maps.Add(path);
+            _maps.Add(PathUtilities.NormalizePath(path));
         }
 
         public void AddLoot(IDictionary<string, double> lootTable)
