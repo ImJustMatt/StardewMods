@@ -12,14 +12,20 @@ namespace ImJustMatt.ExpandedStorage.API
 
         /// <summary>Play opening animation when player is nearby.</summary>
         bool OpenNearby { get; set; }
+        
+        /// <summary>The sound that will play when the storage opens while approached.</summary>
+        string? OpenNearbySound { get; set; }
 
-        /// <summary>The game sound that will play when the storage is opened.</summary>
+        /// <summary>The sound that will play when the storage closes.</summary>
+        string? CloseNearbySound { get; set; }
+
+        /// <summary>The sound that will play when the storage is opened.</summary>
         string OpenSound { get; set; }
 
-        /// <summary>The game sound that will play when the storage is placed.</summary>
+        /// <summary>The sound that will play when the storage is placed.</summary>
         string PlaceSound { get; set; }
 
-        /// <summary>The game sound that will play when the storage is picked up.</summary>
+        /// <summary>The sound that will play when the storage is picked up.</summary>
         string CarrySound { get; set; }
 
         /// <summary>Allow storage to be placed.</summary>

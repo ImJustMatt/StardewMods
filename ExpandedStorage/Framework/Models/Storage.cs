@@ -85,6 +85,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                 case "Mini-Shipping Bin":
                     SpecialChestType = "MiniShippingBin";
                     OpenNearby = true;
+                    OpenNearbySound = "doorCreak";
+                    CloseNearbySound = "doorCreakReverse";
                     OpenSound = "shwip";
                     PlaceSound = "axe";
                     CarrySound = "pickUpItem";
@@ -129,6 +131,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public string SpecialChestType { get; set; }
         public bool IsFridge { get; set; }
         public bool OpenNearby { get; set; }
+        public string? OpenNearbySound { get; set; }
+        public string? CloseNearbySound { get; set; }
         public string OpenSound { get; set; }
         public string PlaceSound { get; set; }
         public string CarrySound { get; set; }

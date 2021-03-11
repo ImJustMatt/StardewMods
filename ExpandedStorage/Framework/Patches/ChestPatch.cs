@@ -96,13 +96,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
                 return true;
             __result = true;
-            if (storage.OpenNearby)
+            if (storage.OpenNearby || Enum.TryParse(storage.Animation, out Storage.AnimationType animationType) && animationType != Storage.AnimationType.None)
             {
-                __instance.ShowMenu();
-            }
-            else if (Enum.TryParse(storage.Animation, out Storage.AnimationType animationType) && animationType != Storage.AnimationType.None)
-            {
-                Game1.playSound(storage.OpenSound);
+                who.currentLocation.playSound(storage.OpenSound);
                 __instance.ShowMenu();
             }
             else
@@ -111,7 +107,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 {
                     if (storage.Frames > 1) __instance.uses.Value = (int) Storage.Frame;
                     else __instance.frameCounter.Value = storage.Delay;
-                    Game1.playSound(storage.OpenSound);
+                    who.currentLocation.playSound(storage.OpenSound);
                     Game1.player.Halt();
                     Game1.player.freezePause = 1000;
                 });
@@ -165,13 +161,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
                 return true;
-
             // Only draw origin sprite for bigger expanded storages
             if (storage.SpriteSheet is { } spriteSheet
                 && (spriteSheet.TileWidth > 1 || spriteSheet.TileHeight > 1)
                 && ((int) __instance.TileLocation.X != x || (int) __instance.TileLocation.Y != y))
                 return false;
-
             var draw_x = (float) x;
             var draw_y = (float) y;
             if (__instance.localKickStartTile.HasValue)
@@ -179,7 +173,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 draw_x = Utility.Lerp(__instance.localKickStartTile.Value.X, draw_x, __instance.kickProgress);
                 draw_y = Utility.Lerp(__instance.localKickStartTile.Value.Y, draw_y, __instance.kickProgress);
             }
-
             var globalPosition = new Vector2(draw_x, (int) (draw_y - storage.Depth / 16f - 1f));
             var layerDepth = Math.Max(0.0f, ((draw_y + 1f) * 64f - 24f) / 10000f) + draw_x * 1E-05f;
             __instance.Draw(storage, spriteBatch, Game1.GlobalToLocal(Game1.viewport, globalPosition * 64), Vector2.Zero, alpha, layerDepth);
@@ -329,7 +322,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
                 __instance.uses.Value = (int) Storage.Frame;
                 farmerNearby.SetValue(shouldOpen);
-                environment.localSound(shouldOpen ? "doorCreak" : "doorCreakReverse");
+                environment.localSound(shouldOpen ? storage.OpenNearbySound ?? "doorCreak" : storage.CloseNearbySound ?? "doorCreakReverse");
             }
 
             if (Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
