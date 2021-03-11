@@ -2,6 +2,7 @@
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
+using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewValley;
 
@@ -26,21 +27,20 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Converted added items into Chests</summary>
         public static bool AddItemToInventoryPrefix(Farmer __instance, ref Item __result, Item item, List<Item> affected_items_list)
         {
-            if (!ExpandedStorage.TryGetStorage(item, out var storage) || item.Stack > 1)
-                return true;
-
-            var chest = item.ToChest(storage);
+            if (item.Stack > 1
+                || !ExpandedStorage.TryGetStorage(item, out var storage)
+                || storage.Option("CanCarry", true) != StorageConfig.Choice.Enable
+                && storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable) return true;
 
             // Find first stackable slot
+            var chest = item.ToChest(storage);
             for (var j = 0; j < __instance.MaxItems; j++)
             {
                 if (j >= __instance.Items.Count
                     || __instance.Items[j] == null
                     || !__instance.Items[j].Name.Equals(item.Name)
                     || __instance.Items[j].ParentSheetIndex != item.ParentSheetIndex
-                    || !chest.canStackWith(__instance.Items[j]))
-                    continue;
-
+                    || !chest.canStackWith(__instance.Items[j])) continue;
                 var stackLeft = __instance.Items[j].addToStack(chest);
                 affected_items_list?.Add(__instance.Items[j]);
                 if (stackLeft <= 0)
@@ -55,12 +55,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             // Find first empty slot
             for (var i = 0; i < __instance.MaxItems; i++)
             {
-                if (i > __instance.Items.Count || __instance.Items[i] != null)
-                    continue;
-
+                if (i > __instance.Items.Count || __instance.Items[i] != null) continue;
                 __instance.Items[i] = chest;
                 affected_items_list?.Add(__instance.Items[i]);
-
                 __result = null;
                 return false;
             }

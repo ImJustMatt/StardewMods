@@ -173,6 +173,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 draw_x = Utility.Lerp(__instance.localKickStartTile.Value.X, draw_x, __instance.kickProgress);
                 draw_y = Utility.Lerp(__instance.localKickStartTile.Value.Y, draw_y, __instance.kickProgress);
             }
+
             var globalPosition = new Vector2(draw_x, (int) (draw_y - storage.Depth / 16f - 1f));
             var layerDepth = Math.Max(0.0f, ((draw_y + 1f) * 64f - 24f) / 10000f) + draw_x * 1E-05f;
             __instance.Draw(storage, spriteBatch, Game1.GlobalToLocal(Game1.viewport, globalPosition * 64), Vector2.Zero, alpha, layerDepth);
@@ -287,8 +288,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             var shouldOpen = false;
             if (storage.SpriteSheet is {Texture: { }} spriteSheet)
             {
-                var x = __instance.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
-                var y = __instance.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
+                var x = __instance.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : (int) __instance.TileLocation.X;
+                var y = __instance.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : (int) __instance.TileLocation.Y;
                 for (var i = 0; i < spriteSheet.TileWidth; i++)
                 {
                     for (var j = 0; j < spriteSheet.TileHeight; j++)

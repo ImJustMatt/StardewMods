@@ -219,6 +219,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             if (!IsFridge) IsFridge = storage.IsFridge;
             if (SpecialChestType == "None") SpecialChestType = storage.SpecialChestType;
             OpenNearby = storage.OpenNearby;
+            if (string.IsNullOrWhiteSpace(OpenNearbySound)) OpenNearbySound = storage.OpenNearbySound;
+            if (string.IsNullOrWhiteSpace(CloseNearbySound)) CloseNearbySound = storage.CloseNearbySound;
             if (OpenSound == "openChest") OpenSound = storage.OpenSound;
             if (string.IsNullOrWhiteSpace(CarrySound)) CarrySound = storage.CarrySound;
             if (PlaceSound == "axe") PlaceSound = storage.PlaceSound;

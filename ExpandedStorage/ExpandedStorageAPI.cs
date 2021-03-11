@@ -71,28 +71,23 @@ namespace ImJustMatt.ExpandedStorage
         public T Load<T>(IAssetInfo asset)
         {
             var assetParts = PathUtilities.GetSegments(asset.AssetName).Skip(2).ToList();
-            IContentPack contentPack = null;
-
+            IContentPack contentPack;
             switch (assetParts.ElementAtOrDefault(0))
             {
                 case "SpriteSheets":
                     var storageName = assetParts.ElementAtOrDefault(1);
-
                     if (string.IsNullOrWhiteSpace(storageName)
                         || !_storageConfigs.TryGetValue(storageName, out var storage)
-                        || !_contentPacks.TryGetValue(storage.ModUniqueId, out contentPack)
-                        || !contentPack.HasFile($"assets/{storage.Image}"))
-                        throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
+                        || !_contentPacks.TryGetValue(storage.ModUniqueId, out contentPack)) throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
+                    if (!contentPack.HasFile($"assets/{storage.Image}")) throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
                     return contentPack.LoadAsset<T>($"assets/{storage.Image}");
-
                 case "Tabs":
                     var tabId = $"{assetParts.ElementAtOrDefault(1)}/{assetParts.ElementAtOrDefault(2)}";
-
                     if (!_tabConfigs.TryGetValue(tabId, out var tab))
                         throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
-                    return _contentPacks.TryGetValue(tab.ModUniqueId, out contentPack) && contentPack.HasFile($"assets/{tab.TabImage}")
-                        ? contentPack.LoadAsset<T>($"assets/{tab.TabImage}")
-                        : _helper.Content.Load<T>($"assets/{tab.TabImage}");
+                    if (_contentPacks.TryGetValue(tab.ModUniqueId, out contentPack)
+                        && contentPack.HasFile($"assets/{tab.TabImage}")) return contentPack.LoadAsset<T>($"assets/{tab.TabImage}");
+                    return _helper.Content.Load<T>($"assets/{tab.TabImage}");
             }
 
             throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");

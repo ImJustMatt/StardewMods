@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.PatternPatches;
@@ -161,44 +162,38 @@ namespace ImJustMatt.ExpandedStorage
             if (!Context.IsPlayerFree)
                 return;
 
-            var location = e.Location;
-            var removed = e.Removed.LastOrDefault(p => p.Value.modData.ContainsKey("furyx639.ExpandedStorage/X"));
-            if (removed.Value != null)
+            Helper.Events.World.ObjectListChanged -= OnObjectListChanged;
+            foreach (var removed in e.Removed)
             {
-                if (TryGetStorage(removed.Value, out var storage)
-                    && storage.SpriteSheet is { } spriteSheet
-                    && (spriteSheet.TileWidth > 1 || spriteSheet.TileHeight > 1))
+                var x = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
+                var y = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
+                if (!TryGetStorage(removed.Value, out var storage)
+                    || x == 0 && y == 0
+                    || storage.SpriteSheet is not { } spriteSheet
+                    || spriteSheet.TileWidth <= 1 && spriteSheet.TileHeight <= 1) continue;
+                spriteSheet.ForEachPos(x, y, pos =>
                 {
-                    var x = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
-                    var y = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
+                    if (!pos.Equals(removed.Key) && e.Location.Objects.ContainsKey(pos)) e.Location.Objects.Remove(pos);
+                });
+            }
 
-                    void RemoveObject(Vector2 pos)
+            foreach (var added in e.Added)
+            {
+                if (added.Value is not Chest chest || !TryGetStorage(chest, out var storage)) continue;
+                chest.modData["furyx639.ExpandedStorage/X"] = added.Key.X.ToString(CultureInfo.InvariantCulture);
+                chest.modData["furyx639.ExpandedStorage/Y"] = added.Key.Y.ToString(CultureInfo.InvariantCulture);
+
+                // Add objects for extra Tile spaces
+                if (storage.SpriteSheet is { } spriteSheet && (spriteSheet.TileWidth > 1 || spriteSheet.TileHeight > 1))
+                {
+                    spriteSheet.ForEachPos((int) added.Key.X, (int) added.Key.Y, pos =>
                     {
-                        if (pos.Equals(removed.Key) || !location.Objects.ContainsKey(pos))
-                            return;
-                        location.Objects.Remove(pos);
-                    }
-
-                    Helper.Events.World.ObjectListChanged -= OnObjectListChanged;
-                    spriteSheet.ForEachPos(x, y, RemoveObject);
-                    Helper.Events.World.ObjectListChanged += OnObjectListChanged;
+                        if (!pos.Equals(added.Key) && !e.Location.Objects.ContainsKey(pos)) e.Location.Objects.Add(pos, chest.ToObject(storage));
+                    });
                 }
             }
 
-            var oldChest = HeldChest.Value;
-            if (oldChest == null || !ReferenceEquals(e.Location, Game1.currentLocation)) return;
-
-            var added = e.Added.LastOrDefault(p => p.Value is Chest).Value;
-            if (added is not Chest chest || chest.items.Any())
-                return;
-
-            // Backup method for restoring carried Chest items
-            chest.name = oldChest.name;
-            chest.playerChoiceColor.Value = oldChest.playerChoiceColor.Value;
-            if (oldChest.items.Any())
-                chest.items.CopyFrom(oldChest.items);
-            foreach (var modData in oldChest.modData)
-                chest.modData.CopyFrom(modData);
+            Helper.Events.World.ObjectListChanged += OnObjectListChanged;
         }
 
         /// <summary>Initialize player item vacuum chests.</summary>

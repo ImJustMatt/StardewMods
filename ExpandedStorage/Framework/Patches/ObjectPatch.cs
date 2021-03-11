@@ -65,23 +65,19 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Trigger primary chest check for action</summary>
         public static bool CheckForActionPrefix(Object __instance, ref bool __result, Farmer who, bool justCheckingForActivity)
         {
-            if (justCheckingForActivity || !Game1.didPlayerJustRightClick(true))
-                return true;
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
-                return true;
-            __result = true;
+            if (justCheckingForActivity || !Game1.didPlayerJustRightClick(true)) return true;
+            if (!ExpandedStorage.TryGetStorage(__instance, out _)) return true;
             var x = __instance.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
             var y = __instance.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
-            if (!Game1.currentLocation.Objects.TryGetValue(new Vector2(x, y), out var obj) || obj is not Chest chest)
-                return true;
+            if (!Game1.currentLocation.Objects.TryGetValue(new Vector2(x, y), out var obj) || obj is not Chest chest) return true;
             __result = chest.checkForAction(who);
             return false;
         }
 
         public static bool PlacementActionPrefix(Object __instance, ref bool __result, GameLocation location, int x, int y, Farmer who)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
-                return true;
+            if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
+                || !ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
 
             if (!storage.IsPlaceable)
             {
@@ -93,15 +89,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             var pos = new Vector2(x, y) / 64f;
             pos.X = (int) pos.X;
             pos.Y = (int) pos.Y;
-
-            if (location.objects.ContainsKey(pos))
-            {
-                Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Object.cs.13053"));
-                __result = false;
-                return false;
-            }
-
-            if (location is MineShaft || location is VolcanoDungeon)
+            if (location.objects.ContainsKey(pos) || location is MineShaft || location is VolcanoDungeon)
             {
                 Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Object.cs.13053"));
                 __result = false;
@@ -125,10 +113,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 }
             }
 
-            __instance.owner.Value = who?.UniqueMultiplayerID ?? Game1.player.UniqueMultiplayerID;
-            __instance.modData["furyx639.ExpandedStorage/X"] = pos.X.ToString(CultureInfo.InvariantCulture);
-            __instance.modData["furyx639.ExpandedStorage/Y"] = pos.Y.ToString(CultureInfo.InvariantCulture);
-
             // Get instance of object to place
             var chest = __instance.ToChest(storage);
             chest.shakeTimer = 50;
@@ -136,21 +120,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             // Place object at location
             location.objects.Add(pos, chest);
-            location.playSound(storage.PlaceSound);
-
-            // Place clones at additional tile locations
-            if (storage.SpriteSheet is {Texture: { }} spriteSheet)
-            {
-                spriteSheet.ForEachPos(0, 0, delegate(Vector2 offset)
-                {
-                    if (offset.Equals(Vector2.Zero))
-                        return;
-                    var obj = new Object(pos, __instance.ParentSheetIndex);
-                    foreach (var modData in __instance.modData)
-                        obj.modData.CopyFrom(modData);
-                    location.Objects.Add(pos + offset, obj);
-                });
-            }
+            location.localSound(storage.PlaceSound);
 
             __result = true;
             return false;
@@ -159,8 +129,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Do not draw object extensions of bigger expanded storages.</summary>
         public static bool DrawPrefix(Object __instance, SpriteBatch spriteBatch, int x, int y, float alpha)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
-                return true;
+            if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
+                || !ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
             return storage.SpriteSheet is not { } spriteSheet
                    || spriteSheet.TileWidth <= 1 && spriteSheet.TileHeight <= 1
                    || (int) __instance.TileLocation.X == x && (int) __instance.TileLocation.Y == y;
@@ -168,8 +138,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static bool DrawWhenHeldPrefix(Object __instance, SpriteBatch spriteBatch, Vector2 objectPosition, Farmer f)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || __instance is not Chest chest || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
-                return true;
+            if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
+                || !ExpandedStorage.TryGetStorage(__instance, out var storage)
+                || __instance is not Chest chest) return true;
 
             if (storage.SpriteSheet is {Texture: { }} spriteSheet)
             {
@@ -187,14 +158,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static bool DrawPlacementBoundsPrefix(Object __instance, SpriteBatch spriteBatch, GameLocation location)
         {
-            if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
-                return true;
-
-            if (ExpandedStorage.TryGetStorage(__instance, out var storage) && !storage.IsPlaceable)
-                return false;
-
-            if (storage?.SpriteSheet is not {Texture: { }} spriteSheet)
-                return true;
+            if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)) return true;
+            if (ExpandedStorage.TryGetStorage(__instance, out var storage) && !storage.IsPlaceable) return false;
+            if (storage?.SpriteSheet is not {Texture: { }} spriteSheet) return true;
 
             var tile = 64 * Game1.GetPlacementGrabTile();
             var x = (int) tile.X;
@@ -241,10 +207,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Disallow stacking carried chests.</summary>
         public static bool MaximumStackSizePrefix(Object __instance, ref int __result)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage)
+            if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
+                || !ExpandedStorage.TryGetStorage(__instance, out var storage)
                 || storage.Option("CarryChest", true) != StorageConfig.Choice.Enable
-                && storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable)
-                return true;
+                && storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable) return true;
             __result = -1;
             return false;
         }

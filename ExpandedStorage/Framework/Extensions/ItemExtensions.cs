@@ -8,7 +8,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 {
     public static class ItemExtensions
     {
-        public static Chest ToChest(this Item item, Storage storage = null)
+        public static Chest ToChest(this Item item, Storage storage = null, Chest oldChest = null)
         {
             // Get config for chest
             if (storage == null && !ExpandedStorage.TryGetStorage(item, out storage))
@@ -42,8 +42,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                     chest.modData.Add(modData.Key, modData.Value);
             }
 
-            if (item is not Chest oldChest)
-                return chest;
+            oldChest ??= item is Chest oldItemChest ? oldItemChest : null;
+            if (oldChest == null) return chest;
 
             chest.playerChoiceColor.Value = oldChest.playerChoiceColor.Value;
             if (oldChest.items.Any())

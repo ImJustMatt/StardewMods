@@ -78,6 +78,9 @@ It's also possible to load storage or enable features using the [Expanded Storag
 "StorageName": {
   "SpecialChestType": "None",
   "IsFridge": false,
+  "OpenNearby": false,
+  "OpenNearbySound": "doorCreak",
+  "CloseNearbySound": "doorCreakReverse",
   "OpenSound": "openChest",
   "PlaceSound": "axe",
   "CarrySound": "pickUpItem",
@@ -85,6 +88,8 @@ It's also possible to load storage or enable features using the [Expanded Storag
   "Image": "MyStorage.png",
   "Frames": 1,
   "Depth": 16,
+  "Animation": "None",
+  "Delay": 5,
   "PlayerColor": true,
   "PlayerConfig": true,
   "ModData": {
@@ -108,6 +113,9 @@ field               | description
 `StorageName`       | Name of the object, must match the Big Craftable name. **(Required)**
 `SpecialChestType`  | `"None"`, `"MiniShippingBin"`, or `"JunimoChest"`. (default `"None"`)
 `IsFridge`          | Set to `true` if storage should be treated as a Mini-Fridge. (default `false`)
+`OpenNearby`        | Set to `true` for storage to automatically open whenever a Farmer is nearby. (default `false`) 
+`OpenNearbySound`   | Sound to play when OpenNearby is true and player approaches storage. (default `"doorCreak"`)  <sup>[1](#handyheadphones)</sup>
+`CloseNearbySound`  | Sound to play when OpenNearby is true and player walks away from storage. (default `"doorCreak"`)  <sup>[1](#handyheadphones)</sup>
 `OpenSound`         | Sound to play when storage is being opened. (default `"openChest"`) <sup>[1](#handyheadphones)</sup>
 `PlaceSound`        | Sound to play when storage is placed. (default `"axe"`) <sup>[1](#handyheadphones)</sup>
 `CarrySound`        | Sound to play when storage is picked up. (default `"pickUpItem"`) <sup>[1](#handyheadphones)</sup>
@@ -115,6 +123,8 @@ field               | description
 `Image`             | Image in assets used as the spritesheet for this storage. (default `null`) <sup>[2](#spritesheet)</sup> 
 `Frames`            | Number of frames to animate when opening the storage. (default `1`)
 `Depth`             | Distance from bottom of sprite that is used to determine placement/obstruction. (default `height-16`)
+`Animation`         | `"None"`, `"Loop"`, or `"Color"`. (default `"None"`)
+`Delay`             | Number of ticks between each animation frame. (default `5`)
 `PlayerColor`       | Set to `true` to allow player color choice. (default `false`)
 `PlayerConfig`      | Set to `false` to disallow a config.json from overriding options (default `true`)
 `ModData`           | Adds to the storage [modData](#mod-data) when placed. (default `null`)

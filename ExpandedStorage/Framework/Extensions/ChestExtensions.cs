@@ -29,6 +29,34 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             return item => !ReferenceEquals(item, chest) && storage.HighlightMethod(item);
         }
 
+        public static Object ToObject(this Chest chest, Storage storage = null)
+        {
+            // Get config for chest
+            if (storage == null && !ExpandedStorage.TryGetStorage(chest, out storage))
+            {
+                throw new InvalidOperationException($"Unexpected item '{chest.Name}'.");
+            }
+
+            // Create Chest from Item
+            var obj = new Object(Vector2.Zero, chest.ParentSheetIndex)
+            {
+                name = chest.Name
+            };
+
+            // Copy modData from original item
+            foreach (var modData in chest.modData)
+                obj.modData.CopyFrom(modData);
+
+            // Copy modData from config
+            foreach (var modData in storage.ModData)
+            {
+                if (!obj.modData.ContainsKey(modData.Key))
+                    obj.modData.Add(modData.Key, modData.Value);
+            }
+
+            return obj;
+        }
+
         public static void Draw(this Chest chest, Storage storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha = 1f, float layerDepth = 0.89f, float scaleSize = 4f)
         {
             var drawColored = storage.PlayerColor
