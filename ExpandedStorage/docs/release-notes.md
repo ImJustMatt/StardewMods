@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+## 1.6.5
+
+- Added Animation support
+- Added Open when Farmer nearby
+- Fixed Bigger Storages breaking between saves
+
 ## 1.6.4
 
 - Fixed Mini-Fridge not animating correctly
