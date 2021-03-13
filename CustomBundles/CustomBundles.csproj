@@ -3,7 +3,7 @@
     <PropertyGroup>
         <AssemblyName>CustomBundles</AssemblyName>
         <RootNamespace>ImJustMatt.CustomBundles</RootNamespace>
-        <Version>1.0.0</Version>
+        <Version>1.0.1</Version>
         <TargetFramework>net452</TargetFramework>
         <EnableHarmony>true</EnableHarmony>
     </PropertyGroup>
