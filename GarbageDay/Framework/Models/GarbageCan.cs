@@ -17,6 +17,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
 {
     internal class GarbageCan
     {
+        private static IEnumerable<SearchableItem> _items;
         private readonly ModConfig _config;
         private readonly IContentHelper _contentHelper;
         private readonly Multiplayer _multiplayer;
@@ -24,7 +25,6 @@ namespace ImJustMatt.GarbageDay.Framework.Models
         private bool _doubleMega;
         private bool _dropQiBeans;
         private bool _garbageChecked = true;
-        private static IEnumerable<SearchableItem> _items;
         private bool _mega;
         private NPC _npc;
         internal GameLocation Location;
@@ -51,6 +51,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                 Game1.drawDialogue(_npc);
                 _npc = null;
             }
+
             if (Chest.items.Any() || Chest.playerChoiceColor.Value.Equals(Color.Black)) return;
             Chest.playerChoiceColor.Value = Color.DarkGray;
         }
@@ -216,14 +217,15 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                 if (item.MatchesTagExt("color_yellow", true)
                     || item.MatchesTagExt("color_dark_yellow", true)) return Color.Yellow;
                 if (item.MatchesTagExt("color_aquamarine", true)) return Color.Aquamarine;
-                    if (item.MatchesTagExt("color_purple", true)
-                        || item.MatchesTagExt("color_dark_purple", true)) return Color.Purple;
+                if (item.MatchesTagExt("color_purple", true)
+                    || item.MatchesTagExt("color_dark_purple", true)) return Color.Purple;
                 if (item.MatchesTagExt("color_cyan", true)) return Color.DarkCyan;
                 if (item.MatchesTagExt("color_white", true)
                     || item.MatchesTagExt("color_gray", true)) return Color.Gray;
                 if (item.MatchesTagExt("color_pink", true)) return Color.Pink;
                 if (item.MatchesTagExt("color_orange", true)) return Color.DarkOrange;
             }
+
             return Color.Gray;
         }
 
@@ -256,6 +258,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                     .Shuffle()
                     .FirstOrDefault();
             }
+
             return null;
         }
 
@@ -279,8 +282,10 @@ namespace ImJustMatt.GarbageDay.Framework.Models
                     {
                         item = !(garbageRandom.NextDouble() < 0.25 * luck) ? 270 : 809;
                     }
+
                     break;
             }
+
             return item;
         }
 

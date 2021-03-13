@@ -72,6 +72,7 @@ namespace ImJustMatt.GarbageDay
                         {
                             edits++;
                         }
+
                         garbageCan.MapName = map.AssetName;
                         garbageCan.Tile = new Vector2(x, y);
                     }
@@ -181,14 +182,14 @@ namespace ImJustMatt.GarbageDay
                     }
                 });
             helper.ConsoleCommands.Add("remove_garbage_cans",
-            "Remove all Garbage Cans. Run before saving to safely uninstall mod.",
-            delegate
-            {
-                foreach (var garbageCan in GarbageCans.Values)
+                "Remove all Garbage Cans. Run before saving to safely uninstall mod.",
+                delegate
                 {
-                    if (garbageCan.Chest != null) garbageCan.Location.Objects.Remove(garbageCan.Tile);
-                }
-            });
+                    foreach (var garbageCan in GarbageCans.Values)
+                    {
+                        if (garbageCan.Chest != null) garbageCan.Location.Objects.Remove(garbageCan.Tile);
+                    }
+                });
             helper.ConsoleCommands.Add("reset_garbage_cans",
                 "Resets all Garbage Cans by removing and replacing them.",
                 delegate
@@ -204,6 +205,7 @@ namespace ImJustMatt.GarbageDay
                             chest.items.CopyFrom(garbageCan.Value.Chest.items);
                             garbageCan.Value.Location.Objects.Remove(garbageCan.Value.Tile);
                         }
+
                         garbageCan.Value.Location.Objects.Add(garbageCan.Value.Tile, chest);
                     }
                 });
