@@ -14,7 +14,8 @@ Please report any issues to GitHub Issues
 
 # For Modders
 
-Integrating with GarbageDay is possible using [Content Patcher](docs/content-patcher.md).
+Integrating with GarbageDay is possible using [Content Patcher](docs/mod-integration.md).  
+There is also a [Content Pack Format](docs/content-format.md) for basic extensibility.
 
 # Credits
 
