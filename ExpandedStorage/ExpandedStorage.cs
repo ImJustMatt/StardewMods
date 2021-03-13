@@ -297,11 +297,13 @@ namespace ImJustMatt.ExpandedStorage
                 if (OpenCrafting()) Helper.Input.SuppressActiveKeybinds(_config.Controls.OpenCrafting);
                 return;
             }
+
             if (obj != null && _config.Controls.CarryChest.JustPressed() && Utility.withinRadiusOfPlayer((int) (64 * pos.X), (int) (64 * pos.Y), 1, Game1.player))
             {
                 if (CarryChest(obj, Game1.currentLocation, pos)) Helper.Input.SuppressActiveKeybinds(_config.Controls.CarryChest);
                 return;
             }
+
             if (obj == null && HeldChest.Value != null && _config.Controls.AccessCarriedChest.JustPressed())
             {
                 if (AccessCarriedChest(HeldChest.Value)) Helper.Input.SuppressActiveKeybinds(_config.Controls.AccessCarriedChest);

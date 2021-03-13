@@ -18,8 +18,8 @@ namespace ImJustMatt.ExpandedStorage.Framework
             new("ScrollDown", "Button for scrolling the item storage menu down one row"),
             new("PreviousTab", "Button for switching to the previous tab"),
             new("NextTab", "Button for switching to the next tab"),
-            new ("CarryChest", "Pick up a placed storage"),
-            new ("AccessCarriedChest", "Open the menu for a held storage")
+            new("CarryChest", "Pick up a placed storage"),
+            new("AccessCarriedChest", "Open the menu for a held storage")
         });
 
         public KeybindList OpenCrafting { get; set; } = KeybindList.ForSingle(SButton.K);
