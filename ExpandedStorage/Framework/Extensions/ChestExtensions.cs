@@ -107,6 +107,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                         }
                     }
                 }
+                else if (chest.frameCounter.Value > -1)
+                {
+                    currentFrame = storage.Frames - 1;
+                }
 
                 var startLayer = drawColored && storage.PlayerColor ? 1 : 0;
                 var endLayer = startLayer == 0 ? 1 : 3;
@@ -152,6 +156,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                     chest.frameCounter.Value = 5;
                     _reflection.GetField<int>(chest, "currentLidFrame").SetValue(chest.getLastLidFrame());
                 }
+            }
+            else if (chest.frameCounter.Value > -1)
+            {
+                currentFrame = storage.Frames - 1;
             }
 
             spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
@@ -200,6 +208,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                     chest.frameCounter.Value = 5;
                     _reflection.GetField<int>(chest, "currentLidFrame").SetValue(chest.getLastLidFrame());
                 }
+            }
+            else if (chest.frameCounter.Value > -1)
+            {
+                currentFrame = storage.Frames - 1;
             }
 
             // Draw Storage Layer (Colorized)

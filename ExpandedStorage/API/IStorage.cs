@@ -14,10 +14,10 @@ namespace ImJustMatt.ExpandedStorage.API
         bool OpenNearby { get; set; }
 
         /// <summary>The sound that will play when the storage opens while approached.</summary>
-        string? OpenNearbySound { get; set; }
+        string OpenNearbySound { get; set; }
 
         /// <summary>The sound that will play when the storage closes.</summary>
-        string? CloseNearbySound { get; set; }
+        string CloseNearbySound { get; set; }
 
         /// <summary>The sound that will play when the storage is opened.</summary>
         string OpenSound { get; set; }
@@ -32,7 +32,7 @@ namespace ImJustMatt.ExpandedStorage.API
         bool IsPlaceable { get; set; }
 
         /// <summary>The spritesheet to use for drawing this storage.</summary>
-        string Image { get; set; }
+        string? Image { get; set; }
 
         /// <summary>The number of animation frames in the spritesheet.</summary>
         int Frames { get; set; }

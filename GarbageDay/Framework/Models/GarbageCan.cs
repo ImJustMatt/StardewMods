@@ -24,7 +24,7 @@ namespace ImJustMatt.GarbageDay.Framework.Models
         private bool _doubleMega;
         private bool _dropQiBeans;
         private bool _garbageChecked = true;
-        private IEnumerable<SearchableItem> _items;
+        private static IEnumerable<SearchableItem> _items;
         private bool _mega;
         private NPC _npc;
         internal GameLocation Location;

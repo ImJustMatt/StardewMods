@@ -85,38 +85,20 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                 case "Mini-Shipping Bin":
                     SpecialChestType = "MiniShippingBin";
                     OpenNearby = true;
-                    OpenNearbySound = "doorCreak";
-                    CloseNearbySound = "doorCreakReverse";
                     OpenSound = "shwip";
-                    PlaceSound = "axe";
-                    CarrySound = "pickUpItem";
                     break;
                 case "Mini-Fridge":
-                    SpecialChestType = "None";
                     IsFridge = true;
                     OpenSound = "doorCreak";
                     PlaceSound = "hammer";
-                    CarrySound = "pickUpItem";
                     PlayerColor = false;
                     Frames = 2;
                     break;
                 case "Junimo Chest":
                     SpecialChestType = "JunimoChest";
-                    OpenSound = "doorCreak";
-                    PlaceSound = "axe";
-                    CarrySound = "pickUpItem";
                     break;
                 case "Stone Chest":
-                    SpecialChestType = "None";
-                    OpenSound = "openChest";
                     PlaceSound = "hammer";
-                    CarrySound = "pickUpItem";
-                    break;
-                default:
-                    SpecialChestType = "None";
-                    OpenSound = "openChest";
-                    PlaceSound = "axe";
-                    CarrySound = "pickUpItem";
                     break;
             }
         }
@@ -128,16 +110,16 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             ? _storageSprite ??= new StorageSprite(this)
             : null;
 
-        public string SpecialChestType { get; set; }
+        public string SpecialChestType { get; set; } = "None";
         public bool IsFridge { get; set; }
         public bool OpenNearby { get; set; }
-        public string? OpenNearbySound { get; set; }
-        public string? CloseNearbySound { get; set; }
-        public string OpenSound { get; set; }
-        public string PlaceSound { get; set; }
-        public string CarrySound { get; set; }
+        public string OpenNearbySound { get; set; } = "doorCreak";
+        public string CloseNearbySound { get; set; } = "doorCreakReverse";
+        public string OpenSound { get; set; } = "openChest";
+        public string PlaceSound { get; set; } = "axe";
+        public string CarrySound { get; set; } = "pickUpItem";
         public bool IsPlaceable { get; set; } = true;
-        public string Image { get; set; } = "";
+        public string? Image { get; set; }
         public int Frames { get; set; } = 5;
         public int Depth { get; set; }
         public string Animation { get; set; } = "None";
@@ -219,10 +201,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             if (!IsFridge) IsFridge = storage.IsFridge;
             if (SpecialChestType == "None") SpecialChestType = storage.SpecialChestType;
             OpenNearby = storage.OpenNearby;
-            if (string.IsNullOrWhiteSpace(OpenNearbySound)) OpenNearbySound = storage.OpenNearbySound;
-            if (string.IsNullOrWhiteSpace(CloseNearbySound)) CloseNearbySound = storage.CloseNearbySound;
+            if (OpenNearbySound == "doorCreak") OpenNearbySound = storage.OpenNearbySound;
+            if (CloseNearbySound == "doorCreakReverse") CloseNearbySound = storage.CloseNearbySound;
             if (OpenSound == "openChest") OpenSound = storage.OpenSound;
-            if (string.IsNullOrWhiteSpace(CarrySound)) CarrySound = storage.CarrySound;
+            if (CarrySound == "pickUpItem") CarrySound = storage.CarrySound;
             if (PlaceSound == "axe") PlaceSound = storage.PlaceSound;
             if (IsPlaceable) IsPlaceable = storage.IsPlaceable;
             if (!string.IsNullOrWhiteSpace(storage.Image)) Image = storage.Image;

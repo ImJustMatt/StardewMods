@@ -34,12 +34,6 @@ namespace ImJustMatt.ExpandedStorage
         /// <summary>Dictionary of Expanded Storage tabs</summary>
         private static readonly IDictionary<string, StorageTab> StorageTabs = new Dictionary<string, StorageTab>();
 
-        /// <summary>Tracks previously held chest lid frame.</summary>
-        private readonly PerScreen<int> _currentLidFrame = new();
-
-        /// <summary>Reflected currentLidFrame for previousHeldChest.</summary>
-        private readonly PerScreen<IReflectedField<int>> _currentLidFrameReflected = new();
-
         /// <summary>The mod configuration.</summary>
         private ModConfig _config;
 
@@ -78,7 +72,7 @@ namespace ImJustMatt.ExpandedStorage
         {
             _config = helper.ReadConfig<ModConfig>();
             _config.DefaultStorage.SetDefault();
-            Monitor.Log("Mod Config:\n" + ModConfig.ConfigHelper.Summary(_config), LogLevel.Debug);
+            Monitor.Log($"Mod Config:\n {ModConfig.ConfigHelper.Summary(_config)}\n{ModConfigKeys.ConfigHelper.Summary(_config.Controls, false)}", LogLevel.Debug);
 
             _expandedStorageAPI = new ExpandedStorageAPI(Helper, Monitor, Storages, StorageTabs);
             _contentLoader = new ContentLoader(Helper, ModManifest, Monitor, _config, _expandedStorageAPI);
@@ -253,95 +247,94 @@ namespace ImJustMatt.ExpandedStorage
                 chest.fixLidFrame();
             }
 
-            if (storage.Animation != "None" || chest.frameCounter.Value <= -1 || _currentLidFrame.Value > chest.getLastLidFrame())
+            if (storage.Animation != "None" || chest.frameCounter.Value <= -1 || --chest.frameCounter.Value > 0)
                 return;
 
-            chest.frameCounter.Value--;
-            if (chest.frameCounter.Value > 0 || !chest.GetMutex().IsLockHeld())
-                return;
-
-            if (_currentLidFrame.Value == chest.getLastLidFrame())
+            if (Helper.Reflection.GetField<int>(chest, "currentLidFrame").GetValue() == chest.getLastLidFrame())
             {
-                chest.frameCounter.Value = -1;
-                _currentLidFrame.Value = chest.startingLidFrame.Value;
-                _currentLidFrameReflected.Value.SetValue(_currentLidFrame.Value);
                 chest.ShowMenu();
-            }
-            else
-            {
-                chest.frameCounter.Value = 5;
-                _currentLidFrame.Value++;
-                _currentLidFrameReflected.Value.SetValue(_currentLidFrame.Value);
+                chest.frameCounter.Value = -1;
             }
         }
 
-        /// <summary>Track toolbar changes before user input.</summary>
+        /// <summary>Raised after the player pressed/released a keyboard, mouse, or controller button.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
-            if (!Context.IsPlayerFree)
-                return;
-
-            var location = Game1.currentLocation;
+            if (!Context.IsPlayerFree) return;
             var pos = _config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
-            Storage storage;
             pos.X = (int) pos.X;
             pos.Y = (int) pos.Y;
-            location.objects.TryGetValue(pos, out var obj);
+            Game1.currentLocation.objects.TryGetValue(pos, out var obj);
 
             // Carry Chest
             if (obj != null && e.Button.IsUseToolButton() && Utility.withinRadiusOfPlayer((int) (64 * pos.X), (int) (64 * pos.Y), 1, Game1.player))
             {
-                if (!TryGetStorage(HeldChest.Value, out storage)
-                    || storage.Option("CanCarry", true) != StorageConfig.Choice.Enable
-                    || !Game1.player.addItemToInventoryBool(obj, true))
-                    return;
-                obj!.TileLocation = Vector2.Zero;
-                if (!string.IsNullOrWhiteSpace(storage.CarrySound))
-                    location.playSound(storage.CarrySound);
-                location.objects.Remove(pos);
-                Helper.Input.Suppress(e.Button);
+                if (CarryChest(obj, Game1.currentLocation, pos)) Helper.Input.Suppress(e.Button);
                 return;
             }
 
             // Access Carried Chest
             if (obj == null && HeldChest.Value != null && e.Button.IsActionButton())
             {
-                if (!TryGetStorage(HeldChest.Value, out storage) || storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable)
-                    return;
-                HeldChest.Value.checkForAction(Game1.player);
-                location.playSound(storage.OpenSound);
-                if (storage.Animation != "None" || storage.Frames == 1)
-                {
-                    HeldChest.Value.ShowMenu();
-                }
-                else
-                {
-                    HeldChest.Value.GetMutex().RequestLock(delegate
-                    {
-                        HeldChest.Value.fixLidFrame();
-                        HeldChest.Value.performOpenChest();
-                        _currentLidFrameReflected.Value = Helper.Reflection.GetField<int>(HeldChest.Value, "currentLidFrame");
-                        _currentLidFrame.Value = HeldChest.Value.startingLidFrame.Value;
-                        Game1.player.Halt();
-                        Game1.player.freezePause = 1000;
-                    });
-                }
-
-                Helper.Input.Suppress(e.Button);
+                if (AccessCarriedChest(HeldChest.Value)) Helper.Input.Suppress(e.Button);
             }
         }
 
-        /// <summary>Track toolbar changes before user input.</summary>
+        /// <summary>Raised after the player pressed/released any buttons on the keyboard, mouse, or controller.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
         private void OnButtonsChanged(object sender, ButtonsChangedEventArgs e)
         {
-            if (HeldChest.Value == null || Game1.activeClickableMenu != null || !_config.Controls.OpenCrafting.JustPressed())
+            if (!Context.IsPlayerFree) return;
+            var pos = _config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
+            pos.X = (int) pos.X;
+            pos.Y = (int) pos.Y;
+            Game1.currentLocation.objects.TryGetValue(pos, out var obj);
+            if (_config.Controls.OpenCrafting.JustPressed())
+            {
+                if (OpenCrafting()) Helper.Input.SuppressActiveKeybinds(_config.Controls.OpenCrafting);
                 return;
+            }
+            if (obj != null && _config.Controls.CarryChest.JustPressed() && Utility.withinRadiusOfPlayer((int) (64 * pos.X), (int) (64 * pos.Y), 1, Game1.player))
+            {
+                if (CarryChest(obj, Game1.currentLocation, pos)) Helper.Input.SuppressActiveKeybinds(_config.Controls.CarryChest);
+                return;
+            }
+            if (obj == null && HeldChest.Value != null && _config.Controls.AccessCarriedChest.JustPressed())
+            {
+                if (AccessCarriedChest(HeldChest.Value)) Helper.Input.SuppressActiveKeybinds(_config.Controls.AccessCarriedChest);
+            }
+        }
+
+        private static bool CarryChest(Object obj, GameLocation location, Vector2 pos)
+        {
+            if (!TryGetStorage(HeldChest.Value, out var storage)
+                || storage.Option("CanCarry", true) != StorageConfig.Choice.Enable
+                || !Game1.player.addItemToInventoryBool(obj, true))
+                return false;
+            obj!.TileLocation = Vector2.Zero;
+            if (!string.IsNullOrWhiteSpace(storage.CarrySound))
+                location.playSound(storage.CarrySound);
+            location.objects.Remove(pos);
+            return true;
+        }
+
+        private static bool AccessCarriedChest(Chest chest)
+        {
+            if (!TryGetStorage(chest, out var storage) || storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable)
+                return false;
+            chest.checkForAction(Game1.player);
+            return true;
+        }
+
+        private bool OpenCrafting()
+        {
+            if (HeldChest.Value == null || Game1.activeClickableMenu != null)
+                return false;
             if (!TryGetStorage(HeldChest.Value, out var storage) || storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable)
-                return;
+                return false;
             HeldChest.Value.GetMutex().RequestLock(delegate
             {
                 var pos = Utility.getTopLeftPositionForCenteringOnScreen(800 + IClickableMenu.borderWidth * 2, 600 + IClickableMenu.borderWidth * 2);
@@ -357,7 +350,7 @@ namespace ImJustMatt.ExpandedStorage
                     exitFunction = delegate { HeldChest.Value.GetMutex().ReleaseLock(); }
                 };
             });
-            Helper.Input.SuppressActiveKeybinds(_config.Controls.OpenCrafting);
+            return true;
         }
     }
 }

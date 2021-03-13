@@ -11,13 +11,15 @@ namespace ImJustMatt.ExpandedStorage.Framework
 {
     internal class ModConfigKeys
     {
-        private static readonly ConfigHelper ConfigHelper = new(new List<KeyValuePair<string, string>>
+        internal static readonly ConfigHelper ConfigHelper = new(new List<KeyValuePair<string, string>>
         {
-            new("OpenCrafting", "Open the crafting menu using inventory from a carried storage"),
+            new("OpenCrafting", "Open the crafting menu using inventory from a held storage"),
             new("ScrollUp", "Button for scrolling the item storage menu up one row"),
             new("ScrollDown", "Button for scrolling the item storage menu down one row"),
             new("PreviousTab", "Button for switching to the previous tab"),
-            new("NextTab", "Button for switching to the next tab")
+            new("NextTab", "Button for switching to the next tab"),
+            new ("CarryChest", "Pick up a placed storage"),
+            new ("AccessCarriedChest", "Open the menu for a held storage")
         });
 
         public KeybindList OpenCrafting { get; set; } = KeybindList.ForSingle(SButton.K);
@@ -25,6 +27,8 @@ namespace ImJustMatt.ExpandedStorage.Framework
         public KeybindList ScrollDown { get; set; } = KeybindList.ForSingle(SButton.DPadDown);
         public KeybindList PreviousTab { get; set; } = KeybindList.ForSingle(SButton.DPadLeft);
         public KeybindList NextTab { get; set; } = KeybindList.ForSingle(SButton.DPadRight);
+        public KeybindList CarryChest { get; set; } = KeybindList.ForSingle(SButton.DPadRight);
+        public KeybindList AccessCarriedChest { get; set; } = KeybindList.ForSingle(SButton.DPadRight);
 
         internal static void RegisterModConfig(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, ModConfigKeys configKeys)
         {
@@ -55,7 +59,17 @@ namespace ImJustMatt.ExpandedStorage.Framework
                 value => configKeys.NextTab = KeybindList.ForSingle(value));
             modConfigMenu.API.RegisterSimpleOption(manifest,
                 "Open Crafting",
-                "Open the crafting menu using inventory from a carried storage",
+                "Open the crafting menu using inventory from a held storage",
+                () => configKeys.OpenCrafting.Keybinds.Single(kb => kb.IsBound)?.Buttons.First() ?? SButton.DPadUp,
+                value => configKeys.OpenCrafting = KeybindList.ForSingle(value));
+            modConfigMenu.API.RegisterSimpleOption(manifest,
+                "Carry Chest",
+                "Button to pick up a placed storage",
+                () => configKeys.OpenCrafting.Keybinds.Single(kb => kb.IsBound)?.Buttons.First() ?? SButton.DPadUp,
+                value => configKeys.OpenCrafting = KeybindList.ForSingle(value));
+            modConfigMenu.API.RegisterSimpleOption(manifest,
+                "Access Carried Chest",
+                "Open the menu for a held storage",
                 () => configKeys.OpenCrafting.Keybinds.Single(kb => kb.IsBound)?.Buttons.First() ?? SButton.DPadUp,
                 value => configKeys.OpenCrafting = KeybindList.ForSingle(value));
         }

@@ -107,7 +107,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 {
                     if (storage.Frames > 1) __instance.uses.Value = (int) Storage.Frame;
                     else __instance.frameCounter.Value = storage.Delay;
-                    who.currentLocation.playSound(storage.OpenSound);
+                    who.currentLocation.localSound(storage.OpenSound);
                     Game1.player.Halt();
                     Game1.player.freezePause = 1000;
                 });
@@ -128,8 +128,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Prevent adding item if filtered.</summary>
         public static bool AddItemPrefix(Chest __instance, ref Item __result, Item item)
         {
-            if (!ReferenceEquals(__instance, item)
-                && (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Filter(item)))
+            if (!ReferenceEquals(__instance, item) && (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Filter(item)))
                 return true;
             __result = item;
             return false;
