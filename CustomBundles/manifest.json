@@ -1,0 +1,20 @@
+﻿{
+  "Name": "Custom Bundles",
+  "Author": "furyx639",
+  "Version": "1.0.0",
+  "Description": "Mod which resets bundles and progress.",
+  "UniqueID": "furyx639.CustomBundles",
+  "EntryDll": "CustomBundles.dll",
+  "MinimumApiVersion": "3.9.0",
+  "UpdateKeys": [ "Nexus:????" ],
+  "Dependencies": [
+    {
+      "UniqueID": "Pathoschild.ContentPatcher",
+      "IsRequired": false
+    },
+    {
+      "UniqueID": "spacechase0.JsonAssets",
+      "IsRequired": false
+    }
+  ]
+}
