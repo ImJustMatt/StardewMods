@@ -1,5 +1,7 @@
 ﻿# Content.json
 
+The Entries follow the [Bundle Data Format](https://stardewcommunitywiki.com/Modding:Bundles) as noted on the Stardew Valley Wiki.
+
 ```json
 {
 	"Format": "1.21.0",
