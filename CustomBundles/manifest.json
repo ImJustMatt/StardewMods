@@ -6,7 +6,7 @@
   "UniqueID": "furyx639.CustomBundles",
   "EntryDll": "CustomBundles.dll",
   "MinimumApiVersion": "3.9.0",
-  "UpdateKeys": [ "Nexus:????" ],
+  "UpdateKeys": [ "Nexus:8258" ],
   "Dependencies": [
     {
       "UniqueID": "Pathoschild.ContentPatcher",
