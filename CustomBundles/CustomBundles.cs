@@ -40,10 +40,7 @@ namespace ImJustMatt.CustomBundles
             helper.ConsoleCommands.Add(
                 "reset_bundles",
                 "Resets all bundles and progress",
-                delegate
-                {
-                    _helper.Events.GameLoop.UpdateTicked += ResetBundles;
-                }
+                delegate { _helper.Events.GameLoop.UpdateTicked += ResetBundles; }
             );
 
             helper.ConsoleCommands.Add(
@@ -53,8 +50,8 @@ namespace ImJustMatt.CustomBundles
                 {
                     Monitor.Log(
                         string.Join("\n",
-                        Game1.netWorldState.Value.BundleData
-                            .Select(b => $"{b.Key,-25}|{b.Value}")
+                            Game1.netWorldState.Value.BundleData
+                                .Select(b => $"{b.Key,-25}|{b.Value}")
                         )
                     );
                 });
@@ -97,6 +94,7 @@ namespace ImJustMatt.CustomBundles
                 _helper.Events.GameLoop.UpdateTicked -= ResetBundles;
                 return;
             }
+
             if (!Context.IsWorldReady || !_idsAssigned)
                 return;
             _helper.Events.GameLoop.UpdateTicked -= ResetBundles;

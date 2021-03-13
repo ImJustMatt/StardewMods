@@ -9,6 +9,12 @@ namespace ImJustMatt.CustomBundles.Models
     internal class BundleCollection : IAssetLoader
     {
         private readonly IContentHelper _contentHelper;
+
+        public BundleCollection(IContentHelper contentHelper)
+        {
+            _contentHelper = contentHelper;
+        }
+
         public Dictionary<string, string> Bundles { get; private set; } = new();
 
         public bool Changed
@@ -20,26 +26,23 @@ namespace ImJustMatt.CustomBundles.Models
                 {
                     bundles[bundle.Key] = bundle.Value.GetData;
                 }
+
                 if (bundles.All(bundle =>
                     Game1.netWorldState.Value.BundleData.ContainsKey(bundle.Key)
                     && bundle.Value.Equals(Game1.netWorldState.Value.BundleData[bundle.Key])))
                 {
                     return false;
                 }
+
                 Bundles = bundles;
                 return true;
             }
         }
 
-        public BundleCollection(IContentHelper contentHelper)
-        {
-            _contentHelper = contentHelper;
-        }
-
         public bool CanLoad<T>(IAssetInfo asset)
         {
             var assetPrefix = PathUtilities.NormalizePath("Mods/furyx639.CustomBundles");
-            
+
             return asset.AssetName.StartsWith(assetPrefix);
         }
 
