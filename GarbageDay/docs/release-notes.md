@@ -1,6 +1,6 @@
 ﻿# Release Notes
 
-## 1.1.0
+## 1.0.2
 
 - Added Console Commands
 - Added Open when Farmer Nearby
