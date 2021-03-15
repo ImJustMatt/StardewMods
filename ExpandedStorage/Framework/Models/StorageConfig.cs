@@ -37,8 +37,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         [JsonConstructor]
         internal StorageConfig(IStorageConfig config = null)
         {
-            if (config != null)
-                CopyFrom(config);
+            if (config == null)
+                return;
+            Capacity = config.Capacity;
+            EnabledFeatures = config.EnabledFeatures;
+            DisabledFeatures = config.DisabledFeatures;
+            Tabs = config.Tabs;
         }
 
         internal static IList<string> DefaultTabs => _defaultConfig?.Tabs;
@@ -74,8 +78,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
         internal void RevertToDefault()
         {
-            if (ParentConfig != null)
-                CopyFrom(ParentConfig);
+            if (ParentConfig == null || ReferenceEquals(ParentConfig, this))
+                return;
+            Capacity = ParentConfig.Capacity;
+            EnabledFeatures = ParentConfig.EnabledFeatures;
+            DisabledFeatures = ParentConfig.DisabledFeatures;
+            Tabs = ParentConfig.Tabs;
         }
 
         internal Choice Option(string option, bool globalOverride = false)
@@ -87,14 +95,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             return globalOverride && !ReferenceEquals(ParentConfig, this)
                 ? ParentConfig?.Option(option, true) ?? Choice.Unspecified
                 : Choice.Unspecified;
-        }
-
-        private void CopyFrom(IStorageConfig config)
-        {
-            Capacity = config.Capacity;
-            EnabledFeatures = config.EnabledFeatures;
-            DisabledFeatures = config.DisabledFeatures;
-            Tabs = config.Tabs;
         }
 
         private class PropertyHandler : ConfigHelper.IPropertyHandler
