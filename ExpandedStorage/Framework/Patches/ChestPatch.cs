@@ -106,7 +106,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 __instance.GetMutex().RequestLock(delegate
                 {
                     if (storage.Frames > 1) __instance.uses.Value = (int) Storage.Frame;
-                    else __instance.frameCounter.Value = storage.Delay;
+                    __instance.frameCounter.Value = storage.Delay;
                     who.currentLocation.localSound(storage.OpenSound);
                     Game1.player.Halt();
                     Game1.player.freezePause = 1000;
@@ -119,7 +119,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Prevent breaking indestructible chests</summary>
         private static bool PerformToolActionPrefix(Chest __instance, ref bool __result, Tool t, GameLocation location)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Option("Indestructible", true) != StorageConfig.Choice.Enable)
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Config.Option("Indestructible", true) != StorageConfig.Choice.Enable)
                 return true;
             __result = false;
             return false;
@@ -149,9 +149,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Returns modded capacity for storage.</summary>
         public static bool GetActualCapacityPrefix(Chest __instance, ref int __result)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.ActualCapacity == 0)
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Config.ActualCapacity == 0)
                 return true;
-            __result = storage.ActualCapacity == -1 ? int.MaxValue : storage.ActualCapacity;
+            __result = storage.Config.ActualCapacity;
             return false;
         }
 
@@ -229,9 +229,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         public static bool UpdateWhenCurrentLocationPrefix(Chest __instance, GameTime time, GameLocation environment)
         {
             if (!ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
-            if (Enum.TryParse(storage.Animation, out Storage.AnimationType animationType)
-                && animationType != Storage.AnimationType.None) return false;
-            if (!storage.OpenNearby) return true;
+
             if (__instance.synchronized.Value)
             {
                 __instance.openChestEvent.Poll();
@@ -245,7 +243,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     {
                         if (Utility.isOnScreen((__instance.localKickStartTile.Value + new Vector2(0.5f, 0.5f)) * 64f, 64))
                         {
-                            Game1.playSound("clubhit");
+                            environment.localSound("clubhit");
                         }
 
                         __instance.shakeTimer = 100;
@@ -283,51 +281,51 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 }
             }
 
-            // Update Farmer Nearby
-            var shouldOpen = false;
-            if (storage.SpriteSheet is {Texture: { }} spriteSheet)
+            var frameCounter = _reflection.GetField<int>(__instance, "_shippingBinFrameCounter");
+            var currentFrame = 0;
+            if (Enum.TryParse(storage.Animation, out Storage.AnimationType animationType) && animationType != Storage.AnimationType.None)
             {
-                var x = __instance.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : (int) __instance.TileLocation.X;
-                var y = __instance.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : (int) __instance.TileLocation.Y;
-                for (var i = 0; i < spriteSheet.TileWidth; i++)
-                {
-                    for (var j = 0; j < spriteSheet.TileHeight; j++)
-                    {
-                        shouldOpen = environment.farmers.Any(f => Math.Abs(f.getTileX() - x - i) <= 1f && Math.Abs(f.getTileY() - y - j) <= 1f);
-                        if (shouldOpen) break;
-                    }
-
-                    if (shouldOpen) break;
-                }
+                currentFrame = (int) (Storage.Frame / storage.Delay) % storage.Frames;
+                frameCounter.SetValue(currentFrame);
             }
-            else
+            else if (storage.OpenNearby)
             {
-                shouldOpen = environment.farmers.Any(f => Math.Abs(f.getTileX() - __instance.TileLocation.X) <= 1f && Math.Abs(f.getTileY() - __instance.TileLocation.Y) <= 1f);
-            }
-
-            var farmerNearby = _reflection.GetField<bool>(__instance, "_farmerNearby");
-            if (shouldOpen != farmerNearby.GetValue())
-            {
-                if (__instance.uses.Value > 0)
+                var farmerNearby = __instance.UpdateFarmerNearby(storage, time, environment);
+                if (__instance.frameCounter.Value > -1)
                 {
-                    var currentLidFrame = _reflection.GetField<int>(__instance, "_shippingBinFrameCounter");
-                    var currentFrame = currentLidFrame.GetValue() + (shouldOpen ? -1 : 1) * (int) (Storage.Frame - __instance.uses.Value) / storage.Delay;
+                    currentFrame = frameCounter.GetValue() + (farmerNearby ? 1 : -1) * (int) (Storage.Frame - __instance.uses.Value) / storage.Delay;
                     currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
-                    currentLidFrame.SetValue(currentFrame);
-                }
-                else
-                {
-                    _reflection.GetField<int>(__instance, "_shippingBinFrameCounter").SetValue(0);
                 }
 
-                __instance.uses.Value = (int) Storage.Frame;
-                farmerNearby.SetValue(shouldOpen);
-                environment.localSound(shouldOpen ? storage.OpenNearbySound ?? "doorCreak" : storage.CloseNearbySound ?? "doorCreakReverse");
+                frameCounter.SetValue(currentFrame);
             }
-
-            if (Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
+            else if (__instance.uses.Value > 0)
             {
-                __instance.GetMutex().ReleaseLock();
+                currentFrame = Math.Max(0, (int) ((Storage.Frame - __instance.uses.Value) / storage.Delay) % storage.Frames);
+                frameCounter.SetValue(currentFrame);
+                if (currentFrame == storage.Frames - 1)
+                {
+                    __instance.uses.Value = 0;
+                    __instance.frameCounter.Value = storage.Delay;
+                    _reflection.GetField<int>(__instance, "currentLidFrame").SetValue(__instance.getLastLidFrame());
+                }
+            }
+            else if (__instance.frameCounter.Value > -1)
+            {
+                __instance.frameCounter.Value--;
+                if (__instance.frameCounter.Value < 0 && __instance.GetMutex().IsLockHeld())
+                {
+                    __instance.ShowMenu();
+                }
+            }
+            else if (__instance.frameCounter.Value == -1 && Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
+            {
+                currentFrame = frameCounter.GetValue();
+                if (currentFrame > 0 && currentFrame >= storage.Frames - 1)
+                {
+                    frameCounter.SetValue(0);
+                    __instance.GetMutex().ReleaseLock();
+                }
             }
 
             return false;
