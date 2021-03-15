@@ -226,7 +226,7 @@ namespace ImJustMatt.GarbageDay
         {
             // Load Expanded Storage content
             _expandedStorageAPI = Helper.ModRegistry.GetApi<IExpandedStorageAPI>("furyx639.ExpandedStorage");
-            _expandedStorageAPI.ReadyToLoad += delegate { _expandedStorageAPI.LoadContentPack(Path.Combine(Helper.DirectoryPath, "assets", "GarbageCan")); };
+            _expandedStorageAPI.LoadContentPack(Path.Combine(Helper.DirectoryPath, "assets", "GarbageCan"));
 
             // Get ParentSheetIndex for object
             var jsonAssets = new JsonAssetsIntegration(Helper.ModRegistry);
