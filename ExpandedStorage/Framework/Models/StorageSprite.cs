@@ -7,7 +7,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
     internal class StorageSprite
     {
-        private static ExpandedStorageAPI _expandedStorageAPI;
         private readonly int _depth;
         private readonly int _frames;
         private readonly string _path;
@@ -64,11 +63,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                     }
                 };
             }
-        }
-
-        internal static void Init(ExpandedStorageAPI expandedStorageAPI)
-        {
-            _expandedStorageAPI = expandedStorageAPI;
         }
 
         internal void ForEachPos(int x, int y, Action<Vector2> doAction)

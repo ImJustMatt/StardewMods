@@ -1,9 +1,10 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
+using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Buildings;
@@ -12,7 +13,7 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
-    public class Storage : StorageConfig, IStorage
+    public class Storage : IStorage
     {
         public enum AnimationType
         {
@@ -29,7 +30,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             CustomChestTypes
         }
 
-        internal new static readonly ConfigHelper ConfigHelper = new(new List<KeyValuePair<string, string>>
+        internal static readonly ConfigHelper ConfigHelper = new(new Storage(), new List<KeyValuePair<string, string>>
         {
             new("SpecialChestType", "Can be one of None, MiniShippingBin, JunimoChest, AutoLoader, or Enricher"),
             new("IsFridge", "Make the Storage into a Mini-Fridge when placed"),
@@ -66,7 +67,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>List of ParentSheetIndex related to this item.</summary>
         internal readonly HashSet<int> ObjectIds = new();
 
-        private StorageSprite? _storageSprite;
+        private StorageSprite _storageSprite;
+
+        internal StorageConfig Config;
 
         /// <summary>The UniqueId of the Content Pack that storage data was loaded from.</summary>
         internal string ModUniqueId = "";
@@ -74,12 +77,33 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>The Asset path to the mod's SpriteSheets.</summary>
         internal string Path = "";
 
-        internal Storage() : this("")
+        [JsonConstructor]
+        internal Storage(string storageName = "", IStorage storage = null)
         {
-        }
+            if (storage != null)
+            {
+                IsFridge = storage.IsFridge;
+                SpecialChestType = storage.SpecialChestType;
+                OpenNearby = storage.OpenNearby;
+                OpenNearbySound = storage.OpenNearbySound;
+                CloseNearbySound = storage.CloseNearbySound;
+                OpenSound = storage.OpenSound;
+                CarrySound = storage.CarrySound;
+                PlaceSound = storage.PlaceSound;
+                IsPlaceable = storage.IsPlaceable;
+                Image = storage.Image;
+                Animation = storage.Animation;
+                Frames = storage.Frames;
+                Delay = storage.Delay;
+                PlayerColor = storage.PlayerColor;
+                PlayerConfig = storage.PlayerConfig;
+                Depth = storage.Depth;
+                AllowList = storage.AllowList;
+                BlockList = storage.BlockList;
+                ModData = storage.ModData;
+            }
 
-        internal Storage(string storageName)
-        {
+            // Vanilla overrides
             switch (storageName)
             {
                 case "Mini-Shipping Bin":
@@ -106,7 +130,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>Which mod was used to load these assets into the game.</summary>
         internal SourceType Source { get; set; } = SourceType.Unknown;
 
-        internal StorageSprite? SpriteSheet => !string.IsNullOrWhiteSpace(Image)
+        internal Texture2D Texture { get; set; }
+
+        internal StorageSprite SpriteSheet => Texture != null
             ? _storageSprite ??= new StorageSprite(this)
             : null;
 
@@ -119,7 +145,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public string PlaceSound { get; set; } = "axe";
         public string CarrySound { get; set; } = "pickUpItem";
         public bool IsPlaceable { get; set; } = true;
-        public string? Image { get; set; }
+        public string Image { get; set; }
         public int Frames { get; set; } = 5;
         public int Depth { get; set; }
         public string Animation { get; set; } = "None";
@@ -129,6 +155,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public IDictionary<string, string> ModData { get; set; } = new Dictionary<string, string>();
         public HashSet<string> AllowList { get; set; } = new();
         public HashSet<string> BlockList { get; set; } = new();
+        public int Capacity { get; set; }
+        public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowColorPicker", "ShowSearchBar", "ShowTabs"};
+        public HashSet<string> DisabledFeatures { get; set; } = new();
+        public IList<string> Tabs { get; set; } = new List<string>();
 
         internal static void Init(IModEvents events)
         {
@@ -187,51 +217,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         internal bool HighlightMethod(Item item)
         {
             return Filter(item) && (SpecialChestType != "MiniShippingBin" || Utility.highlightShippableObjects(item));
-        }
-
-        internal static Storage Clone(IStorage storage)
-        {
-            var newStorage = new Storage();
-            newStorage.CopyFrom(storage);
-            return newStorage;
-        }
-
-        internal void CopyFrom(IStorage storage)
-        {
-            if (!IsFridge) IsFridge = storage.IsFridge;
-            if (SpecialChestType == "None") SpecialChestType = storage.SpecialChestType;
-            OpenNearby = storage.OpenNearby;
-            if (OpenNearbySound == "doorCreak") OpenNearbySound = storage.OpenNearbySound;
-            if (CloseNearbySound == "doorCreakReverse") CloseNearbySound = storage.CloseNearbySound;
-            if (OpenSound == "openChest") OpenSound = storage.OpenSound;
-            if (CarrySound == "pickUpItem") CarrySound = storage.CarrySound;
-            if (PlaceSound == "axe") PlaceSound = storage.PlaceSound;
-            if (IsPlaceable) IsPlaceable = storage.IsPlaceable;
-            if (!string.IsNullOrWhiteSpace(storage.Image)) Image = storage.Image;
-            if (!string.IsNullOrWhiteSpace(storage.Animation)) Animation = storage.Animation;
-            if (storage.Frames > 0) Frames = storage.Frames;
-            if (storage.Delay > 0) Delay = storage.Delay;
-            PlayerColor = storage.PlayerColor;
-            PlayerConfig = storage.PlayerConfig;
-            if (Depth == 0) Depth = storage.Depth;
-
-            if (storage.AllowList != null && storage.AllowList.Any())
-                AllowList = new HashSet<string>(storage.AllowList);
-
-            if (storage.BlockList != null && storage.BlockList.Any())
-                BlockList = new HashSet<string>(storage.BlockList);
-
-            if (storage.ModData != null && storage.ModData.Any())
-            {
-                ModData.Clear();
-                foreach (var modData in storage.ModData)
-                {
-                    if (!ModData.ContainsKey(modData.Key))
-                        ModData.Add(modData.Key, modData.Value);
-                }
-            }
-
-            CopyFrom((IStorageConfig) storage);
         }
     }
 }

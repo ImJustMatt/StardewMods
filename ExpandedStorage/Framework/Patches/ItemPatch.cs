@@ -29,8 +29,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 return true;
 
             // Disallow stacking for any chest instance objects
-            if (storage.Option("CanCarry", true) != StorageConfig.Choice.Enable
-                && storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable
+            if (storage.Config.Option("CanCarry", true) != StorageConfig.Choice.Enable
+                && storage.Config.Option("AccessCarried", true) != StorageConfig.Choice.Enable
                 && __instance is not Chest
                 && other is not Chest)
                 return true;

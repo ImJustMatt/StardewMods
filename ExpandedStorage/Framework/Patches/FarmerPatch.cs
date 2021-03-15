@@ -29,8 +29,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (item.Stack > 1
                 || !ExpandedStorage.TryGetStorage(item, out var storage)
-                || storage.Option("CanCarry", true) != StorageConfig.Choice.Enable
-                && storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable) return true;
+                || storage.Config.Option("CanCarry", true) != StorageConfig.Choice.Enable
+                && storage.Config.Option("AccessCarried", true) != StorageConfig.Choice.Enable) return true;
 
             // Find first stackable slot
             var chest = item.ToChest(storage);

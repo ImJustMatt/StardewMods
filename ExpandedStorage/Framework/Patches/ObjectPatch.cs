@@ -208,8 +208,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
                 || !ExpandedStorage.TryGetStorage(__instance, out var storage)
-                || storage.Option("CarryChest", true) != StorageConfig.Choice.Enable
-                && storage.Option("AccessCarried", true) != StorageConfig.Choice.Enable) return true;
+                || storage.Config.Option("CarryChest", true) != StorageConfig.Choice.Enable
+                && storage.Config.Option("AccessCarried", true) != StorageConfig.Choice.Enable) return true;
             __result = -1;
             return false;
         }

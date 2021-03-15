@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
+using Newtonsoft.Json;
 using StardewModdingAPI;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
@@ -17,8 +17,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             Disable
         }
 
-        internal static readonly ConfigHelper ConfigHelper = new(ValueOfProperty, new List<KeyValuePair<string, string>>
+        /// <summary>Default storage config for unspecified options</summary>
+        private static StorageConfig _defaultConfig;
+
+        internal static readonly ConfigHelper ConfigHelper = new(new PropertyHandler(), new StorageConfig(), new List<KeyValuePair<string, string>>
         {
+            new("Capacity", "Number of item slots the storage will contain"),
             new("AccessCarried", "Allow storage to be access while carried"),
             new("CanCarry", "Allow storage to be picked up"),
             new("Indestructible", "Cannot be broken by tools even while empty"),
@@ -28,26 +32,50 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             new("VacuumItems", "Allow storage to automatically collect dropped items")
         });
 
-        /// <summary>Default storage settings for unspecified options</summary>
-        private static StorageConfig _defaultConfig;
+        private StorageConfig _parent;
 
-        internal StorageMenu Menu => new(Capacity == 0 ? _defaultConfig : this);
-        internal int ActualCapacity => Capacity == 0 ? _defaultConfig.Capacity : Capacity;
+        [JsonConstructor]
+        internal StorageConfig(IStorageConfig config = null)
+        {
+            if (config != null)
+                CopyFrom(config);
+        }
+
         internal static IList<string> DefaultTabs => _defaultConfig?.Tabs;
+
+        /// <summary>Parent storage config for unspecified options</summary>
+        internal StorageConfig ParentConfig
+        {
+            get => _parent ?? _defaultConfig;
+            set => _parent = value;
+        }
+
+        internal StorageMenu Menu => Capacity == 0 && !ReferenceEquals(ParentConfig, this)
+            ? ParentConfig.Menu
+            : new StorageMenu(this);
+
+        internal int ActualCapacity =>
+            Capacity switch
+            {
+                0 => ReferenceEquals(ParentConfig, this) ? 0 : ParentConfig?.ActualCapacity ?? 0,
+                -1 => int.MaxValue,
+                _ => Capacity
+            };
+
         public int Capacity { get; set; }
         public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowColorPicker", "ShowSearchBar", "ShowTabs"};
         public HashSet<string> DisabledFeatures { get; set; } = new();
         public IList<string> Tabs { get; set; } = new List<string>();
 
-        private static object ValueOfProperty(string property, object instance)
-        {
-            var value = ((StorageConfig) instance).Option(property);
-            return value != Choice.Unspecified ? value : null;
-        }
-
-        internal void SetDefault()
+        internal void SetAsDefault()
         {
             _defaultConfig = this;
+        }
+
+        internal void RevertToDefault()
+        {
+            if (ParentConfig != null)
+                CopyFrom(ParentConfig);
         }
 
         internal Choice Option(string option, bool globalOverride = false)
@@ -56,74 +84,65 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                 return Choice.Disable;
             if (EnabledFeatures.Contains(option))
                 return Choice.Enable;
-            return globalOverride ? _defaultConfig.Option(option) : Choice.Unspecified;
+            return globalOverride && !ReferenceEquals(ParentConfig, this)
+                ? ParentConfig?.Option(option, true) ?? Choice.Unspecified
+                : Choice.Unspecified;
         }
 
-        internal void SetOption(string option, Choice choice)
+        private void CopyFrom(IStorageConfig config)
         {
-            EnabledFeatures.Remove(option);
-            DisabledFeatures.Remove(option);
-            switch (choice)
+            Capacity = config.Capacity;
+            EnabledFeatures = config.EnabledFeatures;
+            DisabledFeatures = config.DisabledFeatures;
+            Tabs = config.Tabs;
+        }
+
+        private class PropertyHandler : ConfigHelper.IPropertyHandler
+        {
+            private static readonly string[] Choices = Enum.GetNames(typeof(Choice));
+
+            public bool CanHandle(ConfigHelper.IProperty property)
             {
-                case Choice.Disable:
-                    DisabledFeatures.Add(option);
-                    break;
-                case Choice.Enable:
-                    EnabledFeatures.Add(option);
-                    break;
+                return property.Name != "Capacity";
             }
-        }
 
-        internal void CopyFrom(IStorageConfig config)
-        {
-            if (config.Capacity != 0) Capacity = config.Capacity;
-
-            if (config.EnabledFeatures != null)
+            public object GetValue(object instance, ConfigHelper.IProperty property)
             {
-                foreach (var enabledFeature in config.EnabledFeatures)
+                return ((StorageConfig) instance).Option(property.Name);
+            }
+
+            public void SetValue(object instance, ConfigHelper.IProperty property, object value)
+            {
+                var storageConfig = (StorageConfig) instance;
+                storageConfig.EnabledFeatures.Remove(property.Name);
+                storageConfig.DisabledFeatures.Remove(property.Name);
+                if (value is not string stringValue || !Enum.TryParse(stringValue, out Choice choice))
+                    return;
+                switch (choice)
                 {
-                    SetOption(enabledFeature, Choice.Enable);
+                    case Choice.Disable:
+                        storageConfig.DisabledFeatures.Add(property.Name);
+                        break;
+                    case Choice.Enable:
+                        storageConfig.EnabledFeatures.Add(property.Name);
+                        break;
+                    case Choice.Unspecified:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
 
-            if (config.DisabledFeatures != null)
+            public void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, ConfigHelper.IProperty property)
             {
-                foreach (var disabledFeature in config.DisabledFeatures)
-                {
-                    SetOption(disabledFeature, Choice.Disable);
-                }
-            }
-
-            if (config.Tabs == null || !config.Tabs.Any()) return;
-            Tabs.Clear();
-            foreach (var tab in config.Tabs)
-            {
-                Tabs.Add(tab);
-            }
-        }
-
-        internal void RegisterModConfig(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu)
-        {
-            if (!modConfigMenu.IsLoaded)
-                return;
-
-            Func<string> OptionGet(string option) => () => Option(option).ToString();
-
-            Action<string> OptionSet(string option) => value =>
-            {
-                if (Enum.TryParse(value, out Choice choice)) SetOption(option, choice);
-            };
-
-            var optionChoices = Enum.GetNames(typeof(Choice));
-
-            modConfigMenu.API.RegisterSimpleOption(manifest, "Capacity", "Number of item slots the storage will contain",
-                () => Capacity,
-                value => Capacity = value);
-
-            foreach (var option in ConfigHelper.Properties)
-            {
-                modConfigMenu.API.RegisterChoiceOption(manifest, option.Key, option.Value,
-                    OptionGet(option.Key), OptionSet(option.Key), optionChoices);
+                modConfigMenu.API.RegisterChoiceOption(
+                    manifest,
+                    property.Name,
+                    property.Description,
+                    () => GetValue(instance, property).ToString(),
+                    value => SetValue(instance, property, value),
+                    Choices
+                );
             }
         }
     }

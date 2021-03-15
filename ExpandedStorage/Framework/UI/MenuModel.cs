@@ -65,7 +65,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
                     .Where(t => t != null)
                     .ToList();
             }
-            else if (Storage?.Option("ShowTabs", true) == StorageConfig.Choice.Enable && StorageConfig.DefaultTabs?.Count > 0)
+            else if (Storage?.Config.Option("ShowTabs", true) == StorageConfig.Choice.Enable && StorageConfig.DefaultTabs?.Count > 0)
             {
                 StorageTabs = StorageConfig.DefaultTabs
                     .Select(t => ExpandedStorage.GetTab(Storage.ModUniqueId, t))
@@ -156,26 +156,26 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             return _config.ExpandInventoryMenu
                    && menu is ItemGrabMenu {shippingBin: false} igm
                    && ExpandedStorage.TryGetStorage(igm.context, out var storage)
-                ? storage.Menu?.Offset ?? 0
+                ? storage.Config.Menu.Offset
                 : 0;
         }
 
         /// <summary>Returns Padding to top menu for search box.</summary>
         public static int GetPadding(MenuWithInventory menu)
         {
-            return menu is ItemGrabMenu {shippingBin: false} igm && ExpandedStorage.TryGetStorage(igm.context, out var storage) ? storage.Menu?.Padding ?? 0 : 0;
+            return menu is ItemGrabMenu {shippingBin: false} igm && ExpandedStorage.TryGetStorage(igm.context, out var storage) ? storage.Config.Menu.Padding : 0;
         }
 
         /// <summary>Returns Display Capacity of MenuWithInventory.</summary>
         public static int GetMenuCapacity(object context)
         {
-            return _config.ExpandInventoryMenu && ExpandedStorage.TryGetStorage(context, out var storage) ? storage.Menu?.Capacity ?? 36 : 36;
+            return _config.ExpandInventoryMenu && ExpandedStorage.TryGetStorage(context, out var storage) ? storage.Config.Menu.Capacity : 36;
         }
 
         /// <summary>Returns Displayed Rows of MenuWithInventory.</summary>
         public static int GetRows(object context)
         {
-            return _config.ExpandInventoryMenu && ExpandedStorage.TryGetStorage(context, out var storage) ? storage.Menu?.Rows ?? 3 : 3;
+            return _config.ExpandInventoryMenu && ExpandedStorage.TryGetStorage(context, out var storage) ? storage.Config.Menu.Rows : 3;
         }
 
         /// <summary>Returns the filtered list of items in the InventoryMenu.</summary>

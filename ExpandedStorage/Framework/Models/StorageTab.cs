@@ -2,9 +2,9 @@
 using System.Linq;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
+using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using StardewValley;
-
-// ReSharper disable MemberCanBePrivate.Global
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
@@ -16,8 +16,16 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>The Asset path to the mod's Tab Image.</summary>
         internal string Path = "";
 
-        internal StorageTab()
+        [JsonConstructor]
+        internal StorageTab(IStorageTab storageTab = null)
         {
+            if (storageTab == null)
+                return;
+
+            TabName = storageTab.TabName;
+            TabImage = storageTab.TabImage;
+            AllowList = storageTab.AllowList;
+            BlockList = storageTab.BlockList;
         }
 
         internal StorageTab(string tabImage, params string[] allowList)
@@ -25,6 +33,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             TabImage = tabImage;
             AllowList = new HashSet<string>(allowList);
         }
+
+        internal Texture2D Texture { get; set; }
 
         public string TabName { get; set; }
         public string TabImage { get; set; }
@@ -44,22 +54,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         internal bool Filter(Item item)
         {
             return IsAllowed(item) && !IsBlocked(item);
-        }
-
-        internal void CopyFrom(IStorageTab storageTab)
-        {
-            TabName = storageTab.TabName;
-            TabImage = storageTab.TabImage;
-
-            foreach (var allowItem in storageTab.AllowList)
-            {
-                AllowList.Add(allowItem);
-            }
-
-            foreach (var blockItem in storageTab.BlockList)
-            {
-                BlockList.Add(blockItem);
-            }
         }
     }
 }

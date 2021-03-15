@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
-using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
-using StardewModdingAPI;
 
 namespace ImJustMatt.ExpandedStorage.Framework
 {
     internal class ModConfig
     {
-        internal static readonly ConfigHelper ConfigHelper = new(new List<KeyValuePair<string, string>>
+        internal static readonly ConfigHelper ConfigHelper = new(new ModConfig(), new List<KeyValuePair<string, string>>
         {
             new("Controls", "Control scheme for Keyboard or Controller"),
             new("Controller", "Enables input designed to improve controller compatibility"),
@@ -19,6 +17,10 @@ namespace ImJustMatt.ExpandedStorage.Framework
 
         /// <summary>Control scheme for Keyboard or Controller.</summary>
         public ModConfigKeys Controls = new();
+
+        public ModConfig()
+        {
+        }
 
         /// <summary>Enables input designed to improve controller compatibility.</summary>
         public bool Controller { get; set; } = true;
@@ -107,57 +109,5 @@ namespace ImJustMatt.ExpandedStorage.Framework
 
         /// <summary>Items will only be collected to Vacuum Storages in the active hotbar.</summary>
         public bool VacuumToFirstRow { get; set; } = true;
-
-        internal void CopyFrom(ModConfig config)
-        {
-            Controls = config.Controls;
-            Controller = config.Controller;
-            VacuumToFirstRow = config.VacuumToFirstRow;
-            ExpandInventoryMenu = config.ExpandInventoryMenu;
-            SearchTagSymbol = config.SearchTagSymbol;
-            DefaultStorage = new Storage();
-            DefaultStorage.CopyFrom(config.DefaultStorage);
-            DefaultTabs.Clear();
-            foreach (var tab in config.DefaultTabs)
-            {
-                var newTab = new StorageTab();
-                newTab.CopyFrom(tab.Value);
-                DefaultTabs.Add(tab.Key, newTab);
-            }
-        }
-
-        internal static void RegisterModConfig(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, ModConfig config)
-        {
-            if (!modConfigMenu.IsLoaded)
-                return;
-            ModConfigKeys.RegisterModConfig(manifest, modConfigMenu, config.Controls);
-            modConfigMenu.API.RegisterLabel(manifest,
-                "Tweaks",
-                "Modify behavior for certain features");
-            modConfigMenu.API.RegisterSimpleOption(manifest,
-                "Enable Controller",
-                "Enables settings designed to improve controller compatibility",
-                () => config.Controller,
-                value => config.Controller = value);
-            modConfigMenu.API.RegisterSimpleOption(manifest,
-                "Resize Inventory Menu",
-                "Allows the inventory menu to have 4-6 rows instead of the default 3",
-                () => config.ExpandInventoryMenu,
-                value => config.ExpandInventoryMenu = value);
-            modConfigMenu.API.RegisterSimpleOption(manifest,
-                "Search Symbol",
-                "Symbol used to search items by context tag",
-                () => config.SearchTagSymbol,
-                value => config.SearchTagSymbol = value);
-            modConfigMenu.API.RegisterSimpleOption(manifest,
-                "Vacuum To First Row",
-                "Uncheck to allow vacuuming to any chest in player inventory",
-                () => config.VacuumToFirstRow,
-                value => config.VacuumToFirstRow = value);
-            modConfigMenu.API?.RegisterLabel(manifest,
-                "Default Storage",
-                "Default config for unconfigured storages.");
-            config.DefaultStorage.RegisterModConfig(manifest, modConfigMenu);
-        }
     }
 }

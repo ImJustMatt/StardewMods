@@ -7,12 +7,13 @@ namespace ImJustMatt.Common.Integrations.GenericModConfigMenu
     {
         void RegisterModConfig(IManifest mod, Action revertToDefault, Action saveToFile);
 
-        //void StartNewPage(IManifest mod, string pageName);
+        void StartNewPage(IManifest mod, string pageName);
         //void OverridePageDisplayName(IManifest mod, string pageName, string displayName);
 
         void RegisterLabel(IManifest mod, string labelName, string labelDesc);
-        //void RegisterPageLabel(IManifest mod, string labelName, string labelDesc, string newPage);
-        //void RegisterParagraph(IManifest mod, string paragraph);
+        void RegisterPageLabel(IManifest mod, string labelName, string labelDesc, string newPage);
+
+        void RegisterParagraph(IManifest mod, string paragraph);
         //void RegisterImage(IManifest mod, string texPath, Rectangle? texRect = null, int scale = 4);
 
         void RegisterSimpleOption(IManifest mod, string optionName, string optionDesc, Func<bool> optionGet, Action<bool> optionSet);

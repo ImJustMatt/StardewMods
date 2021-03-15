@@ -13,9 +13,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
         internal readonly int Rows;
 
-        internal StorageMenu(StorageConfig storage)
+        internal StorageMenu(StorageConfig config)
         {
-            Capacity = storage.Capacity switch
+            Capacity = config.Capacity switch
             {
                 0 => -1, // Vanilla
                 { } capacity when capacity < 0 => 72, // Unlimited
@@ -25,7 +25,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
             Rows = Capacity > 0 ? (int) Math.Ceiling(Capacity / 12f) : 3;
 
-            Padding = storage.Option("ShowSearchBar") == StorageConfig.Choice.Enable ? 24 : 0;
+            Padding = config.Option("ShowSearchBar", true) == StorageConfig.Choice.Enable ? 24 : 0;
 
             Offset = 64 * (Rows - 3);
         }
