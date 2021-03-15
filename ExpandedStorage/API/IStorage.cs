@@ -32,7 +32,7 @@ namespace ImJustMatt.ExpandedStorage.API
         bool IsPlaceable { get; set; }
 
         /// <summary>The spritesheet to use for drawing this storage.</summary>
-        string? Image { get; set; }
+        string Image { get; set; }
 
         /// <summary>The number of animation frames in the spritesheet.</summary>
         int Frames { get; set; }

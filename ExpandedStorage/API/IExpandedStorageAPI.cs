@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using StardewModdingAPI;
 
 namespace ImJustMatt.ExpandedStorage.API
@@ -24,18 +23,6 @@ namespace ImJustMatt.ExpandedStorage.API
         /// <param name="modDataKey">The modData key.</param>
         void DisableDrawWithModData(string modDataKey);
 
-        /// <summary></summary>
-        /// <param name="manifest">Mod manifest</param>
-        /// <param name="storageName">The name of the storage.</param>
-        /// <param name="storage">Storage data</param>
-        void RegisterStorage(IManifest manifest, string storageName, IStorage storage);
-
-        /// <summary></summary>
-        /// <param name="manifest">Mod manifest</param>
-        /// <param name="storageName">The name of the storage.</param>
-        /// <param name="config">Storage config</param>
-        void SetStorageConfig(IManifest manifest, string storageName, IStorageConfig config);
-
         /// <summary>Returns all Expanded Storage by name.</summary>
         /// <returns>List of storages</returns>
         IList<string> GetAllStorages();
@@ -50,17 +37,5 @@ namespace ImJustMatt.ExpandedStorage.API
         /// <param name="storage">Storage Info</param>
         /// <returns>True if storage was found</returns>
         bool TryGetStorage(string storageName, out IStorage storage);
-
-        /// <summary></summary>
-        /// <param name="manifest">Mod manifest</param>
-        /// <param name="tabName">Storage tab name</param>
-        /// <param name="storageTab">Storage tab data</param>
-        void RegisterStorageTab(IManifest manifest, string tabName, IStorageTab storageTab);
-
-        /// <summary>Event shortly after GameLaunch when content packs can be loaded.</summary>
-        event EventHandler ReadyToLoad;
-
-        /// <summary>Event raised after Assets are done loading.</summary>
-        event EventHandler StoragesLoaded;
     }
 }
