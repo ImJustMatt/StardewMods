@@ -149,8 +149,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
-            var menuConfig = storage.Menu;
+            var menuConfig = storage.Config.Menu;
 
+            __instance.setBackgroundTransparency(false);
             __instance.ItemsToGrabMenu.rows = menuConfig.Rows;
             if (menuConfig.Capacity > 0)
                 __instance.ItemsToGrabMenu.capacity = menuConfig.Capacity;
@@ -203,14 +204,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             if (__instance.chestColorPicker != null)
             {
-                if (!storage.PlayerColor || storage.Option("ShowColorPicker", true) != StorageConfig.Choice.Enable)
+                if (!storage.PlayerColor || storage.Config.Option("ShowColorPicker", true) != StorageConfig.Choice.Enable)
                     __instance.colorPickerToggleButton = null;
                 __instance.chestColorPicker = null;
                 __instance.discreteColorPickerCC = null;
                 __instance.populateClickableComponentList();
                 __instance.SetupBorderNeighbors();
             }
-            else if (storage.PlayerColor && storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable)
+            else if (storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable)
             {
                 __instance.colorPickerToggleButton = new ClickableTextureComponent(
                     new Rectangle(__instance.xPositionOnScreen + __instance.width,
@@ -229,7 +230,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 __instance.SetupBorderNeighbors();
             }
 
-            if (storage.Option("ShowSearchBar", true) == StorageConfig.Choice.Enable)
+            if (storage.Config.Option("ShowSearchBar", true) == StorageConfig.Choice.Enable)
             {
                 __instance.yPositionOnScreen -= menuConfig.Padding;
                 __instance.height += menuConfig.Padding;
@@ -257,7 +258,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
-            __instance.chestColorPicker = storage.PlayerColor && storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable ? MenuView.ColorPicker : null;
+            __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable ? MenuView.ColorPicker : null;
         }
 
         /// <summary>Set color picker to HSL Color Picker.</summary>
@@ -266,7 +267,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
-            __instance.chestColorPicker = storage.PlayerColor && storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable ? MenuView.ColorPicker : null;
+            __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable ? MenuView.ColorPicker : null;
         }
 
         /// <summary>Reposition side buttons with offset.</summary>
@@ -275,7 +276,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
-            var menuConfig = storage.Menu;
+            var menuConfig = storage.Config.Menu;
 
             if (Config.ExpandInventoryMenu && menuConfig.Offset < 0)
             {
@@ -293,30 +294,17 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             var patternPatches = new PatternPatches(instructions, Monitor);
 
+            // Offset backpack icon
             patternPatches
                 .Find(
-                    new CodeInstruction(OpCodes.Callvirt,
-                        AccessTools.Method(typeof(SpriteBatch), nameof(SpriteBatch.Draw)))
+                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ItemGrabMenu), nameof(ItemGrabMenu.showReceivingMenu)))
                 )
-                .Log("Adding DrawUnderlay method to ItemGrabMenu.")
-                .Patch(delegate(LinkedList<CodeInstruction> list)
-                {
-                    list.AddLast(new CodeInstruction(OpCodes.Ldarg_1));
-                    list.AddLast(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(MenuViewModel), nameof(MenuViewModel.BeforeDrawMenu))));
-                });
-
-            // Offset backpack icon
-            if (Config.ExpandInventoryMenu)
-                patternPatches
-                    .Find(
-                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ItemGrabMenu), nameof(ItemGrabMenu.showReceivingMenu)))
-                    )
-                    .Find(
-                        new CodeInstruction(OpCodes.Ldfld, IClickableMenuYPositionOnScreen)
-                    )
-                    .Log("Adding Offset to yPositionOnScreen for Backpack sprite.")
-                    .Patch(OffsetPatch(MenuOffset, OpCodes.Add))
-                    .Repeat(3);
+                .Find(
+                    new CodeInstruction(OpCodes.Ldfld, IClickableMenuYPositionOnScreen)
+                )
+                .Log("Adding Offset to yPositionOnScreen for Backpack sprite.")
+                .Patch(OffsetPatch(MenuOffset, OpCodes.Add))
+                .Repeat(3);
 
             // Add top padding
             patternPatches

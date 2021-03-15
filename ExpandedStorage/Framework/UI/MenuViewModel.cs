@@ -49,8 +49,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             _view = new MenuView(menu,
                 new MenuView.Options
                 {
-                    ShowSearch = _model.Storage.Option("ShowSearchBar", true) == StorageConfig.Choice.Enable,
-                    ShowColor = chest != null && _model.Storage.PlayerColor && _model.Storage.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable,
+                    ShowSearch = _model.Storage.Config.Option("ShowSearchBar", true) == StorageConfig.Choice.Enable,
+                    ShowColor = chest != null && _model.Storage.PlayerColor && _model.Storage.Config.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable,
                     Chest = chest,
                     Text = _model.SearchText
                 },
@@ -60,6 +60,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
 
             // Events
             _model.ItemChanged += OnItemChanged;
+            _events.Display.RenderingActiveMenu += OnRenderingActiveMenu;
             _events.Display.RenderedActiveMenu += OnRenderedActiveMenu;
             _events.Input.ButtonsChanged += OnButtonsChanged;
             _events.Input.ButtonPressed += OnButtonPressed;
@@ -67,7 +68,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             _events.Input.CursorMoved += OnCursorMoved;
             _events.Input.MouseWheelScrolled += OnMouseWheelScrolled;
 
-            if (_model.Storage.Option("ShowTabs", true) == StorageConfig.Choice.Enable && _model.StorageTabs.Any())
+            if (_model.Storage.Config.Option("ShowTabs", true) == StorageConfig.Choice.Enable && _model.StorageTabs.Any())
             {
                 foreach (var tab in _model.StorageTabs) _view.AddTab(tab.TabName, Game1.content.Load<Texture2D>(tab.Path));
                 _view.CurrentTab = _model.CurrentTab;
@@ -79,6 +80,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
         public void Dispose()
         {
             Instance.Value = null;
+            _events.Display.RenderingActiveMenu -= OnRenderingActiveMenu;
             _events.Display.RenderedActiveMenu -= OnRenderedActiveMenu;
             _events.Input.ButtonsChanged -= OnButtonsChanged;
             _events.Input.ButtonPressed -= OnButtonPressed;
@@ -172,11 +174,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             _model.SearchText = searchText;
         }
 
-        internal static void BeforeDrawMenu(SpriteBatch spriteBatch)
+        /// <summary>When a menu is open, raised after that menu is drawn to the sprite batch but before it's rendered to the screen.</summary>
+        private void OnRenderingActiveMenu(object sender, RenderingActiveMenuEventArgs e)
         {
-            Instance.Value?._view?.DrawUnderlay(spriteBatch);
+            _view?.DrawUnderlay(e.SpriteBatch);
         }
 
+        /// <summary>When a menu is open, raised before that menu is drawn to the screen.</summary>
         private void OnRenderedActiveMenu(object sender, RenderedActiveMenuEventArgs e)
         {
             _view?.DrawOverlay(e.SpriteBatch);

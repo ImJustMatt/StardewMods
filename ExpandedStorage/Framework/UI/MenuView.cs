@@ -249,6 +249,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
 
             _drawCount++;
 
+            b.Draw(Game1.fadeToBlackRect, new Rectangle(0, 0, Game1.uiViewport.Width, Game1.uiViewport.Height), Color.Black * 0.5f);
             for (var i = 0; i < _tabs.Count; i++)
             {
                 _tabs[i].bounds.Y = _tabY + (CurrentTab == i ? 1 * Game1.pixelZoom : 0);
