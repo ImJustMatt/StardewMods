@@ -1,4 +1,5 @@
-﻿using ImJustMatt.ExpandedStorage.Common.Helpers;
+﻿using System;
+using ImJustMatt.ExpandedStorage.Common.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -29,6 +30,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
 
         private Bar Hold = Bar.None;
 
+        internal readonly ClickableTextureComponent TransparentBox; 
+        internal readonly ClickableComponent HueSlider;
+        internal readonly ClickableComponent SatSlider;
+        internal readonly ClickableComponent LitSlider;
+
         internal HSLColorPicker(int xPosition, int yPosition, Item itemToDrawColored = null)
             : base(xPosition, yPosition, 0, itemToDrawColored)
         {
@@ -36,6 +42,17 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             height = Height;
             width = Width;
             totalColors = TotalColors;
+
+            TransparentBox = new ClickableTextureComponent(
+                new Rectangle(xPositionOnScreen + borderWidth / 2, yPositionOnScreen + borderWidth / 2, 7, 7),
+                Game1.mouseCursors,
+                new Rectangle(295, 503, 7, 7),
+                4f
+            );
+            HueSlider = new ClickableComponent(new Rectangle(xPositionOnScreen + borderWidth / 2, 0, 20, 16), "Hue");
+            SatSlider = new ClickableComponent(new Rectangle(xPositionOnScreen + borderWidth / 2 + 36, 0, 20, 16), "Sat");
+            LitSlider = new ClickableComponent(new Rectangle(xPositionOnScreen + borderWidth / 2 + 36, 0, 20, 16), "Lit");
+            populateClickableComponentList();
 
             if (itemToDrawColored is not Chest chest)
                 return;
@@ -145,6 +162,26 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
                 receiveLeftClick(x, y, false);
         }
 
+        public override void receiveScrollWheelAction(int direction)
+        {
+            switch (Hold)
+            {
+                case Bar.Hue:
+                    _color.H = MathHelper.Clamp(_color.H + direction, 0, 1);
+                    break;
+                case Bar.Saturation:
+                    _color.S = MathHelper.Clamp(_color.S + direction, 0, 1);
+                    break;
+                case Bar.Lightness:
+                    _color.L += MathHelper.Clamp(_color.L + direction, 0, 1);
+                    break;
+                case Bar.None:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public new Color getColorFromSelection(int selection)
         {
             var color = _color.ToRgbColor();
@@ -165,15 +202,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             drawTextureBox(b, xPositionOnScreen, yPositionOnScreen, width, height, Color.LightGray);
 
             // Transparent Square
-            b.Draw(Game1.mouseCursors,
-                new Vector2(xPositionOnScreen + borderWidth / 2, yPositionOnScreen + borderWidth / 2),
-                new Rectangle(295, 503, 7, 7),
-                Color.White,
-                0f,
-                Vector2.Zero,
-                4f,
-                SpriteEffects.None,
-                0.88f);
+            TransparentBox.draw(b);
 
             // Hue Bar
             b.Draw(HueBar,
@@ -203,25 +232,20 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             if (colorSelection != 0)
             {
                 //Hue
-                if (colorSelection != 0)
-                    b.Draw(Game1.mouseCursors,
-                        new Rectangle(
-                            xPositionOnScreen + borderWidth / 2 - 8,
-                            yPositionOnScreen + borderWidth / 2 + 36 + (int) (_color.H * BarHeight) - 2,
-                            20, 16),
-                        new Rectangle(412, 495, 5, 4),
-                        Color.White,
-                        MathHelper.PiOver2,
-                        new Vector2(2.5f, 4f),
-                        SpriteEffects.None,
-                        1);
+                HueSlider.bounds.Y = yPositionOnScreen + borderWidth / 2 + 36 + (int) (_color.H * BarHeight) - 2;
+                b.Draw(Game1.mouseCursors,
+                    new Rectangle(HueSlider.bounds.X - 8, HueSlider.bounds.Y, 20, 16),
+                    new Rectangle(412, 495, 5, 4),
+                    Color.White,
+                    MathHelper.PiOver2,
+                    new Vector2(2.5f, 4f),
+                    SpriteEffects.None,
+                    1);
 
                 // Saturation
+                SatSlider.bounds.Y = yPositionOnScreen + borderWidth / 2 + 36 + (int) (_color.S * CellsHeight) - 2;
                 b.Draw(Game1.mouseCursors,
-                    new Rectangle(
-                        xPositionOnScreen + borderWidth / 2 + 58 - 8,
-                        yPositionOnScreen + borderWidth / 2 + 36 + (int) (_color.S * CellsHeight) - 2,
-                        20, 16),
+                    new Rectangle(SatSlider.bounds.X + 14, SatSlider.bounds.Y, 20, 16),
                     new Rectangle(412, 495, 5, 4),
                     Color.White,
                     MathHelper.PiOver2,
@@ -230,11 +254,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
                     1);
 
                 // Lightness
+                LitSlider.bounds.Y = yPositionOnScreen + borderWidth / 2 + 36 + (int) (_color.L * CellsHeight) + CellsHeight + Gap - 2; 
                 b.Draw(Game1.mouseCursors,
-                    new Rectangle(
-                        xPositionOnScreen + borderWidth / 2 + 58 - 8,
-                        yPositionOnScreen + borderWidth / 2 + 36 + (int) (_color.L * CellsHeight) + CellsHeight + Gap - 2,
-                        20, 16),
+                    new Rectangle(LitSlider.bounds.X + 14, LitSlider.bounds.Y, 20, 16),
                     new Rectangle(412, 495, 5, 4),
                     Color.White,
                     MathHelper.PiOver2,
