@@ -1,11 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 
 namespace ImJustMatt.Common.Extensions
 {
     internal static class CommonExtensions
     {
+        public static void InvokeAll(this EventHandler eventHandler, object caller)
+        {
+            foreach (var @delegate in eventHandler.GetInvocationList()) @delegate.DynamicInvoke(caller, null);
+        }
+
+        public static SButton? GetSingle(this KeybindList keyBindList)
+        {
+            return keyBindList.Keybinds.SingleOrDefault(k => k.IsBound)?.Buttons.First();
+        }
+
         public static int RoundUp(this int i, int d = 1)
         {
             return (int) (d * Math.Ceiling((float) i / d));
@@ -16,7 +28,7 @@ namespace ImJustMatt.Common.Extensions
             return source.Shuffle(new Random());
         }
 
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, Random rng)
+        private static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, Random rng)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
