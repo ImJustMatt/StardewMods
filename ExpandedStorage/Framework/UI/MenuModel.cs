@@ -173,7 +173,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
         }
 
         /// <summary>Returns Displayed Rows of MenuWithInventory.</summary>
-        public static int GetRows(object context)
+        public static int GetMenuRows(object context)
         {
             return _config.ExpandInventoryMenu && ExpandedStorage.TryGetStorage(context, out var storage) ? storage.Config.Menu.Rows : 3;
         }

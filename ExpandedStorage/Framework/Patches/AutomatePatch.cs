@@ -34,7 +34,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (_isAutomateLoaded)
             {
-                Monitor.Log("Patching Automate for Restricted Storage");
+                Monitor.LogOnce("Patching Automate for Restricted Storage");
                 var methodInfo = AccessTools.GetDeclaredMethods(_type)
                     .Find(m => m.Name.Equals("Store", StringComparison.OrdinalIgnoreCase));
                 harmony.Patch(methodInfo, new HarmonyMethod(GetType(), nameof(StorePrefix)));

@@ -19,7 +19,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetMenuCapacity), new[] {typeof(object)});
 
         private protected static readonly MethodInfo MenuRows =
-            AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetRows), new[] {typeof(object)});
+            AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetMenuRows), new[] {typeof(object)});
 
         private protected static readonly MethodInfo MenuOffset =
             AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetOffset), new[] {typeof(MenuWithInventory)});

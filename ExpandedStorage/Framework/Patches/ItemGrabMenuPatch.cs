@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
@@ -152,9 +153,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             var menuConfig = storage.Config.Menu;
 
             __instance.setBackgroundTransparency(false);
-            __instance.ItemsToGrabMenu.rows = menuConfig.Rows;
-            if (menuConfig.Capacity > 0)
-                __instance.ItemsToGrabMenu.capacity = menuConfig.Capacity;
+            __instance.ItemsToGrabMenu.rows = Config.ExpandInventoryMenu ? menuConfig.Rows : 3;
+            __instance.ItemsToGrabMenu.rows = Config.ExpandInventoryMenu ? menuConfig.Capacity : 36;
 
             if (__instance.context is not Chest chest)
                 chest = null;

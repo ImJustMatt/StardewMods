@@ -103,7 +103,7 @@ namespace ImJustMatt.ExpandedStorage
 
             if (expandedStorages == null)
             {
-                _monitor.Log($"Nothing to load from {contentPack.Manifest.Name} {contentPack.Manifest.Version}");
+                _monitor.Log($"Nothing to load from {contentPack.Manifest.Name} {contentPack.Manifest.Version}", LogLevel.Warn);
                 return false;
             }
 
@@ -199,7 +199,7 @@ namespace ImJustMatt.ExpandedStorage
                     $"{xs.Key} Config:",
                     Storage.ConfigHelper.Summary(expandedStorage),
                     StorageConfig.ConfigHelper.Summary(expandedStorage.Config, false)
-                ), LogLevel.Debug);
+                ));
             }
 
             // Load expanded storage tabs

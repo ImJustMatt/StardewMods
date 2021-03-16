@@ -47,7 +47,7 @@ namespace ImJustMatt.Common.PatternPatches
 
                 // Return patched code
                 if (currentOperation.Text != null)
-                    _monitor.VerboseLog(currentOperation.Text);
+                    _monitor.LogOnce(currentOperation.Text);
                 rawStack.AddLast(instruction);
                 currentOperation.Patches(rawStack);
                 foreach (var patch in rawStack) yield return patch;

@@ -29,7 +29,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (_isChestsAnywhereLoaded)
             {
-                Monitor.Log("Patching Chests Anywhere for Refreshing Shipping Bin");
+                Monitor.LogOnce("Patching Chests Anywhere for Refreshing Shipping Bin");
                 var methodInfo = AccessTools.GetDeclaredMethods(_type)
                     .Find(m => m.Name.Equals("GrabItemFromContainerImpl", StringComparison.OrdinalIgnoreCase));
                 harmony.Patch(methodInfo, postfix: new HarmonyMethod(GetType(), nameof(GrabItemFromContainerImplPostfix)));

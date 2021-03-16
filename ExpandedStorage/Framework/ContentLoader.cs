@@ -13,8 +13,6 @@ namespace ImJustMatt.ExpandedStorage.Framework
     internal class ContentLoader : IAssetLoader, IAssetEditor
     {
         private readonly ModConfig _config;
-
-        private readonly IDictionary<string, IContentPack> _contentPacks = new Dictionary<string, IContentPack>();
         private readonly ExpandedStorageAPI _expandedStorageAPI;
         private readonly IModHelper _helper;
         private readonly JsonAssetsIntegration _jsonAssets;
@@ -110,7 +108,6 @@ namespace ImJustMatt.ExpandedStorage.Framework
             _monitor.Log("Loading Expanded Storage Content", LogLevel.Info);
             foreach (var contentPack in _helper.ContentPacks.GetOwned())
             {
-                _contentPacks.Add(contentPack.Manifest.UniqueID, contentPack);
                 _expandedStorageAPI.LoadContentPack(contentPack);
             }
 
@@ -206,7 +203,7 @@ namespace ImJustMatt.ExpandedStorage.Framework
                     $"{bigCraftable.Value} Config:",
                     Storage.ConfigHelper.Summary(defaultStorage),
                     StorageConfig.ConfigHelper.Summary(defaultStorage.Config, false)
-                ), LogLevel.Debug);
+                ));
             }
         }
     }

@@ -34,12 +34,9 @@ namespace ImJustMatt.CustomBundles
                 "Prints all bundles to the console for debugging",
                 delegate
                 {
-                    Monitor.Log(
-                        string.Join("\n",
-                            Game1.netWorldState.Value.BundleData
-                                .Select(b => $"{b.Key,-25}|{b.Value}")
-                        )
-                    );
+                    Monitor.Log(string.Join("\n",
+                        Game1.netWorldState.Value.BundleData.Select(b => $"{b.Key,-25}|{b.Value}")
+                    ));
                 });
         }
 

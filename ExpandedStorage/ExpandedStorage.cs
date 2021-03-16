@@ -79,7 +79,11 @@ namespace ImJustMatt.ExpandedStorage
 
             _config = helper.ReadConfig<ModConfig>();
             _config.DefaultStorage.SetAsDefault();
-            Monitor.Log($"Mod Config:\n{ModConfig.ConfigHelper.Summary(_config)}\n{ModConfigKeys.ConfigHelper.Summary(_config.Controls, false)}", LogLevel.Debug);
+            Monitor.Log(string.Join("\n",
+                "Mod Config",
+                ModConfig.ConfigHelper.Summary(_config),
+                ModConfigKeys.ConfigHelper.Summary(_config.Controls, false)
+            ));
 
             _expandedStorageAPI = new ExpandedStorageAPI(Helper, Monitor, Storages, StorageTabs, _modConfigMenu, _jsonAssets);
             _contentLoader = new ContentLoader(Helper, ModManifest, Monitor, _config, Storages, StorageTabs, _expandedStorageAPI, _jsonAssets);
