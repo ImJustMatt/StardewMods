@@ -8,7 +8,7 @@ using StardewModdingAPI;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
-    public class StorageConfig : IStorageConfig
+    public class StorageConfig : BaseStorageConfig
     {
         public enum Choice
         {
@@ -20,7 +20,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>Default storage config for unspecified options</summary>
         private static StorageConfig _defaultConfig;
 
-        internal static readonly ConfigHelper ConfigHelper = new(new PropertyHandler(), new StorageConfig(), new List<KeyValuePair<string, string>>
+        internal static readonly ConfigHelper ConfigHelper = new(new FieldHandler(), new StorageConfig(), new List<KeyValuePair<string, string>>
         {
             new("Capacity", "Number of item slots the storage will contain"),
             new("AccessCarried", "Allow storage to be access while carried"),
@@ -40,9 +40,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             if (config == null)
                 return;
             Capacity = config.Capacity;
-            EnabledFeatures = config.EnabledFeatures;
-            DisabledFeatures = config.DisabledFeatures;
-            Tabs = config.Tabs;
+            EnabledFeatures = new HashSet<string>(config.EnabledFeatures);
+            DisabledFeatures = new HashSet<string>(config.DisabledFeatures);
+            Tabs = new List<string>(config.Tabs);
         }
 
         internal static IList<string> DefaultTabs => _defaultConfig?.Tabs;
@@ -66,24 +66,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                 _ => Capacity
             };
 
-        public int Capacity { get; set; }
-        public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowColorPicker", "ShowSearchBar", "ShowTabs"};
-        public HashSet<string> DisabledFeatures { get; set; } = new();
-        public IList<string> Tabs { get; set; } = new List<string>();
-
         internal void SetAsDefault()
         {
             _defaultConfig = this;
-        }
-
-        internal void RevertToDefault()
-        {
-            if (ParentConfig == null || ReferenceEquals(ParentConfig, this))
-                return;
-            Capacity = ParentConfig.Capacity;
-            EnabledFeatures = ParentConfig.EnabledFeatures;
-            DisabledFeatures = ParentConfig.DisabledFeatures;
-            Tabs = ParentConfig.Tabs;
         }
 
         internal Choice Option(string option, bool globalOverride = false)
@@ -97,34 +82,34 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                 : Choice.Unspecified;
         }
 
-        private class PropertyHandler : ConfigHelper.IPropertyHandler
+        private class FieldHandler : ConfigHelper.IFieldHandler
         {
             private static readonly string[] Choices = Enum.GetNames(typeof(Choice));
 
-            public bool CanHandle(ConfigHelper.IProperty property)
+            public bool CanHandle(ConfigHelper.IField field)
             {
-                return property.Name != "Capacity";
+                return !field.Name.Equals("Capacity");
             }
 
-            public object GetValue(object instance, ConfigHelper.IProperty property)
+            public object GetValue(object instance, ConfigHelper.IField field)
             {
-                return ((StorageConfig) instance).Option(property.Name);
+                return ((StorageConfig) instance).Option(field.Name);
             }
 
-            public void SetValue(object instance, ConfigHelper.IProperty property, object value)
+            public void SetValue(object instance, ConfigHelper.IField field, object value)
             {
                 var storageConfig = (StorageConfig) instance;
-                storageConfig.EnabledFeatures.Remove(property.Name);
-                storageConfig.DisabledFeatures.Remove(property.Name);
+                storageConfig.EnabledFeatures.Remove(field.Name);
+                storageConfig.DisabledFeatures.Remove(field.Name);
                 if (value is not string stringValue || !Enum.TryParse(stringValue, out Choice choice))
                     return;
                 switch (choice)
                 {
                     case Choice.Disable:
-                        storageConfig.DisabledFeatures.Add(property.Name);
+                        storageConfig.DisabledFeatures.Add(field.Name);
                         break;
                     case Choice.Enable:
-                        storageConfig.EnabledFeatures.Add(property.Name);
+                        storageConfig.EnabledFeatures.Add(field.Name);
                         break;
                     case Choice.Unspecified:
                         break;
@@ -133,14 +118,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                 }
             }
 
-            public void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, ConfigHelper.IProperty property)
+            public void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, ConfigHelper.IField field)
             {
                 modConfigMenu.API.RegisterChoiceOption(
                     manifest,
-                    property.Name,
-                    property.Description,
-                    () => GetValue(instance, property).ToString(),
-                    value => SetValue(instance, property, value),
+                    field.Name,
+                    field.Description,
+                    () => GetValue(instance, field).ToString(),
+                    value => SetValue(instance, field, value),
                     Choices
                 );
             }

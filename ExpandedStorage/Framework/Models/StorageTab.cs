@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
@@ -8,7 +9,7 @@ using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
-    public class StorageTab : IStorageTab
+    public class StorageTab : BaseStorageTab
     {
         /// <summary>The UniqueId of the Content Pack that storage data was loaded from.</summary>
         protected internal string ModUniqueId = "";
@@ -24,8 +25,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
             TabName = storageTab.TabName;
             TabImage = storageTab.TabImage;
-            AllowList = storageTab.AllowList;
-            BlockList = storageTab.BlockList;
+            AllowList = new HashSet<string>(storageTab.AllowList);
+            BlockList = new HashSet<string>(storageTab.BlockList);
         }
 
         internal StorageTab(string tabImage, params string[] allowList)
@@ -34,12 +35,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             AllowList = new HashSet<string>(allowList);
         }
 
-        internal Texture2D Texture { get; set; }
-
-        public string TabName { get; set; }
-        public string TabImage { get; set; }
-        public HashSet<string> AllowList { get; set; } = new();
-        public HashSet<string> BlockList { get; set; } = new();
+        internal Func<Texture2D> Texture { get; set; }
 
         private bool IsAllowed(Item item)
         {

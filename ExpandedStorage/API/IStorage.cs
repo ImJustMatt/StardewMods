@@ -2,7 +2,7 @@
 
 namespace ImJustMatt.ExpandedStorage.API
 {
-    public interface IStorage : IStorageConfig
+    public interface IStorage
     {
         /// <summary>One of the special chest types (None, MiniShippingBin, JunimoChest).</summary>
         string SpecialChestType { get; set; }
@@ -11,7 +11,7 @@ namespace ImJustMatt.ExpandedStorage.API
         bool IsFridge { get; set; }
 
         /// <summary>Play opening animation when player is nearby.</summary>
-        bool OpenNearby { get; set; }
+        float OpenNearby { get; set; }
 
         /// <summary>The sound that will play when the storage opens while approached.</summary>
         string OpenNearbySound { get; set; }

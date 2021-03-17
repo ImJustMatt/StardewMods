@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
@@ -10,10 +11,11 @@ using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
 using StardewValley.Objects;
+using Object = StardewValley.Object;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
-    public class Storage : IStorage
+    public class Storage : BaseStorage
     {
         public enum AnimationType
         {
@@ -98,9 +100,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
                 PlayerColor = storage.PlayerColor;
                 PlayerConfig = storage.PlayerConfig;
                 Depth = storage.Depth;
-                AllowList = storage.AllowList;
-                BlockList = storage.BlockList;
-                ModData = storage.ModData;
+                AllowList = new HashSet<string>(storage.AllowList);
+                BlockList = new HashSet<string>(storage.BlockList);
+                ModData = new Dictionary<string, string>(storage.ModData);
             }
 
             // Vanilla overrides
@@ -108,7 +110,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             {
                 case "Mini-Shipping Bin":
                     SpecialChestType = "MiniShippingBin";
-                    OpenNearby = true;
+                    OpenNearby = 1;
                     OpenSound = "shwip";
                     break;
                 case "Mini-Fridge":
@@ -130,35 +132,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>Which mod was used to load these assets into the game.</summary>
         internal SourceType Source { get; set; } = SourceType.Unknown;
 
-        internal Texture2D Texture { get; set; }
+        internal Func<Texture2D> Texture { get; set; }
 
         internal StorageSprite SpriteSheet => Texture != null
             ? _storageSprite ??= new StorageSprite(this)
             : null;
-
-        public string SpecialChestType { get; set; } = "None";
-        public bool IsFridge { get; set; }
-        public bool OpenNearby { get; set; }
-        public string OpenNearbySound { get; set; } = "doorCreak";
-        public string CloseNearbySound { get; set; } = "doorCreakReverse";
-        public string OpenSound { get; set; } = "openChest";
-        public string PlaceSound { get; set; } = "axe";
-        public string CarrySound { get; set; } = "pickUpItem";
-        public bool IsPlaceable { get; set; } = true;
-        public string Image { get; set; }
-        public int Frames { get; set; } = 5;
-        public int Depth { get; set; }
-        public string Animation { get; set; } = "None";
-        public int Delay { get; set; } = 5;
-        public bool PlayerColor { get; set; } = true;
-        public bool PlayerConfig { get; set; } = true;
-        public IDictionary<string, string> ModData { get; set; } = new Dictionary<string, string>();
-        public HashSet<string> AllowList { get; set; } = new();
-        public HashSet<string> BlockList { get; set; } = new();
-        public int Capacity { get; set; }
-        public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowColorPicker", "ShowSearchBar", "ShowTabs"};
-        public HashSet<string> DisabledFeatures { get; set; } = new();
-        public IList<string> Tabs { get; set; } = new List<string>();
 
         internal static void Init(IModEvents events)
         {
