@@ -9,44 +9,44 @@ using StardewModdingAPI.Utilities;
 
 namespace ImJustMatt.ExpandedStorage.Common.Helpers
 {
-    internal class ConfigHelper : ConfigHelper.IPropertyHandler
+    internal class ConfigHelper : ConfigHelper.IFieldHandler
     {
         private const int ColumnWidth = 25;
-        public readonly IList<Property> Properties = new List<Property>();
-        public readonly IPropertyHandler PropertyHandler;
+        public readonly IList<Field> Fields = new List<Field>();
+        public readonly IFieldHandler FieldHandler;
 
-        internal ConfigHelper(object instance, IEnumerable<KeyValuePair<string, string>> properties) : this(null, instance, properties)
+        internal ConfigHelper(object instance, IEnumerable<KeyValuePair<string, string>> fields) : this(null, instance, fields)
         {
         }
 
-        internal ConfigHelper(IPropertyHandler propertyHandler, object instance, IEnumerable<KeyValuePair<string, string>> properties)
+        internal ConfigHelper(IFieldHandler fieldHandler, object instance, IEnumerable<KeyValuePair<string, string>> fields)
         {
-            PropertyHandler = propertyHandler;
-            foreach (var property in properties)
+            FieldHandler = fieldHandler;
+            foreach (var field in fields)
             {
-                var propertyInfo = instance.GetType().GetProperty(property.Key);
-                Properties.Add(new Property
+                var fieldInfo = instance.GetType().GetProperty(field.Key);
+                Fields.Add(new Field
                 {
-                    Name = property.Key,
-                    Description = property.Value,
-                    Info = propertyInfo,
-                    DefaultValue = propertyInfo?.GetValue(instance)
+                    Name = field.Key,
+                    Description = field.Value,
+                    Info = fieldInfo,
+                    DefaultValue = fieldInfo?.GetValue(instance)
                 });
             }
         }
 
-        public bool CanHandle(IProperty property) => Properties.Any(p => p.Equals(property));
+        public bool CanHandle(IField field) => Fields.Any(p => p.Equals(field));
 
-        public object GetValue(object instance, IProperty property)
+        public object GetValue(object instance, IField field)
         {
-            if (PropertyHandler?.CanHandle(property) ?? false)
+            if (FieldHandler?.CanHandle(field) ?? false)
             {
-                return PropertyHandler.GetValue(instance, property);
+                return FieldHandler.GetValue(instance, field);
             }
 
-            if (property.Info == null)
+            if (field.Info == null)
                 return null;
-            var value = property.Info.GetValue(instance, null);
+            var value = field.Info.GetValue(instance, null);
             return value switch
             {
                 IList<string> listValues => string.Join(", ", listValues),
@@ -55,78 +55,78 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers
             };
         }
 
-        public void SetValue(object instance, IProperty property, object value)
+        public void SetValue(object instance, IField field, object value)
         {
-            if (PropertyHandler?.CanHandle(property) ?? false)
+            if (FieldHandler?.CanHandle(field) ?? false)
             {
-                PropertyHandler.SetValue(instance, property, value);
+                FieldHandler.SetValue(instance, field, value);
             }
 
-            property.Info?.SetValue(instance, value);
+            field.Info?.SetValue(instance, value);
         }
 
-        public void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, IProperty property)
+        public void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, IField field)
         {
-            if (PropertyHandler?.CanHandle(property) ?? false)
+            if (FieldHandler?.CanHandle(field) ?? false)
             {
-                PropertyHandler.RegisterConfigOption(manifest, modConfigMenu, instance, property);
+                FieldHandler.RegisterConfigOption(manifest, modConfigMenu, instance, field);
                 return;
             }
 
-            if (property.Info?.PropertyType == null)
+            if (field.Info?.PropertyType == null)
             {
                 return;
             }
 
-            if (property.Info.PropertyType == typeof(KeybindList))
+            if (field.Info.PropertyType == typeof(KeybindList))
             {
                 modConfigMenu.API.RegisterSimpleOption(manifest,
-                    property.DisplayName,
-                    property.Description,
-                    () => (SButton) ((property.Info.GetValue(instance, null) as KeybindList)?.GetSingle() ?? property.DefaultValue),
-                    value => property.Info.SetValue(instance, KeybindList.ForSingle(value)));
+                    field.DisplayName,
+                    field.Description,
+                    () => (KeybindList) field.Info.GetValue(instance, null),
+                    value => field.Info.SetValue(instance, value));
             }
-            else if (property.Info.PropertyType == typeof(bool))
+            else if (field.Info.PropertyType == typeof(bool))
             {
                 modConfigMenu.API.RegisterSimpleOption(
                     manifest,
-                    property.DisplayName,
-                    property.Description,
-                    () => (bool) property.Info.GetValue(instance, null),
-                    value => property.Info.SetValue(instance, value)
+                    field.DisplayName,
+                    field.Description,
+                    () => (bool) field.Info.GetValue(instance, null),
+                    value => field.Info.SetValue(instance, value)
                 );
             }
-            else if (property.Info.PropertyType == typeof(int))
+            else if (field.Info.PropertyType == typeof(int))
             {
                 modConfigMenu.API.RegisterSimpleOption(
                     manifest,
-                    property.DisplayName,
-                    property.Description,
-                    () => (int) property.Info.GetValue(instance, null),
-                    value => property.Info.SetValue(instance, value)
+                    field.DisplayName,
+                    field.Description,
+                    () => (int) field.Info.GetValue(instance, null),
+                    value => field.Info.SetValue(instance, value)
                 );
             }
-            else if (property.Info.PropertyType == typeof(string))
+            else if (field.Info.PropertyType == typeof(string))
             {
                 modConfigMenu.API.RegisterSimpleOption(
                     manifest,
-                    property.DisplayName,
-                    property.Description,
-                    () => (string) property.Info.GetValue(instance, null),
-                    value => property.Info.SetValue(instance, value)
+                    field.DisplayName,
+                    field.Description,
+                    () => (string) field.Info.GetValue(instance, null),
+                    value => field.Info.SetValue(instance, value)
                 );
             }
         }
 
         internal string Summary(object instance, bool header = true) =>
             (header ? $"{"Property",-ColumnWidth} | Value\n{new string('-', ColumnWidth)}-|-{new string('-', ColumnWidth)}\n" : "") +
-            string.Join("\n", Properties
-                .Select(property => new KeyValuePair<string, object>(property.DisplayName, GetValue(instance, property)))
-                .Where(property => property.Value != null && (property.Value is not string value || !string.IsNullOrWhiteSpace(value)))
-                .Select(property => $"{property.Key,-25} | {property.Value}")
+            string.Join("\n", Fields
+                .Select(field => new KeyValuePair<string, object>(field.DisplayName, GetValue(instance, field)))
+                .Where(field => field.Value != null && (field.Value is not string value || !string.IsNullOrWhiteSpace(value)))
+                .Select(field => $"{field.Key,-25} | {field.Value}")
                 .ToList());
 
-        internal interface IProperty
+        internal interface IField
         {
             string DisplayName { get; }
             string Name { get; set; }
@@ -135,7 +135,7 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers
             object DefaultValue { get; set; }
         }
 
-        internal class Property : IProperty
+        internal class Field : IField
         {
             public string DisplayName => Regex.Replace(Name, "(\\B[A-Z])", " $1");
             public string Name { get; set; }
@@ -144,12 +144,12 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers
             public object DefaultValue { get; set; }
         }
 
-        internal interface IPropertyHandler
+        internal interface IFieldHandler
         {
-            bool CanHandle(IProperty property);
-            object GetValue(object instance, IProperty property);
-            void SetValue(object instance, IProperty property, object value);
-            void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, IProperty property);
+            bool CanHandle(IField field);
+            object GetValue(object instance, IField field);
+            void SetValue(object instance, IField field, object value);
+            void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, IField field);
         }
     }
 }

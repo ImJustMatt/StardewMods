@@ -1,16 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
+using StardewModdingAPI;
 
 namespace ImJustMatt.ExpandedStorage.Framework
 {
     internal class ModConfig
     {
-        internal static readonly ConfigHelper ConfigHelper = new(new ModConfig(), new List<KeyValuePair<string, string>>
+        internal static readonly ConfigHelper ConfigHelper = new(new FieldHandler(), new ModConfig(), new List<KeyValuePair<string, string>>
         {
             new("Controls", "Control scheme for Keyboard or Controller"),
             new("Controller", "Enables input designed to improve controller compatibility"),
             new("ExpandInventoryMenu", "Allows storage menu to have up to 6 rows"),
+            new ("LogLevel", "Log Level used when loading in storages."),
             new("SearchTagSymbol", "Symbol used to search items by context tag"),
             new("VacuumToFirstRow", "Items will only be collected to Vacuum Storages in the active hotbar")
         });
@@ -26,22 +31,22 @@ namespace ImJustMatt.ExpandedStorage.Framework
         public bool Controller { get; set; } = true;
 
         /// <summary>Default config for unconfigured storages.</summary>
-        public StorageConfig DefaultStorage { get; set; } = new()
+        public StorageConfigController DefaultStorage { get; set; } = new()
         {
             Tabs = new List<string> {"Crops", "Seeds", "Materials", "Cooking", "Fishing", "Equipment", "Clothing", "Misc"}
         };
 
         /// <summary>Default tabs for unconfigured storages.</summary>
-        public IDictionary<string, StorageTab> DefaultTabs { get; set; } = new Dictionary<string, StorageTab>
+        public IDictionary<string, TabController> DefaultTabs { get; set; } = new Dictionary<string, TabController>
         {
             {
-                "Clothing", new StorageTab("Shirts.png",
+                "Clothing", new TabController("Shirts.png",
                     "category_clothing",
                     "category_boots", "category_hat")
             },
             {
                 "Cooking",
-                new StorageTab("Cooking.png",
+                new TabController("Cooking.png",
                     "category_syrup",
                     "category_artisan_goods",
                     "category_ingredients",
@@ -54,7 +59,7 @@ namespace ImJustMatt.ExpandedStorage.Framework
             },
             {
                 "Crops",
-                new StorageTab("Crops.png",
+                new TabController("Crops.png",
                     "category_greens",
                     "category_flowers",
                     "category_fruits",
@@ -62,7 +67,7 @@ namespace ImJustMatt.ExpandedStorage.Framework
             },
             {
                 "Equipment",
-                new StorageTab("Tools.png",
+                new TabController("Tools.png",
                     "category_equipment",
                     "category_ring",
                     "category_tool",
@@ -70,7 +75,7 @@ namespace ImJustMatt.ExpandedStorage.Framework
             },
             {
                 "Fishing",
-                new StorageTab("Fish.png",
+                new TabController("Fish.png",
                     "category_bait",
                     "category_fish",
                     "category_tackle",
@@ -78,7 +83,7 @@ namespace ImJustMatt.ExpandedStorage.Framework
             },
             {
                 "Materials",
-                new StorageTab("Minerals.png",
+                new TabController("Minerals.png",
                     "category_monster_loot",
                     "category_metal_resources",
                     "category_building_resources",
@@ -88,14 +93,14 @@ namespace ImJustMatt.ExpandedStorage.Framework
             },
             {
                 "Misc",
-                new StorageTab("Misc.png",
+                new TabController("Misc.png",
                     "category_big_craftable",
                     "category_furniture",
                     "category_junk")
             },
             {
                 "Seeds",
-                new StorageTab("Seeds.png",
+                new TabController("Seeds.png",
                     "category_seeds",
                     "category_fertilizer")
             }
@@ -109,5 +114,47 @@ namespace ImJustMatt.ExpandedStorage.Framework
 
         /// <summary>Items will only be collected to Vacuum Storages in the active hotbar.</summary>
         public bool VacuumToFirstRow { get; set; } = true;
+
+        /// <summary>Log Level used when loading in storages.</summary>
+        public string LogLevel { get; set; } = "Trace";
+
+        internal LogLevel LogLevelProperty
+        {
+            get => Enum.TryParse(LogLevel, out LogLevel logLevel) ? logLevel : StardewModdingAPI.LogLevel.Trace;
+            set => LogLevel = value.ToString();
+        }
+
+        private class FieldHandler : ConfigHelper.IFieldHandler
+        {
+            private static readonly string[] Choices = Enum.GetNames(typeof(LogLevel));
+
+            public bool CanHandle(ConfigHelper.IField field)
+            {
+                return field.Name.Equals("LogLevel");
+            }
+
+            public object GetValue(object instance, ConfigHelper.IField field)
+            {
+                return ((ModConfig) instance).LogLevelProperty;
+            }
+
+            public void SetValue(object instance, ConfigHelper.IField field, object value)
+            {
+                var modConfig = (ModConfig) instance;
+                modConfig.LogLevelProperty = Enum.TryParse((string) value, out LogLevel logLevel) ? logLevel : StardewModdingAPI.LogLevel.Trace;
+            }
+
+            public void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, ConfigHelper.IField field)
+            {
+                modConfigMenu.API.RegisterChoiceOption(
+                    manifest,
+                    field.Name,
+                    field.Description,
+                    () => GetValue(instance, field).ToString(),
+                    value => SetValue(instance, field, value),
+                    Choices
+                );
+            }
+        }
     }
 }

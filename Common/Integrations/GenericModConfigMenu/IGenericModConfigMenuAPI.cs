@@ -1,5 +1,6 @@
 ﻿using System;
 using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 
 namespace ImJustMatt.Common.Integrations.GenericModConfigMenu
 {
@@ -21,6 +22,7 @@ namespace ImJustMatt.Common.Integrations.GenericModConfigMenu
         void RegisterSimpleOption(IManifest mod, string optionName, string optionDesc, Func<float> optionGet, Action<float> optionSet);
         void RegisterSimpleOption(IManifest mod, string optionName, string optionDesc, Func<string> optionGet, Action<string> optionSet);
         void RegisterSimpleOption(IManifest mod, string optionName, string optionDesc, Func<SButton> optionGet, Action<SButton> optionSet);
+        void RegisterSimpleOption(IManifest mod, string optionName, string optionDesc, Func<KeybindList> optionGet, Action<KeybindList> optionSet);
 
         void RegisterClampedOption(IManifest mod, string optionName, string optionDesc, Func<int> optionGet, Action<int> optionSet, int min, int max);
 

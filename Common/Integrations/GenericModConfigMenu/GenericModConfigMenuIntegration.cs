@@ -15,7 +15,7 @@ namespace ImJustMatt.Common.Integrations.GenericModConfigMenu
             if (!IsLoaded)
                 return;
 
-            foreach (var property in configHelper.Properties)
+            foreach (var property in configHelper.Fields)
             {
                 configHelper.RegisterConfigOption(manifest, this, instance, property);
             }
