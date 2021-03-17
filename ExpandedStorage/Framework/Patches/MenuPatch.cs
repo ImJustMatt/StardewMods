@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.ExpandedStorage.Framework.UI;
+using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewValley.Menus;
 

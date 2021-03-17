@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -25,12 +26,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             _reflection = reflection;
         }
 
-        public static InventoryMenu.highlightThisItem HighlightMethod(this Chest chest, Storage storage)
+        public static InventoryMenu.highlightThisItem HighlightMethod(this Chest chest, StorageController storage)
         {
             return item => !ReferenceEquals(item, chest) && storage.HighlightMethod(item);
         }
 
-        public static Object ToObject(this Chest chest, Storage storage = null)
+        public static Object ToObject(this Chest chest, StorageController storage = null)
         {
             // Get config for chest
             if (storage == null && !ExpandedStorage.TryGetStorage(chest, out storage))
@@ -58,7 +59,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             return obj;
         }
 
-        public static void Draw(this Chest chest, Storage storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha = 1f, float layerDepth = 0.89f, float scaleSize = 4f)
+        public static void Draw(this Chest chest, StorageController storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha = 1f, float layerDepth = 0.89f, float scaleSize = 4f)
         {
             var drawColored = storage.PlayerColor
                               && !chest.playerChoiceColor.Value.Equals(Color.Black)
@@ -67,15 +68,15 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             if (storage.SpriteSheet is {Texture: { } texture} spriteSheet)
             {
                 var currentFrame = _reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue();
-                if (Enum.TryParse(storage.Animation, out Storage.AnimationType animationType) && animationType == Storage.AnimationType.Color)
+                if (Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType) && animationType == StorageController.AnimationType.Color)
                 {
                     if (storage.PlayerColor)
                     {
-                        chest.playerChoiceColor.Value = Storage.ColorWheel.ToRgbColor();
+                        chest.playerChoiceColor.Value = StorageController.ColorWheel.ToRgbColor();
                     }
                     else
                     {
-                        chest.Tint = Storage.ColorWheel.ToRgbColor();
+                        chest.Tint = StorageController.ColorWheel.ToRgbColor();
                     }
                 }
 
@@ -104,7 +105,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             else DrawVanillaColored(chest, storage, spriteBatch, pos, origin, alpha, layerDepth, scaleSize);
         }
 
-        private static void DrawVanillaDefault(Chest chest, Storage storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha, float layerDepth, float scaleSize)
+        private static void DrawVanillaDefault(Chest chest, StorageController storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha, float layerDepth, float scaleSize)
         {
             var currentFrame = _reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue();
 
@@ -133,7 +134,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
         private static int GetBaseOffset(Item item) => item.ParentSheetIndex switch {130 => 38, 232 => 0, _ => 6};
         private static int GetAboveOffset(Item item) => item.ParentSheetIndex switch {130 => 46, 232 => 8, _ => 11};
 
-        private static void DrawVanillaColored(this Chest chest, Storage storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha, float layerDepth, float scaleSize)
+        private static void DrawVanillaColored(this Chest chest, StorageController storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha, float layerDepth, float scaleSize)
         {
             var baseOffset = GetBaseOffset(chest);
             var aboveOffset = GetAboveOffset(chest);
@@ -190,7 +191,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 layerDepth + 3E-05f);
         }
 
-        public static bool UpdateFarmerNearby(this Chest chest, Storage storage, GameTime time, GameLocation location)
+        public static bool UpdateFarmerNearby(this Chest chest, StorageController storage, GameTime time, GameLocation location)
         {
             var shouldOpen = false;
             if (storage.SpriteSheet is {Texture: { }} spriteSheet)
@@ -201,7 +202,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 {
                     for (var j = 0; j < spriteSheet.TileHeight; j++)
                     {
-                        shouldOpen = location.farmers.Any(f => Math.Abs(f.getTileX() - x - i) <= 1f && Math.Abs(f.getTileY() - y - j) <= 1f);
+                        shouldOpen = location.farmers.Any(f => Math.Abs(f.getTileX() - x - i) <= storage.OpenNearby && Math.Abs(f.getTileY() - y - j) <= storage.OpenNearby);
                         if (shouldOpen) break;
                     }
 
@@ -220,7 +221,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             if (chest.uses.Value > 0)
             {
                 var currentLidFrame = _reflection.GetField<int>(chest, "_shippingBinFrameCounter");
-                var currentFrame = currentLidFrame.GetValue() + (shouldOpen ? -1 : 1) * (int) (Storage.Frame - chest.uses.Value) / storage.Delay;
+                var currentFrame = currentLidFrame.GetValue() + (shouldOpen ? -1 : 1) * (int) (StorageController.Frame - chest.uses.Value) / storage.Delay;
                 currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
                 currentLidFrame.SetValue(currentFrame);
             }
@@ -229,7 +230,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 _reflection.GetField<int>(chest, "_shippingBinFrameCounter").SetValue(0);
             }
 
-            chest.uses.Value = (int) Storage.Frame;
+            chest.uses.Value = (int) StorageController.Frame;
             chest.frameCounter.Value = storage.Delay;
             farmerNearby.SetValue(shouldOpen);
             location.localSound(shouldOpen ? storage.OpenNearbySound ?? "doorCreak" : storage.CloseNearbySound ?? "doorCreakReverse");

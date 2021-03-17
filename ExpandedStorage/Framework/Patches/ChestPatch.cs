@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using ImJustMatt.ExpandedStorage.Framework.Models;
-using ImJustMatt.ExpandedStorage.Framework.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -96,7 +96,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
                 return true;
             __result = true;
-            if (storage.OpenNearby || Enum.TryParse(storage.Animation, out Storage.AnimationType animationType) && animationType != Storage.AnimationType.None)
+            if (storage.OpenNearby > 0 || Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType) && animationType != StorageController.AnimationType.None)
             {
                 who.currentLocation.playSound(storage.OpenSound);
                 __instance.ShowMenu();
@@ -105,7 +105,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             {
                 __instance.GetMutex().RequestLock(delegate
                 {
-                    if (storage.Frames > 1) __instance.uses.Value = (int) Storage.Frame;
+                    if (storage.Frames > 1) __instance.uses.Value = (int) StorageController.Frame;
                     __instance.frameCounter.Value = storage.Delay;
                     who.currentLocation.localSound(storage.OpenSound);
                     Game1.player.Halt();
@@ -119,7 +119,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Prevent breaking indestructible chests</summary>
         private static bool PerformToolActionPrefix(Chest __instance, ref bool __result, Tool t, GameLocation location)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Config.Option("Indestructible", true) != StorageConfig.Choice.Enable)
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Config.Option("Indestructible", true) != StorageConfigController.Choice.Enable)
                 return true;
             __result = false;
             return false;
@@ -137,13 +137,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Refresh inventory after item grabbed from chest.</summary>
         public static void GrabItemFromChestPostfix()
         {
-            MenuViewModel.RefreshItems();
+            MenuController.RefreshItems();
         }
 
         /// <summary>Refresh inventory after item grabbed from inventory.</summary>
         public static void GrabItemFromInventoryPostfix()
         {
-            MenuViewModel.RefreshItems();
+            MenuController.RefreshItems();
         }
 
         /// <summary>Returns modded capacity for storage.</summary>
@@ -283,17 +283,17 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             var frameCounter = _reflection.GetField<int>(__instance, "_shippingBinFrameCounter");
             var currentFrame = 0;
-            if (Enum.TryParse(storage.Animation, out Storage.AnimationType animationType) && animationType != Storage.AnimationType.None)
+            if (Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType) && animationType != StorageController.AnimationType.None)
             {
-                currentFrame = (int) (Storage.Frame / storage.Delay) % storage.Frames;
+                currentFrame = (int) (StorageController.Frame / storage.Delay) % storage.Frames;
                 frameCounter.SetValue(currentFrame);
             }
-            else if (storage.OpenNearby)
+            else if (storage.OpenNearby > 0)
             {
                 var farmerNearby = __instance.UpdateFarmerNearby(storage, time, environment);
                 if (__instance.frameCounter.Value > -1)
                 {
-                    currentFrame = frameCounter.GetValue() + (farmerNearby ? 1 : -1) * (int) (Storage.Frame - __instance.uses.Value) / storage.Delay;
+                    currentFrame = frameCounter.GetValue() + (farmerNearby ? 1 : -1) * (int) (StorageController.Frame - __instance.uses.Value) / storage.Delay;
                     currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
                 }
 
@@ -301,7 +301,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             }
             else if (__instance.uses.Value > 0)
             {
-                currentFrame = Math.Max(0, (int) ((Storage.Frame - __instance.uses.Value) / storage.Delay) % storage.Frames);
+                currentFrame = Math.Max(0, (int) ((StorageController.Frame - __instance.uses.Value) / storage.Delay) % storage.Frames);
                 frameCounter.SetValue(currentFrame);
                 if (currentFrame == storage.Frames - 1)
                 {

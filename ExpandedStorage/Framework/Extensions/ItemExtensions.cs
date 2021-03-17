@@ -1,4 +1,5 @@
 ﻿using System;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
@@ -8,7 +9,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 {
     public static class ItemExtensions
     {
-        public static Chest ToChest(this Item item, Storage storage = null, Chest oldChest = null)
+        public static Chest ToChest(this Item item, StorageController storage = null, Chest oldChest = null)
         {
             // Get config for chest
             if (storage == null && !ExpandedStorage.TryGetStorage(item, out storage))

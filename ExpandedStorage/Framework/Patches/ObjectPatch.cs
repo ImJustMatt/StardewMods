@@ -2,6 +2,7 @@
 using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
@@ -208,8 +209,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
                 || !ExpandedStorage.TryGetStorage(__instance, out var storage)
-                || storage.Config.Option("CarryChest", true) != StorageConfig.Choice.Enable
-                && storage.Config.Option("AccessCarried", true) != StorageConfig.Choice.Enable) return true;
+                || storage.Config.Option("CarryChest", true) != StorageConfigController.Choice.Enable
+                && storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable) return true;
             __result = -1;
             return false;
         }

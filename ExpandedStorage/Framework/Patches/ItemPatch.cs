@@ -1,5 +1,6 @@
 ﻿using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewValley;
@@ -29,8 +30,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 return true;
 
             // Disallow stacking for any chest instance objects
-            if (storage.Config.Option("CanCarry", true) != StorageConfig.Choice.Enable
-                && storage.Config.Option("AccessCarried", true) != StorageConfig.Choice.Enable
+            if (storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable
+                && storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable
                 && __instance is not Chest
                 && other is not Chest)
                 return true;

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
@@ -29,8 +30,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (item.Stack > 1
                 || !ExpandedStorage.TryGetStorage(item, out var storage)
-                || storage.Config.Option("CanCarry", true) != StorageConfig.Choice.Enable
-                && storage.Config.Option("AccessCarried", true) != StorageConfig.Choice.Enable) return true;
+                || storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable
+                && storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable) return true;
 
             // Find first stackable slot
             var chest = item.ToChest(storage);

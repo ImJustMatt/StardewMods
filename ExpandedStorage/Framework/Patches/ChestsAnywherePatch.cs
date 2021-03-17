@@ -2,7 +2,7 @@
 using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.ExpandedStorage.Framework.UI;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using StardewModdingAPI;
 using StardewValley;
 
@@ -38,7 +38,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static void GrabItemFromContainerImplPostfix(object __instance, Item item, Farmer player)
         {
-            MenuViewModel.RefreshItems();
+            MenuController.RefreshItems();
         }
     }
 }

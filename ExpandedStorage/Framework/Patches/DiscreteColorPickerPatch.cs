@@ -1,6 +1,6 @@
 ﻿using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.ExpandedStorage.Framework.UI;
+using ImJustMatt.ExpandedStorage.Framework.Views;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
