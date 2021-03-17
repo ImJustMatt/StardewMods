@@ -4,6 +4,9 @@
 
 - Added Animation support
 - Added Open when Farmer nearby
+- Added Config option to enable Color Picker
+- Added Config to change Log Level when loading storages
+- Updated Generic Mod Config Menu
 - Fixed Bigger Storages breaking between saves
 
 ## 1.6.4
