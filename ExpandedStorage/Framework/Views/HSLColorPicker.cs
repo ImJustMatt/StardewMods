@@ -9,7 +9,7 @@ using StardewValley.Objects;
 
 // ReSharper disable InconsistentNaming
 
-namespace ImJustMatt.ExpandedStorage.Framework.UI
+namespace ImJustMatt.ExpandedStorage.Framework.Views
 {
     internal class HSLColorPicker : DiscreteColorPicker
     {

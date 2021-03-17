@@ -9,7 +9,7 @@ using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
 
-namespace ImJustMatt.ExpandedStorage.Framework.UI
+namespace ImJustMatt.ExpandedStorage.Framework.Views
 {
     internal class MenuView : IDisposable
     {

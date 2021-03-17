@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.Framework.Models;
+using ImJustMatt.ExpandedStorage.Framework.Views;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,12 +14,12 @@ using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
 
-namespace ImJustMatt.ExpandedStorage.Framework.UI
+namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
     [SuppressMessage("ReSharper", "IdentifierTypo")]
-    internal class MenuViewModel : IDisposable
+    internal class MenuController : IDisposable
     {
-        private static readonly PerScreen<MenuViewModel> Instance = new();
+        private static readonly PerScreen<MenuController> Instance = new();
 
         private static IModEvents _events;
         private static IInputHelper _inputHelper;
@@ -31,7 +32,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
 
         private readonly MenuView _view;
 
-        private MenuViewModel(ItemGrabMenu menu)
+        private MenuController(ItemGrabMenu menu)
         {
             _screenId = Context.ScreenId;
             _model = MenuModel.Get(menu);
@@ -49,8 +50,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             _view = new MenuView(menu,
                 new MenuView.Options
                 {
-                    ShowSearch = _model.Storage.Config.Option("ShowSearchBar", true) == StorageConfig.Choice.Enable,
-                    ShowColor = chest != null && _model.Storage.PlayerColor && _model.Storage.Config.Option("ShowColorPicker", true) == StorageConfig.Choice.Enable,
+                    ShowSearch = _model.Storage.Config.Option("ShowSearchBar", true) == StorageConfigController.Choice.Enable,
+                    ShowColor = chest != null && _model.Storage.PlayerColor && _model.Storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable,
                     Chest = chest,
                     Text = _model.SearchText
                 },
@@ -68,7 +69,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
             _events.Input.CursorMoved += OnCursorMoved;
             _events.Input.MouseWheelScrolled += OnMouseWheelScrolled;
 
-            if (_model.Storage.Config.Option("ShowTabs", true) == StorageConfig.Choice.Enable && _model.StorageTabs.Any())
+            if (_model.Storage.Config.Option("ShowTabs", true) == StorageConfigController.Choice.Enable && _model.StorageTabs.Any())
             {
                 foreach (var tab in _model.StorageTabs) _view.AddTab(tab.TabName, Game1.content.Load<Texture2D>(tab.Path));
                 _view.CurrentTab = _model.CurrentTab;
@@ -132,7 +133,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
         {
             Instance.Value?.Dispose();
             if (e.NewMenu is ItemGrabMenu {shippingBin: false} menu)
-                Instance.Value = new MenuViewModel(menu);
+                Instance.Value = new MenuController(menu);
         }
 
         /// <summary>Attempts to scroll offset by one row of slots relative to the inventory menu.</summary>

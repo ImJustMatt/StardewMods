@@ -3,7 +3,7 @@ using ImJustMatt.ExpandedStorage.API;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
-    public class BaseStorageTab : IStorageTab
+    public class TabModel : ITab
     {
         public string TabName { get; set; }
         public string TabImage { get; set; }

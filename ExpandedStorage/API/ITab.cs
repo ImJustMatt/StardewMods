@@ -2,7 +2,7 @@
 
 namespace ImJustMatt.ExpandedStorage.API
 {
-    public interface IStorageTab
+    public interface ITab
     {
         /// <summary>Display Name for tab.</summary>
         string TabName { get; set; }

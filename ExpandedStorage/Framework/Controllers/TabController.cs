@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
+using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using StardewValley;
 
-namespace ImJustMatt.ExpandedStorage.Framework.Models
+namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
-    public class StorageTab : BaseStorageTab
+    public class TabController : TabModel
     {
         /// <summary>The UniqueId of the Content Pack that storage data was loaded from.</summary>
         protected internal string ModUniqueId = "";
@@ -18,7 +19,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         internal string Path = "";
 
         [JsonConstructor]
-        internal StorageTab(IStorageTab storageTab = null)
+        internal TabController(ITab storageTab = null)
         {
             if (storageTab == null)
                 return;
@@ -29,7 +30,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             BlockList = new HashSet<string>(storageTab.BlockList);
         }
 
-        internal StorageTab(string tabImage, params string[] allowList)
+        internal TabController(string tabImage, params string[] allowList)
         {
             TabImage = tabImage;
             AllowList = new HashSet<string>(allowList);

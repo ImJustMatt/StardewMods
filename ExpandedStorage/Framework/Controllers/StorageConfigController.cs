@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
+using ImJustMatt.ExpandedStorage.Framework.Models;
 using Newtonsoft.Json;
 using StardewModdingAPI;
 
-namespace ImJustMatt.ExpandedStorage.Framework.Models
+namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
-    public class StorageConfig : BaseStorageConfig
+    public class StorageConfigController : StorageConfigModel
     {
         public enum Choice
         {
@@ -18,9 +19,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         }
 
         /// <summary>Default storage config for unspecified options</summary>
-        private static StorageConfig _defaultConfig;
+        private static StorageConfigController _defaultConfig;
 
-        internal static readonly ConfigHelper ConfigHelper = new(new FieldHandler(), new StorageConfig(), new List<KeyValuePair<string, string>>
+        internal static readonly ConfigHelper ConfigHelper = new(new FieldHandler(), new StorageConfigController(), new List<KeyValuePair<string, string>>
         {
             new("Capacity", "Number of item slots the storage will contain"),
             new("AccessCarried", "Allow storage to be access while carried"),
@@ -32,10 +33,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             new("VacuumItems", "Allow storage to automatically collect dropped items")
         });
 
-        private StorageConfig _parent;
+        private StorageConfigController _parent;
 
         [JsonConstructor]
-        internal StorageConfig(IStorageConfig config = null)
+        internal StorageConfigController(IStorageConfig config = null)
         {
             if (config == null)
                 return;
@@ -48,15 +49,15 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         internal static IList<string> DefaultTabs => _defaultConfig?.Tabs;
 
         /// <summary>Parent storage config for unspecified options</summary>
-        internal StorageConfig ParentConfig
+        internal StorageConfigController ParentConfig
         {
             get => _parent ?? _defaultConfig;
             set => _parent = value;
         }
 
-        internal StorageMenu Menu => Capacity == 0 && !ReferenceEquals(ParentConfig, this)
+        internal StorageMenuController Menu => Capacity == 0 && !ReferenceEquals(ParentConfig, this)
             ? ParentConfig.Menu
-            : new StorageMenu(this);
+            : new StorageMenuController(this);
 
         internal int ActualCapacity =>
             Capacity switch
@@ -93,12 +94,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
             public object GetValue(object instance, ConfigHelper.IField field)
             {
-                return ((StorageConfig) instance).Option(field.Name);
+                return ((StorageConfigController) instance).Option(field.Name);
             }
 
             public void SetValue(object instance, ConfigHelper.IField field, object value)
             {
-                var storageConfig = (StorageConfig) instance;
+                var storageConfig = (StorageConfigController) instance;
                 storageConfig.EnabledFeatures.Remove(field.Name);
                 storageConfig.DisabledFeatures.Remove(field.Name);
                 if (value is not string stringValue || !Enum.TryParse(stringValue, out Choice choice))

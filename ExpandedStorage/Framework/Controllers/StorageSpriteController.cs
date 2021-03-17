@@ -3,16 +3,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
-namespace ImJustMatt.ExpandedStorage.Framework.Models
+namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
-    internal class StorageSprite
+    internal class StorageSpriteController
     {
         private readonly int _depth;
         private readonly int _frames;
         private readonly string _path;
         private readonly bool _playerColor;
 
-        internal StorageSprite(Storage storage)
+        internal StorageSpriteController(StorageController storage)
         {
             _frames = storage.Frames;
             _depth = storage.Depth;

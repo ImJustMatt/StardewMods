@@ -3,7 +3,7 @@ using ImJustMatt.ExpandedStorage.API;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
-    public class BaseStorage : BaseStorageConfig, IStorage
+    public class StorageModel : StorageConfigModel, IStorage
     {
         public string SpecialChestType { get; set; } = "None";
         public bool IsFridge { get; set; }

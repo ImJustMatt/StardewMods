@@ -4,6 +4,7 @@ using System.Linq;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
+using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using StardewModdingAPI.Events;
@@ -13,9 +14,9 @@ using StardewValley.Locations;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
 
-namespace ImJustMatt.ExpandedStorage.Framework.Models
+namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
-    public class Storage : BaseStorage
+    public class StorageController : StorageModel
     {
         public enum AnimationType
         {
@@ -32,7 +33,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             CustomChestTypes
         }
 
-        internal static readonly ConfigHelper ConfigHelper = new(new Storage(), new List<KeyValuePair<string, string>>
+        internal static readonly ConfigHelper ConfigHelper = new(new StorageController(), new List<KeyValuePair<string, string>>
         {
             new("SpecialChestType", "Can be one of None, MiniShippingBin, JunimoChest, AutoLoader, or Enricher"),
             new("IsFridge", "Make the Storage into a Mini-Fridge when placed"),
@@ -69,9 +70,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>List of ParentSheetIndex related to this item.</summary>
         internal readonly HashSet<int> ObjectIds = new();
 
-        private StorageSprite _storageSprite;
+        private StorageSpriteController _storageSprite;
 
-        internal StorageConfig Config;
+        internal StorageConfigController Config;
 
         /// <summary>The UniqueId of the Content Pack that storage data was loaded from.</summary>
         internal string ModUniqueId = "";
@@ -80,7 +81,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         internal string Path = "";
 
         [JsonConstructor]
-        internal Storage(string storageName = "", IStorage storage = null)
+        internal StorageController(string storageName = "", IStorage storage = null)
         {
             if (storage != null)
             {
@@ -134,8 +135,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
         internal Func<Texture2D> Texture { get; set; }
 
-        internal StorageSprite SpriteSheet => Texture != null
-            ? _storageSprite ??= new StorageSprite(this)
+        internal StorageSpriteController SpriteSheet => Texture != null
+            ? _storageSprite ??= new StorageSpriteController(this)
             : null;
 
         internal static void Init(IModEvents events)

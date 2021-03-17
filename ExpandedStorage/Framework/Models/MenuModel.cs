@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ImJustMatt.Common.Extensions;
-using ImJustMatt.ExpandedStorage.Framework.Models;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Netcode;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -12,7 +12,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
 
-namespace ImJustMatt.ExpandedStorage.Framework.UI
+namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class MenuModel : IDisposable
@@ -30,10 +30,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
         internal readonly int MenuRows;
 
         /// <summary>Expanded Storage Config data for Menu</summary>
-        internal readonly Storage Storage;
+        internal readonly StorageController Storage;
 
         /// <summary>Expanded Storage Tab data for Menu</summary>
-        internal readonly IList<StorageTab> StorageTabs;
+        internal readonly IList<TabController> StorageTabs;
 
         private int _currentTab;
         private string _searchText;
@@ -65,9 +65,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.UI
                     .Where(t => t != null)
                     .ToList();
             }
-            else if (Storage?.Config.Option("ShowTabs", true) == StorageConfig.Choice.Enable && StorageConfig.DefaultTabs?.Count > 0)
+            else if (Storage?.Config.Option("ShowTabs", true) == StorageConfigController.Choice.Enable && StorageConfigController.DefaultTabs?.Count > 0)
             {
-                StorageTabs = StorageConfig.DefaultTabs
+                StorageTabs = StorageConfigController.DefaultTabs
                     .Select(t => ExpandedStorage.GetTab(Storage.ModUniqueId, t))
                     .Where(t => t != null)
                     .ToList();

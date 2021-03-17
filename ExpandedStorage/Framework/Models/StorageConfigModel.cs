@@ -3,7 +3,7 @@ using ImJustMatt.ExpandedStorage.API;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
-    public class BaseStorageConfig : IStorageConfig
+    public class StorageConfigModel : IStorageConfig
     {
         public int Capacity { get; set; }
         public HashSet<string> EnabledFeatures { get; set; } = new() {"CanCarry", "ShowColorPicker", "ShowSearchBar", "ShowTabs"};
