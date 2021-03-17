@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
-using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 
 namespace ImJustMatt.ExpandedStorage.Framework
@@ -15,9 +14,10 @@ namespace ImJustMatt.ExpandedStorage.Framework
             new("Controls", "Control scheme for Keyboard or Controller"),
             new("Controller", "Enables input designed to improve controller compatibility"),
             new("ExpandInventoryMenu", "Allows storage menu to have up to 6 rows"),
-            new ("LogLevel", "Log Level used when loading in storages."),
+            new("ColorPicker", "Toggle the HSL Color Picker"),
             new("SearchTagSymbol", "Symbol used to search items by context tag"),
-            new("VacuumToFirstRow", "Items will only be collected to Vacuum Storages in the active hotbar")
+            new("VacuumToFirstRow", "Items will only be collected to Vacuum Storages in the active hotbar"),
+            new("LogLevel", "Log Level used when loading in storages.")
         });
 
         /// <summary>Control scheme for Keyboard or Controller.</summary>
@@ -108,6 +108,9 @@ namespace ImJustMatt.ExpandedStorage.Framework
 
         /// <summary>Allows storage menu to have up to 6 rows.</summary>
         public bool ExpandInventoryMenu { get; set; } = true;
+
+        /// <summary>Toggle the HSL Color Picker.</summary>
+        public bool ColorPicker { get; set; } = true;
 
         /// <summary>Symbol used to search items by context tag.</summary>
         public string SearchTagSymbol { get; set; } = "#";

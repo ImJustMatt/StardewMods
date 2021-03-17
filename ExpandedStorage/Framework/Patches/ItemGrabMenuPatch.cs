@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
-using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.Views;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -155,7 +153,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             __instance.setBackgroundTransparency(false);
             __instance.ItemsToGrabMenu.rows = Config.ExpandInventoryMenu ? menuConfig.Rows : 3;
-            __instance.ItemsToGrabMenu.capacity = Config.ExpandInventoryMenu ? menuConfig.Capacity : 36;
+            if (Config.ExpandInventoryMenu && menuConfig.Capacity > 0)
+                __instance.ItemsToGrabMenu.capacity = menuConfig.Capacity;
 
             if (__instance.context is not Chest chest)
                 chest = null;
@@ -256,7 +255,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Set color picker to HSL Color Picker.</summary>
         private static void GameWindowSizeChangedPostfix(ItemGrabMenu __instance)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
+            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin || !Config.ColorPicker)
                 return;
 
             __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? MenuView.ColorPicker : null;
@@ -265,7 +264,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Set color picker to HSL Color Picker.</summary>
         private static void SetSourceItemPostfix(ItemGrabMenu __instance, Item item)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
+            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin || !Config.ColorPicker)
                 return;
 
             __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? MenuView.ColorPicker : null;

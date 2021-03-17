@@ -4,7 +4,7 @@
     "Frames": 3,
     "PlayerColor": true,
     "PlayerConfig": false,
-    "OpenNearby": true,
+    "OpenNearby": 1,
     "OpenNearbySound": "trashcanlid",
     "CloseNearbySound": "trashcanlid",
     "OpenSound": "trashcan",
