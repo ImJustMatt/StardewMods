@@ -1,7 +1,7 @@
 ﻿{
   "Name": "Garbage Day",
   "Author": "furyx639",
-  "Version": "1.0.2-beta.2",
+  "Version": "1.0.2-beta.3",
   "Description": "This turns trash cans into storages.",
   "UniqueID": "furyx639.GarbageDay",
   "EntryDll": "GarbageDay.dll",
@@ -11,7 +11,7 @@
     {
       "UniqueID": "furyx639.ExpandedStorage",
       "IsRequired": true,
-      "MinimumVersion": "1.6.5-beta.1"
+      "MinimumVersion": "1.6.5-beta.3"
     },
     {
       "UniqueID": "spacechase0.JsonAssets",
@@ -19,7 +19,8 @@
     },
     {
       "UniqueID": "spacechase0.GenericModConfigMenu",
-      "IsRequired": false
+      "IsRequired": false,
+      "MinimumVersion": "1.3.2"
     },
     {
       "UniqueID": "Pathoschild.ContentPatcher",
