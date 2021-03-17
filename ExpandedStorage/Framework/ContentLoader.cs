@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ImJustMatt.Common.Integrations.JsonAssets;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -12,40 +12,19 @@ namespace ImJustMatt.ExpandedStorage.Framework
 {
     internal class ContentLoader : IAssetLoader, IAssetEditor
     {
-        private readonly ModConfig _config;
-        private readonly ExpandedStorageAPI _expandedStorageAPI;
-        private readonly IModHelper _helper;
-        private readonly JsonAssetsIntegration _jsonAssets;
-        private readonly IManifest _manifest;
-        private readonly IMonitor _monitor;
-        private readonly IDictionary<string, Storage> _storages;
-        private readonly IDictionary<string, StorageTab> _storageTabs;
+        private readonly ExpandedStorage _mod;
         private bool _isContentLoaded;
 
-        internal ContentLoader(IModHelper helper,
-            IManifest manifest,
-            IMonitor monitor,
-            ModConfig config,
-            IDictionary<string, Storage> storages,
-            IDictionary<string, StorageTab> storageTabs,
-            ExpandedStorageAPI expandedStorageAPI,
-            JsonAssetsIntegration jsonAssets)
+        internal ContentLoader(ExpandedStorage mod)
         {
-            _helper = helper;
-            _manifest = manifest;
-            _monitor = monitor;
-            _config = config;
-            _storages = storages;
-            _storageTabs = storageTabs;
-            _expandedStorageAPI = expandedStorageAPI;
-            _jsonAssets = jsonAssets;
+            _mod = mod;
 
             // Default Exclusions
-            _expandedStorageAPI.DisableWithModData("aedenthorn.AdvancedLootFramework/IsAdvancedLootFrameworkChest");
-            _expandedStorageAPI.DisableDrawWithModData("aedenthorn.CustomChestTypes/IsCustomChest");
+            _mod.ExpandedStorageAPI.DisableWithModData("aedenthorn.AdvancedLootFramework/IsAdvancedLootFrameworkChest");
+            _mod.ExpandedStorageAPI.DisableDrawWithModData("aedenthorn.CustomChestTypes/IsCustomChest");
 
             // Events
-            _helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            _mod.Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
         }
 
         /// <summary>Get whether this instance can load the initial version of the given asset.</summary>
@@ -55,7 +34,7 @@ namespace ImJustMatt.ExpandedStorage.Framework
             // Load bigCraftable on next tick for vanilla storages
             if (asset.AssetNameEquals("Data/BigCraftablesInformation"))
             {
-                _helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
+                _mod.Helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
             }
 
             return false;
@@ -82,14 +61,14 @@ namespace ImJustMatt.ExpandedStorage.Framework
                 case "SpriteSheets":
                     var storageName = assetParts.ElementAtOrDefault(1);
                     if (string.IsNullOrWhiteSpace(storageName)
-                        || !_storages.TryGetValue(storageName, out var storage)
+                        || !ExpandedStorage.Storages.TryGetValue(storageName, out var storage)
                         || storage.Texture == null) throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
-                    return (T) (object) storage.Texture;
+                    return (T) (object) storage.Texture.Invoke();
                 case "Tabs":
                     var tabId = $"{assetParts.ElementAtOrDefault(1)}/{assetParts.ElementAtOrDefault(2)}";
-                    if (!_storageTabs.TryGetValue(tabId, out var tab))
+                    if (!ExpandedStorage.Tabs.TryGetValue(tabId, out var tab))
                         throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
-                    return (T) (object) tab.Texture ?? _helper.Content.Load<T>($"assets/{tab.TabImage}");
+                    return (T) (object) tab.Texture?.Invoke() ?? _mod.Helper.Content.Load<T>($"assets/{tab.TabImage}");
             }
 
             throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
@@ -100,28 +79,28 @@ namespace ImJustMatt.ExpandedStorage.Framework
         /// <param name="e">The event arguments.</param>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            if (_jsonAssets.IsLoaded)
-                _jsonAssets.API.IdsAssigned += OnIdsLoaded;
+            if (_mod.JsonAssets.IsLoaded)
+                _mod.JsonAssets.API.IdsAssigned += OnIdsLoaded;
             else
-                _monitor.Log("Json Assets not detected, Expanded Storages content will not be loaded", LogLevel.Warn);
+                _mod.Monitor.Log("Json Assets not detected, Expanded Storages content will not be loaded", LogLevel.Warn);
 
-            _monitor.Log("Loading Expanded Storage Content", LogLevel.Info);
-            foreach (var contentPack in _helper.ContentPacks.GetOwned())
+            _mod.Monitor.Log("Loading Expanded Storage Content", LogLevel.Info);
+            foreach (var contentPack in _mod.Helper.ContentPacks.GetOwned())
             {
-                _expandedStorageAPI.LoadContentPack(contentPack);
+                _mod.ExpandedStorageAPI.LoadContentPack(contentPack);
             }
 
             // Load Default Tabs
-            foreach (var xsTab in _config.DefaultTabs)
+            foreach (var xsTab in _mod.Config.DefaultTabs)
             {
-                var tabId = $"{_manifest.UniqueID}/{xsTab.Key}";
-                var storageTab = new StorageTab(xsTab.Value)
+                var tabId = $"{_mod.ModManifest.UniqueID}/{xsTab.Key}";
+                var storageTab = new TabController(xsTab.Value)
                 {
-                    ModUniqueId = _manifest.UniqueID,
+                    ModUniqueId = _mod.ModManifest.UniqueID,
                     Path = $"Mods/furyx639.ExpandedStorage/Tabs/{tabId}",
-                    TabName = _helper.Translation.Get(xsTab.Key).Default(xsTab.Key)
+                    TabName = _mod.Helper.Translation.Get(xsTab.Key).Default(xsTab.Key)
                 };
-                _storageTabs.Add(tabId, storageTab);
+                ExpandedStorage.Tabs.Add(tabId, storageTab);
             }
 
             _isContentLoaded = true;
@@ -132,19 +111,19 @@ namespace ImJustMatt.ExpandedStorage.Framework
         /// <param name="e">The event arguments.</param>
         private void OnIdsLoaded(object sender, EventArgs e)
         {
-            foreach (var storage in _storages)
+            foreach (var storage in ExpandedStorage.Storages)
             {
-                var bigCraftableId = _jsonAssets.API.GetBigCraftableId(storage.Key);
+                var bigCraftableId = _mod.JsonAssets.API.GetBigCraftableId(storage.Key);
                 if (bigCraftableId != -1)
                 {
                     storage.Value.ObjectIds.Clear();
                     storage.Value.ObjectIds.Add(bigCraftableId);
-                    storage.Value.Source = Storage.SourceType.JsonAssets;
+                    storage.Value.Source = StorageController.SourceType.JsonAssets;
                 }
-                else if (storage.Value.Source == Storage.SourceType.JsonAssets)
+                else if (storage.Value.Source == StorageController.SourceType.JsonAssets)
                 {
                     storage.Value.ObjectIds.Clear();
-                    storage.Value.Source = Storage.SourceType.Unknown;
+                    storage.Value.Source = StorageController.SourceType.Unknown;
                 }
             }
         }
@@ -157,14 +136,14 @@ namespace ImJustMatt.ExpandedStorage.Framework
             if (!_isContentLoaded)
                 return;
 
-            _helper.Events.GameLoop.UpdateTicked -= OnUpdateTicked;
+            _mod.Helper.Events.GameLoop.UpdateTicked -= OnUpdateTicked;
 
             var bigCraftables = Game1.bigCraftablesInformation
-                .Where(Storage.IsVanillaStorage)
+                .Where(StorageController.IsVanillaStorage)
                 .Select(data => new KeyValuePair<int, string>(data.Key, data.Value.Split('/')[0]))
                 .ToList();
 
-            foreach (var storage in _storages.Where(storage => storage.Value.Source != Storage.SourceType.JsonAssets))
+            foreach (var storage in ExpandedStorage.Storages.Where(storage => storage.Value.Source != StorageController.SourceType.JsonAssets))
             {
                 var bigCraftableIds = bigCraftables
                     .Where(data => data.Value.Equals(storage.Key))
@@ -174,36 +153,36 @@ namespace ImJustMatt.ExpandedStorage.Framework
                 storage.Value.ObjectIds.Clear();
                 if (!bigCraftableIds.Any())
                 {
-                    storage.Value.Source = Storage.SourceType.Unknown;
+                    storage.Value.Source = StorageController.SourceType.Unknown;
                     continue;
                 }
 
-                storage.Value.Source = Storage.SourceType.Vanilla;
+                storage.Value.Source = StorageController.SourceType.Vanilla;
                 foreach (var bigCraftableId in bigCraftableIds)
                 {
                     storage.Value.ObjectIds.Add(bigCraftableId);
                     if (bigCraftableId >= 424000 && bigCraftableId <= 435000)
                     {
-                        storage.Value.Source = Storage.SourceType.CustomChestTypes;
+                        storage.Value.Source = StorageController.SourceType.CustomChestTypes;
                     }
                 }
             }
 
-            foreach (var bigCraftable in bigCraftables.Where(data => !_storages.ContainsKey(data.Value)))
+            foreach (var bigCraftable in bigCraftables.Where(data => !ExpandedStorage.Storages.ContainsKey(data.Value)))
             {
-                var defaultStorage = new Storage(bigCraftable.Value)
+                var defaultStorage = new StorageController(bigCraftable.Value)
                 {
-                    ModUniqueId = _manifest.UniqueID,
-                    Config = new StorageConfig(_config.DefaultStorage),
-                    Source = Storage.SourceType.Vanilla
+                    ModUniqueId = _mod.ModManifest.UniqueID,
+                    Config = new StorageConfigController(_mod.Config.DefaultStorage),
+                    Source = StorageController.SourceType.Vanilla
                 };
                 defaultStorage.ObjectIds.Add(bigCraftable.Key);
-                _storages.Add(bigCraftable.Value, defaultStorage);
-                _monitor.Log(string.Join("\n",
+                ExpandedStorage.Storages.Add(bigCraftable.Value, defaultStorage);
+                _mod.Monitor.Log(string.Join("\n",
                     $"{bigCraftable.Value} Config:",
-                    Storage.ConfigHelper.Summary(defaultStorage),
-                    StorageConfig.ConfigHelper.Summary(defaultStorage.Config, false)
-                ));
+                    StorageController.ConfigHelper.Summary(defaultStorage),
+                    StorageConfigController.ConfigHelper.Summary(defaultStorage.Config, false)
+                ), _mod.Config.LogLevelProperty);
             }
         }
     }

@@ -5,10 +5,11 @@ using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.Patches;
-using ImJustMatt.ExpandedStorage.Framework.UI;
+using ImJustMatt.ExpandedStorage.Framework.Views;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -27,28 +28,28 @@ namespace ImJustMatt.ExpandedStorage
         internal static readonly PerScreen<Chest> HeldChest = new();
 
         /// <summary>Tracks all chests that may be used for vacuum items.</summary>
-        internal static readonly PerScreen<IDictionary<Chest, Storage>> VacuumChests = new();
+        internal static readonly PerScreen<IDictionary<Chest, StorageController>> VacuumChests = new();
 
         /// <summary>Dictionary of Expanded Storage configs</summary>
-        private static readonly IDictionary<string, Storage> Storages = new Dictionary<string, Storage>();
+        internal static readonly IDictionary<string, StorageController> Storages = new Dictionary<string, StorageController>();
 
         /// <summary>Dictionary of Expanded Storage tabs</summary>
-        private static readonly IDictionary<string, StorageTab> StorageTabs = new Dictionary<string, StorageTab>();
+        internal static readonly IDictionary<string, TabController> Tabs = new Dictionary<string, TabController>();
 
         /// <summary>The mod configuration.</summary>
-        private ModConfig _config;
+        internal ModConfig Config;
 
         /// <summary>Handled content loaded by Expanded Storage.</summary>
         private ContentLoader _contentLoader;
 
         /// <summary>Expanded Storage API.</summary>
-        private ExpandedStorageAPI _expandedStorageAPI;
+        internal ExpandedStorageAPI ExpandedStorageAPI;
 
-        private JsonAssetsIntegration _jsonAssets;
-        private GenericModConfigMenuIntegration _modConfigMenu;
+        internal JsonAssetsIntegration JsonAssets;
+        internal GenericModConfigMenuIntegration ModConfigMenu;
 
         /// <summary>Returns Storage by object context.</summary>
-        internal static bool TryGetStorage(object context, out Storage storage)
+        internal static bool TryGetStorage(object context, out StorageController storage)
         {
             storage = Storages
                 .Select(c => c.Value)
@@ -57,9 +58,9 @@ namespace ImJustMatt.ExpandedStorage
         }
 
         /// <summary>Returns ExpandedStorageTab by tab name.</summary>
-        internal static StorageTab GetTab(string modUniqueId, string tabName)
+        internal static TabController GetTab(string modUniqueId, string tabName)
         {
-            return StorageTabs
+            return Tabs
                 .Where(t => t.Key.EndsWith($"/{tabName}"))
                 .Select(t => t.Value)
                 .OrderByDescending(t => t.ModUniqueId.Equals(modUniqueId))
@@ -69,32 +70,33 @@ namespace ImJustMatt.ExpandedStorage
 
         public override object GetApi()
         {
-            return _expandedStorageAPI;
+            return ExpandedStorageAPI;
         }
 
         public override void Entry(IModHelper helper)
         {
-            _jsonAssets = new JsonAssetsIntegration(helper.ModRegistry);
-            _modConfigMenu = new GenericModConfigMenuIntegration(helper.ModRegistry);
+            JsonAssets = new JsonAssetsIntegration(helper.ModRegistry);
+            ModConfigMenu = new GenericModConfigMenuIntegration(helper.ModRegistry);
 
-            _config = helper.ReadConfig<ModConfig>();
-            _config.DefaultStorage.SetAsDefault();
+            Config = helper.ReadConfig<ModConfig>();
+            Config.DefaultStorage.SetAsDefault();
             Monitor.Log(string.Join("\n",
                 "Mod Config",
-                ModConfig.ConfigHelper.Summary(_config),
-                ModConfigKeys.ConfigHelper.Summary(_config.Controls, false)
-            ));
+                ModConfig.ConfigHelper.Summary(Config),
+                ModConfigKeys.ConfigHelper.Summary(Config.Controls, false),
+                StorageConfigController.ConfigHelper.Summary(Config.DefaultStorage, false)
+            ), Config.LogLevelProperty);
 
-            _expandedStorageAPI = new ExpandedStorageAPI(Helper, Monitor, Storages, StorageTabs, _modConfigMenu, _jsonAssets);
-            _contentLoader = new ContentLoader(Helper, ModManifest, Monitor, _config, Storages, StorageTabs, _expandedStorageAPI, _jsonAssets);
+            ExpandedStorageAPI = new ExpandedStorageAPI(this);
+            _contentLoader = new ContentLoader(this);
             helper.Content.AssetLoaders.Add(_contentLoader);
             helper.Content.AssetEditors.Add(_contentLoader);
 
-            MenuViewModel.Init(helper.Events, helper.Input, _config);
-            MenuModel.Init(_config);
+            MenuController.Init(helper.Events, helper.Input, Config);
+            MenuModel.Init(Config);
             HSLColorPicker.Init(helper.Content);
             ChestExtensions.Init(helper.Reflection);
-            Storage.Init(helper.Events);
+            StorageController.Init(helper.Events);
 
             // Events
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
@@ -115,18 +117,18 @@ namespace ImJustMatt.ExpandedStorage
 
             // Harmony Patches
             new Patcher<ModConfig>(ModManifest.UniqueID).ApplyAll(
-                new ItemPatch(Monitor, _config),
-                new ObjectPatch(Monitor, _config),
-                new FarmerPatch(Monitor, _config),
-                new ChestPatch(Monitor, helper.Reflection, _config),
-                new ItemGrabMenuPatch(Monitor, _config, helper.Reflection),
-                new InventoryMenuPatch(Monitor, _config),
-                new MenuWithInventoryPatch(Monitor, _config),
-                new DiscreteColorPickerPatch(Monitor, _config),
-                new DebrisPatch(Monitor, _config),
-                new UtilityPatch(Monitor, _config),
-                new AutomatePatch(Monitor, _config, helper.Reflection, helper.ModRegistry.IsLoaded("Pathoschild.Automate")),
-                new ChestsAnywherePatch(Monitor, _config, helper.ModRegistry.IsLoaded("Pathoschild.ChestsAnywhere"))
+                new ItemPatch(Monitor, Config),
+                new ObjectPatch(Monitor, Config),
+                new FarmerPatch(Monitor, Config),
+                new ChestPatch(Monitor, helper.Reflection, Config),
+                new ItemGrabMenuPatch(Monitor, Config, helper.Reflection),
+                new InventoryMenuPatch(Monitor, Config),
+                new MenuWithInventoryPatch(Monitor, Config),
+                new DiscreteColorPickerPatch(Monitor, Config),
+                new DebrisPatch(Monitor, Config),
+                new UtilityPatch(Monitor, Config),
+                new AutomatePatch(Monitor, Config, helper.Reflection, helper.ModRegistry.IsLoaded("Pathoschild.Automate")),
+                new ChestsAnywherePatch(Monitor, Config, helper.ModRegistry.IsLoaded("Pathoschild.ChestsAnywhere"))
             );
         }
 
@@ -135,39 +137,39 @@ namespace ImJustMatt.ExpandedStorage
         /// <param name="e">The event arguments.</param>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            if (!_modConfigMenu.IsLoaded)
+            if (!ModConfigMenu.IsLoaded)
                 return;
 
             void DefaultConfig()
             {
-                _config = Helper.ReadConfig<ModConfig>();
-                _config.DefaultStorage.SetAsDefault();
+                Config = Helper.ReadConfig<ModConfig>();
+                Config.DefaultStorage.SetAsDefault();
             }
 
             void SaveConfig()
             {
-                Helper.WriteConfig(_config);
+                Helper.WriteConfig(Config);
             }
 
-            _modConfigMenu.API.RegisterModConfig(ModManifest, DefaultConfig, SaveConfig);
-            _modConfigMenu.API.RegisterPageLabel(ModManifest, "Controls", "Controller/Keyboard controls", "Controls");
-            _modConfigMenu.API.RegisterPageLabel(ModManifest, "Tweaks", "Modify behavior for certain features", "Tweaks");
-            _modConfigMenu.API.RegisterPageLabel(ModManifest, "Default Storage", "Global default storage config", "Default Storage");
+            ModConfigMenu.API.RegisterModConfig(ModManifest, DefaultConfig, SaveConfig);
+            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Controls", "Controller/Keyboard controls", "Controls");
+            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Tweaks", "Modify behavior for certain features", "Tweaks");
+            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Default Storage", "Global default storage config", "Default Storage");
 
-            _modConfigMenu.API.StartNewPage(ModManifest, "Controls");
-            _modConfigMenu.API.RegisterLabel(ModManifest, "Controls", "Controller/Keyboard controls");
-            _modConfigMenu.RegisterConfigOptions(ModManifest, ModConfigKeys.ConfigHelper, _config.Controls);
-            _modConfigMenu.API.RegisterPageLabel(ModManifest, "Go Back", "", "");
+            ModConfigMenu.API.StartNewPage(ModManifest, "Controls");
+            ModConfigMenu.API.RegisterLabel(ModManifest, "Controls", "Controller/Keyboard controls");
+            ModConfigMenu.RegisterConfigOptions(ModManifest, ModConfigKeys.ConfigHelper, Config.Controls);
+            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Go Back", "", "");
 
-            _modConfigMenu.API.StartNewPage(ModManifest, "Tweaks");
-            _modConfigMenu.API.RegisterLabel(ModManifest, "Tweaks", "Modify behavior for certain features");
-            _modConfigMenu.RegisterConfigOptions(ModManifest, ModConfig.ConfigHelper, _config);
-            _modConfigMenu.API.RegisterPageLabel(ModManifest, "Go Back", "", "");
+            ModConfigMenu.API.StartNewPage(ModManifest, "Tweaks");
+            ModConfigMenu.API.RegisterLabel(ModManifest, "Tweaks", "Modify behavior for certain features");
+            ModConfigMenu.RegisterConfigOptions(ModManifest, ModConfig.ConfigHelper, Config);
+            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Go Back", "", "");
 
-            _modConfigMenu.API.StartNewPage(ModManifest, "Default Storage");
-            _modConfigMenu.API.RegisterLabel(ModManifest, "Default Storage", "Global default storage config");
-            _modConfigMenu.RegisterConfigOptions(ModManifest, StorageConfig.ConfigHelper, _config.DefaultStorage);
-            _modConfigMenu.API.RegisterPageLabel(ModManifest, "Go Back", "", "");
+            ModConfigMenu.API.StartNewPage(ModManifest, "Default Storage");
+            ModConfigMenu.API.RegisterLabel(ModManifest, "Default Storage", "Global default storage config");
+            ModConfigMenu.RegisterConfigOptions(ModManifest, StorageConfigController.ConfigHelper, Config.DefaultStorage);
+            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Go Back", "", "");
         }
 
         /// <summary>Track toolbar changes before user input.</summary>
@@ -235,10 +237,10 @@ namespace ImJustMatt.ExpandedStorage
         private void RefreshVacuumChests(Farmer who)
         {
             VacuumChests.Value = who.Items
-                .Take(_config.VacuumToFirstRow ? 12 : who.MaxItems)
+                .Take(Config.VacuumToFirstRow ? 12 : who.MaxItems)
                 .OfType<Chest>()
                 .ToDictionary(i => i, i => TryGetStorage(i, out var storage) ? storage : null)
-                .Where(s => s.Value?.Config.Option("VacuumItems", true) == StorageConfig.Choice.Enable)
+                .Where(s => s.Value?.Config.Option("VacuumItems", true) == StorageConfigController.Choice.Enable)
                 .ToDictionary(s => s.Key, s => s.Value);
             Monitor.VerboseLog($"Found {VacuumChests.Value.Count} For Vacuum:\n" + string.Join("\n", VacuumChests.Value.Select(s => $"\t{s.Key}")));
         }
@@ -251,7 +253,7 @@ namespace ImJustMatt.ExpandedStorage
             if (!Context.IsPlayerFree)
                 return;
 
-            Storage storage = null;
+            StorageController storage = null;
             if (Game1.player.CurrentItem is Chest activeChest && TryGetStorage(activeChest, out storage))
             {
                 if (!ReferenceEquals(HeldChest.Value, activeChest))
@@ -277,7 +279,7 @@ namespace ImJustMatt.ExpandedStorage
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             if (!Context.IsPlayerFree) return;
-            var pos = _config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
+            var pos = Config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
             pos.X = (int) pos.X;
             pos.Y = (int) pos.Y;
             Game1.currentLocation.objects.TryGetValue(pos, out var obj);
@@ -302,32 +304,32 @@ namespace ImJustMatt.ExpandedStorage
         private void OnButtonsChanged(object sender, ButtonsChangedEventArgs e)
         {
             if (!Context.IsPlayerFree) return;
-            var pos = _config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
+            var pos = Config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
             pos.X = (int) pos.X;
             pos.Y = (int) pos.Y;
             Game1.currentLocation.objects.TryGetValue(pos, out var obj);
-            if (_config.Controls.OpenCrafting.JustPressed())
+            if (Config.Controls.OpenCrafting.JustPressed())
             {
-                if (OpenCrafting()) Helper.Input.SuppressActiveKeybinds(_config.Controls.OpenCrafting);
+                if (OpenCrafting()) Helper.Input.SuppressActiveKeybinds(Config.Controls.OpenCrafting);
                 return;
             }
 
-            if (obj != null && _config.Controls.CarryChest.JustPressed() && Utility.withinRadiusOfPlayer((int) (64 * pos.X), (int) (64 * pos.Y), 1, Game1.player))
+            if (obj != null && Config.Controls.CarryChest.JustPressed() && Utility.withinRadiusOfPlayer((int) (64 * pos.X), (int) (64 * pos.Y), 1, Game1.player))
             {
-                if (CarryChest(obj, Game1.currentLocation, pos)) Helper.Input.SuppressActiveKeybinds(_config.Controls.CarryChest);
+                if (CarryChest(obj, Game1.currentLocation, pos)) Helper.Input.SuppressActiveKeybinds(Config.Controls.CarryChest);
                 return;
             }
 
-            if (obj == null && HeldChest.Value != null && _config.Controls.AccessCarriedChest.JustPressed())
+            if (obj == null && HeldChest.Value != null && Config.Controls.AccessCarriedChest.JustPressed())
             {
-                if (AccessCarriedChest(HeldChest.Value)) Helper.Input.SuppressActiveKeybinds(_config.Controls.AccessCarriedChest);
+                if (AccessCarriedChest(HeldChest.Value)) Helper.Input.SuppressActiveKeybinds(Config.Controls.AccessCarriedChest);
             }
         }
 
         private static bool CarryChest(Object obj, GameLocation location, Vector2 pos)
         {
             if (!TryGetStorage(obj, out var storage)
-                || storage.Config.Option("CanCarry", true) != StorageConfig.Choice.Enable
+                || storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable
                 || !Game1.player.addItemToInventoryBool(obj, true))
                 return false;
             obj!.TileLocation = Vector2.Zero;
@@ -339,7 +341,7 @@ namespace ImJustMatt.ExpandedStorage
 
         private static bool AccessCarriedChest(Chest chest)
         {
-            if (!TryGetStorage(chest, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfig.Choice.Enable)
+            if (!TryGetStorage(chest, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable)
                 return false;
             chest.checkForAction(Game1.player);
             return true;
@@ -349,7 +351,7 @@ namespace ImJustMatt.ExpandedStorage
         {
             if (HeldChest.Value == null || Game1.activeClickableMenu != null)
                 return false;
-            if (!TryGetStorage(HeldChest.Value, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfig.Choice.Enable)
+            if (!TryGetStorage(HeldChest.Value, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable)
                 return false;
             HeldChest.Value.GetMutex().RequestLock(delegate
             {
