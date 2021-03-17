@@ -142,8 +142,15 @@ namespace ImJustMatt.ExpandedStorage
 
             void DefaultConfig()
             {
-                Config = Helper.ReadConfig<ModConfig>();
-                Config.DefaultStorage.SetAsDefault();
+                foreach (var field in ModConfig.ConfigHelper.Fields)
+                {
+                    ModConfig.ConfigHelper.SetValue(Config, field, field.DefaultValue);
+                }
+
+                foreach (var field in ModConfigKeys.ConfigHelper.Fields)
+                {
+                    ModConfigKeys.ConfigHelper.SetValue(Config.Controls, field, field.DefaultValue);
+                }
             }
 
             void SaveConfig()

@@ -206,8 +206,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             {
                 if (!storage.PlayerColor || storage.Config.Option("ShowColorPicker", true) != StorageConfigController.Choice.Enable)
                     __instance.colorPickerToggleButton = null;
-                __instance.chestColorPicker = null;
-                __instance.discreteColorPickerCC = null;
+                if (Config.ColorPicker)
+                {
+                    __instance.chestColorPicker = null;
+                    __instance.discreteColorPickerCC = null;
+                }
                 __instance.populateClickableComponentList();
                 __instance.SetupBorderNeighbors();
             }
