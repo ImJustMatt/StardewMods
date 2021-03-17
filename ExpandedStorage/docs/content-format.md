@@ -78,7 +78,7 @@ It's also possible to load storage or enable features using the [Expanded Storag
 "StorageName": {
   "SpecialChestType": "None",
   "IsFridge": false,
-  "OpenNearby": false,
+  "OpenNearby": 0,
   "OpenNearbySound": "doorCreak",
   "CloseNearbySound": "doorCreakReverse",
   "OpenSound": "openChest",
@@ -113,7 +113,7 @@ field               | description
 `StorageName`       | Name of the object, must match the Big Craftable name. **(Required)**
 `SpecialChestType`  | `"None"`, `"MiniShippingBin"`, or `"JunimoChest"`. (default `"None"`)
 `IsFridge`          | Set to `true` if storage should be treated as a Mini-Fridge. (default `false`)
-`OpenNearby`        | Set to `true` for storage to automatically open whenever a Farmer is nearby. (default `false`) 
+`OpenNearby`        | Set to `1` for storage to automatically open whenever a Farmer is within 1 tile. (default `0`) 
 `OpenNearbySound`   | Sound to play when OpenNearby is true and player approaches storage. (default `"doorCreak"`)  <sup>[1](#handyheadphones)</sup>
 `CloseNearbySound`  | Sound to play when OpenNearby is true and player walks away from storage. (default `"doorCreak"`)  <sup>[1](#handyheadphones)</sup>
 `OpenSound`         | Sound to play when storage is being opened. (default `"openChest"`) <sup>[1](#handyheadphones)</sup>
