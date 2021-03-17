@@ -4,7 +4,6 @@ using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
-using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;

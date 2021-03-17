@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
-using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -67,8 +66,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 
             if (storage.SpriteSheet is {Texture: { } texture} spriteSheet)
             {
-                var currentFrame = _reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue();
-                if (Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType) && animationType == StorageController.AnimationType.Color)
+                if (!Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType))
+                    animationType = StorageController.AnimationType.None;
+                var currentFrame = animationType != StorageController.AnimationType.None || chest.uses.Value < StorageController.Frame
+                    ? _reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue()
+                    : 0;
+                if (animationType == StorageController.AnimationType.Color)
                 {
                     if (storage.PlayerColor)
                     {

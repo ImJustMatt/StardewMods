@@ -1,6 +1,5 @@
 ﻿using System;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
-using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;

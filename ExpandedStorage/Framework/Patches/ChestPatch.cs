@@ -5,7 +5,6 @@ using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
-using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -291,7 +290,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             else if (storage.OpenNearby > 0)
             {
                 var farmerNearby = __instance.UpdateFarmerNearby(storage, time, environment);
-                if (__instance.frameCounter.Value > -1)
+                if (StorageController.Frame > 0 && __instance.frameCounter.Value > -1)
                 {
                     currentFrame = frameCounter.GetValue() + (farmerNearby ? 1 : -1) * (int) (StorageController.Frame - __instance.uses.Value) / storage.Delay;
                     currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
@@ -316,6 +315,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 if (__instance.frameCounter.Value < 0 && __instance.GetMutex().IsLockHeld())
                 {
                     __instance.ShowMenu();
+                    frameCounter.SetValue(0);
                 }
             }
             else if (__instance.frameCounter.Value == -1 && Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
@@ -324,6 +324,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 if (currentFrame > 0 && currentFrame >= storage.Frames - 1)
                 {
                     frameCounter.SetValue(0);
+                    __instance.uses.Value = 0;
                     __instance.GetMutex().ReleaseLock();
                 }
             }

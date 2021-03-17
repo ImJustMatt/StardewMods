@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
-using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;

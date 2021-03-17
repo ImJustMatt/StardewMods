@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ImJustMatt.Common.Integrations.GenericModConfigMenu;
-using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.ExpandedStorage.API;
-using ImJustMatt.ExpandedStorage.Framework;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.Patches;

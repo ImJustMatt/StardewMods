@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using ImJustMatt.Common.Extensions;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -12,8 +11,8 @@ namespace ImJustMatt.ExpandedStorage.Common.Helpers
     internal class ConfigHelper : ConfigHelper.IFieldHandler
     {
         private const int ColumnWidth = 25;
-        public readonly IList<Field> Fields = new List<Field>();
         public readonly IFieldHandler FieldHandler;
+        public readonly IList<Field> Fields = new List<Field>();
 
         internal ConfigHelper(object instance, IEnumerable<KeyValuePair<string, string>> fields) : this(null, instance, fields)
         {

@@ -3,7 +3,6 @@ using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
-using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewValley;
 

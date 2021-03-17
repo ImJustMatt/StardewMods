@@ -25,15 +25,15 @@ namespace ImJustMatt.ExpandedStorage.Framework.Views
         private static Texture2D HueBar;
         private static Color[] Colors;
         private static int TotalColors;
+        internal readonly ClickableComponent HueSlider;
+        internal readonly ClickableComponent LitSlider;
+        internal readonly ClickableComponent SatSlider;
+
+        internal readonly ClickableTextureComponent TransparentBox;
 
         private HSLColor _color;
 
         private Bar Hold = Bar.None;
-
-        internal readonly ClickableTextureComponent TransparentBox; 
-        internal readonly ClickableComponent HueSlider;
-        internal readonly ClickableComponent SatSlider;
-        internal readonly ClickableComponent LitSlider;
 
         internal HSLColorPicker(int xPosition, int yPosition, Item itemToDrawColored = null)
             : base(xPosition, yPosition, 0, itemToDrawColored)
@@ -254,7 +254,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Views
                     1);
 
                 // Lightness
-                LitSlider.bounds.Y = yPositionOnScreen + borderWidth / 2 + 36 + (int) (_color.L * CellsHeight) + CellsHeight + Gap - 2; 
+                LitSlider.bounds.Y = yPositionOnScreen + borderWidth / 2 + 36 + (int) (_color.L * CellsHeight) + CellsHeight + Gap - 2;
                 b.Draw(Game1.mouseCursors,
                     new Rectangle(LitSlider.bounds.X + 14, LitSlider.bounds.Y, 20, 16),
                     new Rectangle(412, 495, 5, 4),

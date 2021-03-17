@@ -36,11 +36,11 @@ namespace ImJustMatt.ExpandedStorage
         /// <summary>Dictionary of Expanded Storage tabs</summary>
         internal static readonly IDictionary<string, TabController> Tabs = new Dictionary<string, TabController>();
 
-        /// <summary>The mod configuration.</summary>
-        internal ModConfig Config;
-
         /// <summary>Handled content loaded by Expanded Storage.</summary>
         private ContentLoader _contentLoader;
+
+        /// <summary>The mod configuration.</summary>
+        internal ModConfig Config;
 
         /// <summary>Expanded Storage API.</summary>
         internal ExpandedStorageAPI ExpandedStorageAPI;
