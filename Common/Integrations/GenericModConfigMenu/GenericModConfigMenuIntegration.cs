@@ -1,4 +1,5 @@
-﻿using ImJustMatt.ExpandedStorage.Common.Helpers;
+﻿using System;
+using ImJustMatt.ExpandedStorage.Common.Helpers;
 using StardewModdingAPI;
 
 namespace ImJustMatt.Common.Integrations.GenericModConfigMenu
@@ -8,6 +9,17 @@ namespace ImJustMatt.Common.Integrations.GenericModConfigMenu
         public GenericModConfigMenuIntegration(IModRegistry modRegistry)
             : base(modRegistry, "spacechase0.GenericModConfigMenu")
         {
+        }
+
+        public Action RevertToDefault(ConfigHelper configHelper, object instance)
+        {
+            return delegate
+            {
+                foreach (var field in configHelper.Fields)
+                {
+                    configHelper.SetValue(instance, field, field.DefaultValue);
+                }
+            };
         }
 
         public void RegisterConfigOptions(IManifest manifest, ConfigHelper configHelper, object instance)
