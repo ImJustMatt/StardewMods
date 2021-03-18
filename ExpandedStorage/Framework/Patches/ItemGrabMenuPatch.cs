@@ -211,6 +211,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     __instance.chestColorPicker = null;
                     __instance.discreteColorPickerCC = null;
                 }
+
                 __instance.populateClickableComponentList();
                 __instance.SetupBorderNeighbors();
             }
