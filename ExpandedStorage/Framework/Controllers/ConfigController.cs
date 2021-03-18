@@ -47,15 +47,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
             void DefaultConfig()
             {
-                foreach (var field in ConfigHelper.Fields)
-                {
-                    ConfigHelper.SetValue(this, field, field.DefaultValue);
-                }
-
-                foreach (var field in ControlsModel.ConfigHelper.Fields)
-                {
-                    ControlsModel.ConfigHelper.SetValue(Controls, field, field.DefaultValue);
-                }
+                modConfigMenu.RevertToDefault(ConfigHelper, this).Invoke();
+                modConfigMenu.RevertToDefault(ControlsModel.ConfigHelper, Controls).Invoke();
             }
 
             void SaveConfig()
