@@ -8,12 +8,12 @@ using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ChestsAnywherePatch : Patch<ModConfig>
+    internal class ChestsAnywherePatch : Patch<ConfigController>
     {
         private readonly bool _isChestsAnywhereLoaded;
         private readonly Type _type;
 
-        internal ChestsAnywherePatch(IMonitor monitor, ModConfig config, bool isChestsAnywhereLoaded)
+        internal ChestsAnywherePatch(IMonitor monitor, ConfigController config, bool isChestsAnywhereLoaded)
             : base(monitor, config)
         {
             _isChestsAnywhereLoaded = isChestsAnywhereLoaded;

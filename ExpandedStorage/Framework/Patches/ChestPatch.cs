@@ -17,12 +17,12 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ChestPatch : Patch<ModConfig>
+    internal class ChestPatch : Patch<ConfigController>
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
         private static IReflectionHelper _reflection;
 
-        internal ChestPatch(IMonitor monitor, IReflectionHelper reflection, ModConfig config) : base(monitor, config)
+        internal ChestPatch(IMonitor monitor, IReflectionHelper reflection, ConfigController config) : base(monitor, config)
         {
             _reflection = reflection;
         }

@@ -2,6 +2,7 @@
 using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
@@ -11,13 +12,13 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class AutomatePatch : Patch<ModConfig>
+    internal class AutomatePatch : Patch<ConfigController>
     {
         private static IReflectionHelper _reflection;
         private readonly bool _isAutomateLoaded;
         private readonly Type _type;
 
-        internal AutomatePatch(IMonitor monitor, ModConfig config, IReflectionHelper reflection, bool isAutomateLoaded)
+        internal AutomatePatch(IMonitor monitor, ConfigController config, IReflectionHelper reflection, bool isAutomateLoaded)
             : base(monitor, config)
         {
             _reflection = reflection;

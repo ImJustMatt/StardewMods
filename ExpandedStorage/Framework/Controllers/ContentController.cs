@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 
-namespace ImJustMatt.ExpandedStorage.Framework
+namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
-    internal class ContentLoader : IAssetLoader, IAssetEditor
+    internal class ContentController : IAssetLoader, IAssetEditor
     {
         private readonly ExpandedStorage _mod;
         private bool _isContentLoaded;
 
-        internal ContentLoader(ExpandedStorage mod)
+        internal ContentController(ExpandedStorage mod)
         {
             _mod = mod;
 

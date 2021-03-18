@@ -23,7 +23,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
         private static IModEvents _events;
         private static IInputHelper _inputHelper;
-        private static ModConfig _config;
+        private static ConfigController _config;
 
         private readonly MenuModel _model;
 
@@ -100,7 +100,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             Instance.Value.OnItemChanged(Instance.Value, null);
         }
 
-        internal static void Init(IModEvents events, IInputHelper inputHelper, ModConfig config)
+        internal static void Init(IModEvents events, IInputHelper inputHelper, ConfigController config)
         {
             _events = events;
             _inputHelper = inputHelper;

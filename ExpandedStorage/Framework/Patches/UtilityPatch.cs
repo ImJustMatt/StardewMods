@@ -2,15 +2,16 @@
 using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class UtilityPatch : Patch<ModConfig>
+    internal class UtilityPatch : Patch<ConfigController>
     {
-        public UtilityPatch(IMonitor monitor, ModConfig config) : base(monitor, config)
+        public UtilityPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
         {
         }
 

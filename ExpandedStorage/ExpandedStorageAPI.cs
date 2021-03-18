@@ -57,7 +57,7 @@ namespace ImJustMatt.ExpandedStorage
         public bool LoadContentPack(string path)
         {
             var temp = _mod.Helper.ContentPacks.CreateFake(path);
-            var info = temp.ReadJsonFile<ContentPack>("content-pack.json");
+            var info = temp.ReadJsonFile<ContentModel>("content-pack.json");
 
             if (info == null)
             {
@@ -213,7 +213,7 @@ namespace ImJustMatt.ExpandedStorage
                 return true;
 
             // Generate content.json for Json Assets
-            contentPack.WriteJsonFile("content-pack.json", new ContentPack
+            contentPack.WriteJsonFile("content-pack.json", new ContentModel
             {
                 Author = contentPack.Manifest.Author,
                 Description = contentPack.Manifest.Description,

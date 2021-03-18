@@ -5,11 +5,11 @@ using StardewModdingAPI.Utilities;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
-namespace ImJustMatt.ExpandedStorage.Framework
+namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
-    internal class ModConfigKeys
+    internal class ControlsModel
     {
-        internal static readonly ConfigHelper ConfigHelper = new(new ModConfigKeys(), new List<KeyValuePair<string, string>>
+        internal static readonly ConfigHelper ConfigHelper = new(new ControlsModel(), new List<KeyValuePair<string, string>>
         {
             new("OpenCrafting", "Open the crafting menu using inventory from a held storage"),
             new("ScrollUp", "Button for scrolling the item storage menu up one row"),

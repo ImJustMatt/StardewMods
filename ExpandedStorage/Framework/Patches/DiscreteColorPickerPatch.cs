@@ -1,5 +1,6 @@
 ﻿using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Views;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -10,9 +11,9 @@ using StardewValley.Menus;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class DiscreteColorPickerPatch : Patch<ModConfig>
+    internal class DiscreteColorPickerPatch : Patch<ConfigController>
     {
-        public DiscreteColorPickerPatch(IMonitor monitor, ModConfig config)
+        public DiscreteColorPickerPatch(IMonitor monitor, ConfigController config)
             : base(monitor, config)
         {
         }

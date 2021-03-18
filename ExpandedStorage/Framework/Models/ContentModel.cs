@@ -1,6 +1,6 @@
 ﻿namespace ImJustMatt.ExpandedStorage.Framework.Models
 {
-    internal class ContentPack
+    internal class ContentModel
     {
         public string Name { get; set; }
         public string Description { get; set; }

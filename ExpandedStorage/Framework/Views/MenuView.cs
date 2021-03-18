@@ -328,7 +328,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Views
         /// <summary>Handles Right-Click interaction with overlay elements</summary>
         /// <param name="x">x-coordinate of left-click</param>
         /// <param name="y">Y-Coordinate of left-click</param>
-        /// <param name="released">True when left click is released</param>
+        /// <param name="released">True when right click is released</param>
         /// <param name="playSound">Whether sound should be enabled for click</param>
         /// <returns>True when an interaction occurs</returns>
         // ReSharper disable once UnusedParameter.Global

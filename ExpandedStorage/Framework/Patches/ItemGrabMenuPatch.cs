@@ -22,7 +22,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
     {
         private static IReflectionHelper _reflection;
 
-        internal ItemGrabMenuPatch(IMonitor monitor, ModConfig config, IReflectionHelper reflection) : base(monitor, config)
+        internal ItemGrabMenuPatch(IMonitor monitor, ConfigController config, IReflectionHelper reflection) : base(monitor, config)
         {
             _reflection = reflection;
         }

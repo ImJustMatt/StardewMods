@@ -37,10 +37,10 @@ namespace ImJustMatt.ExpandedStorage
         internal static readonly IDictionary<string, TabController> Tabs = new Dictionary<string, TabController>();
 
         /// <summary>Handled content loaded by Expanded Storage.</summary>
-        private ContentLoader _contentLoader;
+        private ContentController _contentController;
 
         /// <summary>The mod configuration.</summary>
-        internal ModConfig Config;
+        internal ConfigController Config;
 
         /// <summary>Expanded Storage API.</summary>
         internal ExpandedStorageAPI ExpandedStorageAPI;
@@ -78,19 +78,19 @@ namespace ImJustMatt.ExpandedStorage
             JsonAssets = new JsonAssetsIntegration(helper.ModRegistry);
             ModConfigMenu = new GenericModConfigMenuIntegration(helper.ModRegistry);
 
-            Config = helper.ReadConfig<ModConfig>();
+            Config = helper.ReadConfig<ConfigController>();
             Config.DefaultStorage.SetAsDefault();
             Monitor.Log(string.Join("\n",
                 "Mod Config",
-                ModConfig.ConfigHelper.Summary(Config),
-                ModConfigKeys.ConfigHelper.Summary(Config.Controls, false),
+                ConfigController.ConfigHelper.Summary(Config),
+                ControlsModel.ConfigHelper.Summary(Config.Controls, false),
                 StorageConfigController.ConfigHelper.Summary(Config.DefaultStorage, false)
             ), Config.LogLevelProperty);
 
             ExpandedStorageAPI = new ExpandedStorageAPI(this);
-            _contentLoader = new ContentLoader(this);
-            helper.Content.AssetLoaders.Add(_contentLoader);
-            helper.Content.AssetEditors.Add(_contentLoader);
+            _contentController = new ContentController(this);
+            helper.Content.AssetLoaders.Add(_contentController);
+            helper.Content.AssetEditors.Add(_contentController);
 
             MenuController.Init(helper.Events, helper.Input, Config);
             MenuModel.Init(Config);
@@ -116,7 +116,7 @@ namespace ImJustMatt.ExpandedStorage
             }
 
             // Harmony Patches
-            new Patcher<ModConfig>(ModManifest.UniqueID).ApplyAll(
+            new Patcher<ConfigController>(ModManifest.UniqueID).ApplyAll(
                 new ItemPatch(Monitor, Config),
                 new ObjectPatch(Monitor, Config),
                 new FarmerPatch(Monitor, Config),
@@ -132,56 +132,13 @@ namespace ImJustMatt.ExpandedStorage
             );
         }
 
-        /// <summary>Setup Generic Mod Config Menu</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
+        /// <summary>Raised after the game is launched, right before the first update tick.</summary>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            if (!ModConfigMenu.IsLoaded)
-                return;
-
-            void DefaultConfig()
-            {
-                foreach (var field in ModConfig.ConfigHelper.Fields)
-                {
-                    ModConfig.ConfigHelper.SetValue(Config, field, field.DefaultValue);
-                }
-
-                foreach (var field in ModConfigKeys.ConfigHelper.Fields)
-                {
-                    ModConfigKeys.ConfigHelper.SetValue(Config.Controls, field, field.DefaultValue);
-                }
-            }
-
-            void SaveConfig()
-            {
-                Helper.WriteConfig(Config);
-            }
-
-            ModConfigMenu.API.RegisterModConfig(ModManifest, DefaultConfig, SaveConfig);
-            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Controls", "Controller/Keyboard controls", "Controls");
-            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Tweaks", "Modify behavior for certain features", "Tweaks");
-            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Default Storage", "Global default storage config", "Default Storage");
-
-            ModConfigMenu.API.StartNewPage(ModManifest, "Controls");
-            ModConfigMenu.API.RegisterLabel(ModManifest, "Controls", "Controller/Keyboard controls");
-            ModConfigMenu.RegisterConfigOptions(ModManifest, ModConfigKeys.ConfigHelper, Config.Controls);
-            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Go Back", "", "");
-
-            ModConfigMenu.API.StartNewPage(ModManifest, "Tweaks");
-            ModConfigMenu.API.RegisterLabel(ModManifest, "Tweaks", "Modify behavior for certain features");
-            ModConfigMenu.RegisterConfigOptions(ModManifest, ModConfig.ConfigHelper, Config);
-            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Go Back", "", "");
-
-            ModConfigMenu.API.StartNewPage(ModManifest, "Default Storage");
-            ModConfigMenu.API.RegisterLabel(ModManifest, "Default Storage", "Global default storage config");
-            ModConfigMenu.RegisterConfigOptions(ModManifest, StorageConfigController.ConfigHelper, Config.DefaultStorage);
-            ModConfigMenu.API.RegisterPageLabel(ModManifest, "Go Back", "", "");
+            Config.RegisterModConfig(Helper, ModManifest, ModConfigMenu);
         }
 
-        /// <summary>Track toolbar changes before user input.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
+        /// <summary>Raised after objects are added/removed in any location (including machines, furniture, fences, etc).</summary>
         private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
         {
             if (!Context.IsPlayerFree)
@@ -221,9 +178,7 @@ namespace ImJustMatt.ExpandedStorage
             Helper.Events.World.ObjectListChanged += OnObjectListChanged;
         }
 
-        /// <summary>Initialize player item vacuum chests.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
+        /// <summary>Raised after loading a save (including the first day after creating a new save), or connecting to a multiplayer world.</summary>
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
             if (!Game1.player.IsLocalPlayer)
@@ -231,9 +186,7 @@ namespace ImJustMatt.ExpandedStorage
             RefreshVacuumChests(Game1.player);
         }
 
-        /// <summary>Refresh player item vacuum chests.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
+        /// <summary>Raised after items are added or removed from the player inventory.</summary>
         private void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
         {
             if (!e.IsLocalPlayer)
@@ -252,9 +205,7 @@ namespace ImJustMatt.ExpandedStorage
             Monitor.VerboseLog($"Found {VacuumChests.Value.Count} For Vacuum:\n" + string.Join("\n", VacuumChests.Value.Select(s => $"\t{s.Key}")));
         }
 
-        /// <summary>Track toolbar changes before user input.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
+        /// <summary>Raised after the game state is updated (≈60 times per second).</summary>
         private void OnUpdateTicking(object sender, UpdateTickingEventArgs e)
         {
             if (!Context.IsPlayerFree)
@@ -280,9 +231,7 @@ namespace ImJustMatt.ExpandedStorage
             }
         }
 
-        /// <summary>Raised after the player pressed/released a keyboard, mouse, or controller button.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
+        /// <summary>Raised after the player pressed a keyboard, mouse, or controller button.</summary>
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             if (!Context.IsPlayerFree) return;
@@ -306,8 +255,6 @@ namespace ImJustMatt.ExpandedStorage
         }
 
         /// <summary>Raised after the player pressed/released any buttons on the keyboard, mouse, or controller.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
         private void OnButtonsChanged(object sender, ButtonsChangedEventArgs e)
         {
             if (!Context.IsPlayerFree) return;
@@ -354,7 +301,7 @@ namespace ImJustMatt.ExpandedStorage
             return true;
         }
 
-        private bool OpenCrafting()
+        private static bool OpenCrafting()
         {
             if (HeldChest.Value == null || Game1.activeClickableMenu != null)
                 return false;

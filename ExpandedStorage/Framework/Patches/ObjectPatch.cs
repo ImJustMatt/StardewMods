@@ -15,11 +15,11 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ObjectPatch : Patch<ModConfig>
+    internal class ObjectPatch : Patch<ConfigController>
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
 
-        public ObjectPatch(IMonitor monitor, ModConfig config) : base(monitor, config)
+        public ObjectPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
         {
         }
 
@@ -33,6 +33,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             harmony.Patch(
                 AccessTools.Method(typeof(Object), nameof(Object.checkForAction)),
                 new HarmonyMethod(GetType(), nameof(CheckForActionPrefix))
+            );
+
+            harmony.Patch(
+                AccessTools.Method(typeof(Object), nameof(Object.getOne)),
+                new HarmonyMethod(GetType(), nameof(GetOnePrefix))
             );
 
             harmony.Patch(
@@ -70,6 +75,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             var y = __instance.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
             if (!Game1.currentLocation.Objects.TryGetValue(new Vector2(x, y), out var obj) || obj is not Chest chest) return true;
             __result = chest.checkForAction(who);
+            return false;
+        }
+
+        public static bool GetOnePrefix(Object __instance, ref Item __result)
+        {
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
+            __result = __instance.ToChest(storage);
             return false;
         }
 

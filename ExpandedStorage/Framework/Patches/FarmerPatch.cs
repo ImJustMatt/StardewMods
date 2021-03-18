@@ -10,9 +10,9 @@ using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class FarmerPatch : Patch<ModConfig>
+    internal class FarmerPatch : Patch<ConfigController>
     {
-        internal FarmerPatch(IMonitor monitor, ModConfig config) : base(monitor, config)
+        internal FarmerPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
         {
         }
 

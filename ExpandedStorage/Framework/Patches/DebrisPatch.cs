@@ -2,6 +2,7 @@
 using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -11,9 +12,9 @@ using StardewValley.Tools;
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class DebrisPatch : Patch<ModConfig>
+    internal class DebrisPatch : Patch<ConfigController>
     {
-        internal DebrisPatch(IMonitor monitor, ModConfig config) : base(monitor, config)
+        internal DebrisPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
         {
         }
 

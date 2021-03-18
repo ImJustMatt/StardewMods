@@ -18,7 +18,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
     public class MenuModel : IDisposable
     {
         private static readonly PerScreen<MenuModel> Instance = new();
-        private static ModConfig _config;
+        private static ConfigController _config;
 
         /// <summary>The object that the inventory menu is associated with</summary>
         internal readonly object Context;
@@ -184,7 +184,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             return Instance.Value != null && ReferenceEquals(Instance.Value.Items, items) ? Instance.Value.FilteredItems : items;
         }
 
-        internal static void Init(ModConfig config)
+        internal static void Init(ConfigController config)
         {
             _config = config;
         }

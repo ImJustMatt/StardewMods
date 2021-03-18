@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewValley.Menus;
@@ -13,7 +14,7 @@ using StardewValley.Menus;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal abstract class MenuPatch : Patch<ModConfig>
+    internal abstract class MenuPatch : Patch<ConfigController>
     {
         private protected static readonly MethodInfo MenuCapacity =
             AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetMenuCapacity), new[] {typeof(object)});
@@ -39,7 +40,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         private protected static readonly FieldInfo IClickableMenuYPositionOnScreen =
             AccessTools.Field(typeof(IClickableMenu), nameof(IClickableMenu.yPositionOnScreen));
 
-        internal MenuPatch(IMonitor monitor, ModConfig config) : base(monitor, config)
+        internal MenuPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
         {
         }
 

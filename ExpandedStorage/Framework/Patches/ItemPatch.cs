@@ -9,9 +9,9 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ItemPatch : Patch<ModConfig>
+    internal class ItemPatch : Patch<ConfigController>
     {
-        public ItemPatch(IMonitor monitor, ModConfig config) : base(monitor, config)
+        public ItemPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
         {
         }
 
