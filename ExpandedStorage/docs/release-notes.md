@@ -8,6 +8,7 @@
 - Added Config to change Log Level when loading storages
 - Updated Generic Mod Config Menu
 - Fixed Bigger Storages breaking between saves
+- Fixed Purchased Storages not working until they are dropped
 
 ## 1.6.4
 
