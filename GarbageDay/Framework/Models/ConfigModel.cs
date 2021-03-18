@@ -1,6 +1,6 @@
-﻿namespace ImJustMatt.GarbageDay.Framework
+﻿namespace ImJustMatt.GarbageDay.Framework.Models
 {
-    internal class ModConfig
+    internal class ConfigModel
     {
         /// <summary>Global change that a random item from season is collected</summary>
         public double GetRandomItemFromSeason { get; set; } = 0.1;
@@ -10,5 +10,8 @@
 
         /// <summary>Edit all Maps instead of specific maps</summary>
         public bool Debug { get; set; } = false;
+
+        /// <summary>Log Level used when loading in garbage cans</summary>
+        public string LogLevel { get; set; } = "Trace";
     }
 }

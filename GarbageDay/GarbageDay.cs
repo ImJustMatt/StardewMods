@@ -7,6 +7,7 @@ using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.GarbageDay.Framework;
+using ImJustMatt.GarbageDay.Framework.Controllers;
 using ImJustMatt.GarbageDay.Framework.Models;
 using ImJustMatt.GarbageDay.Framework.Patches;
 using Microsoft.Xna.Framework;
@@ -25,11 +26,11 @@ namespace ImJustMatt.GarbageDay
 {
     public class GarbageDay : Mod, IAssetLoader, IAssetEditor
     {
-        internal static readonly IDictionary<string, GarbageCan> GarbageCans = new Dictionary<string, GarbageCan>();
+        internal static readonly IDictionary<string, GarbageCanController> GarbageCans = new Dictionary<string, GarbageCanController>();
         private readonly IDictionary<string, double> _globalLoot = new Dictionary<string, double>();
         private readonly IDictionary<string, IDictionary<string, double>> _localLoot = new Dictionary<string, IDictionary<string, double>>();
         private readonly HashSet<string> _maps = new();
-        private ModConfig _config;
+        private ConfigController _config;
         private IExpandedStorageAPI _expandedStorageAPI;
         private GarbageDayAPI _garbageDayAPI;
         private int _objectId;
@@ -64,7 +65,7 @@ namespace ImJustMatt.GarbageDay
                     {
                         if (!GarbageCans.TryGetValue(parts[1], out var garbageCan))
                         {
-                            garbageCan = new GarbageCan(Helper.Content, Helper.Events, Helper.Reflection, _config);
+                            garbageCan = new GarbageCanController(Helper.Content, Helper.Events, Helper.Reflection, _config);
                             GarbageCans.Add(parts[1], garbageCan);
                             additions++;
                         }
@@ -122,7 +123,7 @@ namespace ImJustMatt.GarbageDay
 
         public override void Entry(IModHelper helper)
         {
-            _config = helper.ReadConfig<ModConfig>();
+            _config = helper.ReadConfig<ConfigController>();
 
             _garbageDayAPI = new GarbageDayAPI(_maps, _globalLoot, _localLoot);
 
@@ -143,7 +144,7 @@ namespace ImJustMatt.GarbageDay
             var contentPacks = helper.ContentPacks.GetOwned();
             foreach (var contentPack in contentPacks)
             {
-                var content = contentPack.ReadJsonFile<Content>("garbage-day.json");
+                var content = contentPack.ReadJsonFile<ContentModel>("garbage-day.json");
                 if (content != null)
                 {
                     Monitor.Log($"Loading {contentPack.Manifest.Name} {contentPack.Manifest.Version}", LogLevel.Info);
@@ -167,7 +168,7 @@ namespace ImJustMatt.GarbageDay
                 }
             }
 
-            new Patcher<ModConfig>(ModManifest.UniqueID).ApplyAll(
+            new Patcher<ConfigModel>(ModManifest.UniqueID).ApplyAll(
                 new ChestPatch(Monitor, _config)
             );
 
@@ -235,37 +236,7 @@ namespace ImJustMatt.GarbageDay
 
             var modConfigMenu = new GenericModConfigMenuIntegration(Helper.ModRegistry);
             if (!modConfigMenu.IsLoaded) return;
-
-            var config = new ModConfig
-            {
-                GarbageDay = _config.GarbageDay,
-                GetRandomItemFromSeason = _config.GetRandomItemFromSeason
-            };
-
-            void RevertToDefault()
-            {
-                config.GarbageDay = _config.GarbageDay;
-                config.GetRandomItemFromSeason = _config.GetRandomItemFromSeason;
-            }
-
-            void SaveToFile()
-            {
-                _config.GarbageDay = config.GarbageDay;
-                _config.GetRandomItemFromSeason = config.GetRandomItemFromSeason;
-                Helper.WriteConfig(_config);
-            }
-
-            modConfigMenu.API.RegisterModConfig(ModManifest, RevertToDefault, SaveToFile);
-            modConfigMenu.API.RegisterClampedOption(ModManifest,
-                "Garbage Pickup Day", "Day of week that garbage cans are emptied up (0 Sunday - 6 Saturday)",
-                () => config.GarbageDay,
-                value => config.GarbageDay = value,
-                0, 6);
-            modConfigMenu.API.RegisterClampedOption(ModManifest,
-                "Get Random Item from Season", "Chance that a random item from season is added to the garbage can",
-                () => (float) config.GetRandomItemFromSeason,
-                value => config.GetRandomItemFromSeason = value,
-                0, 1);
+            _config.RegisterModConfig(Helper, ModManifest, modConfigMenu);
         }
 
         /// <summary>Initiate adding garbage can spots</summary>
@@ -278,6 +249,8 @@ namespace ImJustMatt.GarbageDay
             Utility.ForAllLocations(delegate(GameLocation location)
             {
                 var mapPath = PathUtilities.NormalizePath(location.mapPath.Value);
+                if (!_maps.Contains(mapPath)) return;
+
                 foreach (var garbageCan in GarbageCans.Where(gc => gc.Value.MapName.Equals(mapPath)))
                 {
                     garbageCan.Value.Location = location;
@@ -303,7 +276,7 @@ namespace ImJustMatt.GarbageDay
                             $"{garbageCan.Value.Tile.ToString()}")
                         ).ToList()
                 )
-            ));
+            ), _config.LogLevelProperty);
         }
 
         /// <summary>Reset object id and tracked garbage cans</summary>

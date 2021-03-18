@@ -1,14 +1,15 @@
 ﻿using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.GarbageDay.Framework.Models;
 using StardewModdingAPI;
 using StardewValley.Objects;
 
 namespace ImJustMatt.GarbageDay.Framework.Patches
 {
-    internal class ChestPatch : Patch<ModConfig>
+    internal class ChestPatch : Patch<ConfigModel>
     {
-        public ChestPatch(IMonitor monitor, ModConfig config) : base(monitor, config)
+        public ChestPatch(IMonitor monitor, ConfigModel config) : base(monitor, config)
         {
         }
 

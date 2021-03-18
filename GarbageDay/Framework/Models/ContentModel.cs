@@ -3,7 +3,7 @@ using ImJustMatt.GarbageDay.API;
 
 namespace ImJustMatt.GarbageDay.Framework.Models
 {
-    internal class Content : IContent
+    internal class ContentModel : IContent
     {
         public HashSet<string> Maps { get; set; } = new();
         public IDictionary<string, double> GlobalLoot { get; set; } = new Dictionary<string, double>();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.Common.Helpers.ItemData;
+using ImJustMatt.GarbageDay.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -13,12 +14,12 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
 
-namespace ImJustMatt.GarbageDay.Framework.Models
+namespace ImJustMatt.GarbageDay.Framework.Controllers
 {
-    internal class GarbageCan
+    internal class GarbageCanController : GarbageCanModel
     {
         private static IEnumerable<SearchableItem> _items;
-        private readonly ModConfig _config;
+        private readonly ConfigModel _config;
         private readonly IContentHelper _contentHelper;
         private readonly Multiplayer _multiplayer;
         private Chest _chest;
@@ -27,11 +28,8 @@ namespace ImJustMatt.GarbageDay.Framework.Models
         private bool _garbageChecked = true;
         private bool _mega;
         private NPC _npc;
-        internal GameLocation Location;
-        internal string MapName;
-        internal Vector2 Tile;
 
-        internal GarbageCan(IContentHelper contentHelper, IModEvents modEvents, IReflectionHelper reflection, ModConfig config)
+        internal GarbageCanController(IContentHelper contentHelper, IModEvents modEvents, IReflectionHelper reflection, ConfigModel config)
         {
             _contentHelper = contentHelper;
             _config = config;

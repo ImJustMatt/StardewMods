@@ -9,7 +9,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
     internal class ConfigController : ConfigModel
     {
-        internal static readonly ConfigHelper ConfigHelper = new(new FieldHandler(), new ConfigController(), new List<KeyValuePair<string, string>>
+        private static readonly ConfigHelper ConfigHelper = new(new FieldHandler(), new ConfigController(), new List<KeyValuePair<string, string>>
         {
             new("Controls", "Control scheme for Keyboard or Controller"),
             new("Controller", "Enables input designed to improve controller compatibility"),
