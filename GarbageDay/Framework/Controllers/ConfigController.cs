@@ -16,6 +16,10 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
             new("LogLevel", "Log Level used when loading in garbage cans")
         });
 
+        public ConfigController()
+        {
+        }
+
         internal LogLevel LogLevelProperty
         {
             get => Enum.TryParse(LogLevel, out LogLevel logLevel) ? logLevel : StardewModdingAPI.LogLevel.Trace;

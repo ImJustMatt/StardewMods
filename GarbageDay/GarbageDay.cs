@@ -1,131 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.API;
-using ImJustMatt.GarbageDay.Framework;
 using ImJustMatt.GarbageDay.Framework.Controllers;
 using ImJustMatt.GarbageDay.Framework.Models;
 using ImJustMatt.GarbageDay.Framework.Patches;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Objects;
-using xTile;
-using xTile.Dimensions;
-using xTile.ObjectModel;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace ImJustMatt.GarbageDay
 {
-    public class GarbageDay : Mod, IAssetLoader, IAssetEditor
+    public class GarbageDay : Mod
     {
         internal static readonly IDictionary<string, GarbageCanController> GarbageCans = new Dictionary<string, GarbageCanController>();
-        private readonly IDictionary<string, double> _globalLoot = new Dictionary<string, double>();
-        private readonly IDictionary<string, IDictionary<string, double>> _localLoot = new Dictionary<string, IDictionary<string, double>>();
-        private readonly HashSet<string> _maps = new();
-        private ConfigController _config;
+        internal static int ObjectId;
+        internal readonly IDictionary<string, double> GlobalLoot = new Dictionary<string, double>();
+        internal readonly IDictionary<string, IDictionary<string, double>> LocalLoot = new Dictionary<string, IDictionary<string, double>>();
+        internal readonly HashSet<string> Maps = new();
+
+        /// <summary>Handled content loaded by Expanded Storage.</summary>
+        private ContentController _contentController;
+
         private IExpandedStorageAPI _expandedStorageAPI;
+
+        /// <summary>Garbage Day API Instance</summary>
         private GarbageDayAPI _garbageDayAPI;
-        private int _objectId;
+
         private bool _objectsPlaced;
-
-        /// <summary>Allows editing Maps to remove vanilla garbage cans</summary>
-        public bool CanEdit<T>(IAssetInfo asset)
-        {
-            return asset.DataType == typeof(Map) && _maps.Contains(asset.AssetName) || _config.Debug;
-        }
-
-        /// <summary>Remove and store</summary>
-        public void Edit<T>(IAssetData asset)
-        {
-            var map = asset.AsMap();
-            var additions = 0;
-            var edits = 0;
-            for (var x = 0; x < map.Data.Layers[0].LayerWidth; x++)
-            {
-                for (var y = 0; y < map.Data.Layers[0].LayerHeight; y++)
-                {
-                    var layer = map.Data.GetLayer("Buildings");
-
-                    // Look for Action: Garbage
-                    PropertyValue property = null;
-                    var tile = layer.PickTile(new Location(x, y) * Game1.tileSize, Game1.viewport.Size);
-                    tile?.Properties.TryGetValue("Action", out property);
-                    var parts = property?.ToString().Split(' ');
-
-                    // Add to list
-                    if (parts?.ElementAtOrDefault(0) == "Garbage" && !string.IsNullOrWhiteSpace(parts.ElementAtOrDefault(1)))
-                    {
-                        if (!GarbageCans.TryGetValue(parts[1], out var garbageCan))
-                        {
-                            garbageCan = new GarbageCanController(Helper.Content, Helper.Events, Helper.Reflection, _config);
-                            GarbageCans.Add(parts[1], garbageCan);
-                            additions++;
-                        }
-                        else
-                        {
-                            edits++;
-                        }
-
-                        garbageCan.MapName = map.AssetName;
-                        garbageCan.Tile = new Vector2(x, y);
-                    }
-
-                    // Remove Base
-                    if ((layer.Tiles[x, y]?.TileSheet.Id.Equals("Town") ?? false) && layer.Tiles[x, y].TileIndex == 78)
-                    {
-                        layer.Tiles[x, y] = null;
-                    }
-
-                    // Remove Lid
-                    layer = map.Data.GetLayer("Front");
-                    if ((layer.Tiles[x, y]?.TileSheet.Id.Equals("Town") ?? false) && layer.Tiles[x, y].TileIndex == 46)
-                    {
-                        layer.Tiles[x, y] = null;
-                    }
-                }
-            }
-
-            if (additions != 0 || edits != 0)
-            {
-                Monitor.Log($"Found {additions} new garbage cans, replaced {edits} on {asset.AssetName}");
-            }
-        }
-
-        /// <summary>Load Data for Mods/furyx639.GarbageDay path</summary>
-        public bool CanLoad<T>(IAssetInfo asset)
-        {
-            var assetPrefix = PathUtilities.NormalizePath("Mods/furyx639.GarbageDay");
-            return asset.AssetName.StartsWith(assetPrefix) && asset.DataType == typeof(Dictionary<string, double>);
-        }
-
-        /// <summary>Provide base versions of GarbageDay loot</summary>
-        public T Load<T>(IAssetInfo asset)
-        {
-            if (asset.DataType != typeof(Dictionary<string, double>))
-                throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
-            var assetParts = PathUtilities.GetSegments(asset.AssetName).Skip(2).ToList();
-            if (assetParts.ElementAtOrDefault(0) == "GlobalLoot")
-                return (T) _globalLoot;
-            if (assetParts.ElementAtOrDefault(0) != "Loot" || assetParts.Count != 2)
-                throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
-            return _localLoot.TryGetValue(assetParts[1], out var lootTable)
-                ? (T) lootTable
-                : (T) (object) new Dictionary<string, double>();
-        }
+        internal ConfigController Config;
 
         public override void Entry(IModHelper helper)
         {
-            _config = helper.ReadConfig<ConfigController>();
+            Config = helper.ReadConfig<ConfigController>();
 
-            _garbageDayAPI = new GarbageDayAPI(_maps, _globalLoot, _localLoot);
+            _garbageDayAPI = new GarbageDayAPI(Maps, GlobalLoot, LocalLoot);
+            _contentController = new ContentController(this);
+            helper.Content.AssetLoaders.Add(_contentController);
+            helper.Content.AssetEditors.Add(_contentController);
 
             // Initialize Global Loot from assets
             var globalLoot = helper.Content.Load<IDictionary<string, double>>(Path.Combine("assets", "global-loot.json"));
@@ -147,11 +66,11 @@ namespace ImJustMatt.GarbageDay
                 var content = contentPack.ReadJsonFile<ContentModel>("garbage-day.json");
                 if (content != null)
                 {
-                    Monitor.Log($"Loading {contentPack.Manifest.Name} {contentPack.Manifest.Version}", LogLevel.Info);
+                    Monitor.Log($"Loading {contentPack.Manifest.Name} {contentPack.Manifest.Version}", LogLevel.Debug);
                 }
                 else
                 {
-                    Monitor.Log($"Nothing to load from {contentPack.Manifest.Name} {contentPack.Manifest.Version}");
+                    Monitor.Log($"Nothing to load from {contentPack.Manifest.Name} {contentPack.Manifest.Version}", LogLevel.Warn);
                     continue;
                 }
 
@@ -169,47 +88,14 @@ namespace ImJustMatt.GarbageDay
             }
 
             new Patcher<ConfigModel>(ModManifest.UniqueID).ApplyAll(
-                new ChestPatch(Monitor, _config)
+                new ChestPatch(Monitor, Config)
             );
 
             // Console Commands
-            helper.ConsoleCommands.Add("fill_garbage_cans",
-                "Adds loot to all Garbage Cans.\n\nUsage: fill_garbage_cans <luck>\n- luck: Adds to player luck", delegate(string command, string[] args)
-                {
-                    var luck = float.TryParse(args?[0], out var luckFloat) ? luckFloat : 0;
-                    foreach (var garbageCan in GarbageCans)
-                    {
-                        garbageCan.Value.DayStart(luck);
-                    }
-                });
-            helper.ConsoleCommands.Add("remove_garbage_cans",
-                "Remove all Garbage Cans. Run before saving to safely uninstall mod.",
-                delegate
-                {
-                    foreach (var garbageCan in GarbageCans.Values)
-                    {
-                        if (garbageCan.Chest != null) garbageCan.Location.Objects.Remove(garbageCan.Tile);
-                    }
-                });
-            helper.ConsoleCommands.Add("reset_garbage_cans",
-                "Resets all Garbage Cans by removing and replacing them.",
-                delegate
-                {
-                    foreach (var garbageCan in GarbageCans)
-                    {
-                        var chest = new Chest(true, garbageCan.Value.Tile, _objectId);
-                        chest.playerChoiceColor.Value = Color.DarkGray;
-                        chest.modData.Add("furyx639.GarbageDay", garbageCan.Key);
-                        chest.modData.Add("Pathoschild.ChestsAnywhere/IsIgnored", "true");
-                        if (garbageCan.Value.Chest != null)
-                        {
-                            chest.items.CopyFrom(garbageCan.Value.Chest.items);
-                            garbageCan.Value.Location.Objects.Remove(garbageCan.Value.Tile);
-                        }
-
-                        garbageCan.Value.Location.Objects.Add(garbageCan.Value.Tile, chest);
-                    }
-                });
+            foreach (var command in CommandsController.Commands)
+            {
+                helper.ConsoleCommands.Add(command.Name, command.Documentation, command.Callback);
+            }
 
             // Events
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
@@ -232,11 +118,11 @@ namespace ImJustMatt.GarbageDay
             // Get ParentSheetIndex for object
             var jsonAssets = new JsonAssetsIntegration(Helper.ModRegistry);
             if (jsonAssets.IsLoaded)
-                jsonAssets.API.IdsAssigned += delegate { _objectId = jsonAssets.API.GetBigCraftableId("Garbage Can"); };
+                jsonAssets.API.IdsAssigned += delegate { ObjectId = jsonAssets.API.GetBigCraftableId("Garbage Can"); };
 
             var modConfigMenu = new GenericModConfigMenuIntegration(Helper.ModRegistry);
             if (!modConfigMenu.IsLoaded) return;
-            _config.RegisterModConfig(Helper, ModManifest, modConfigMenu);
+            Config.RegisterModConfig(Helper, ModManifest, modConfigMenu);
         }
 
         /// <summary>Initiate adding garbage can spots</summary>
@@ -249,14 +135,14 @@ namespace ImJustMatt.GarbageDay
             Utility.ForAllLocations(delegate(GameLocation location)
             {
                 var mapPath = PathUtilities.NormalizePath(location.mapPath.Value);
-                if (!_maps.Contains(mapPath)) return;
+                if (!Maps.Contains(mapPath)) return;
 
                 foreach (var garbageCan in GarbageCans.Where(gc => gc.Value.MapName.Equals(mapPath)))
                 {
                     garbageCan.Value.Location = location;
                     if (location.Objects.ContainsKey(garbageCan.Value.Tile))
                         continue;
-                    var chest = new Chest(true, garbageCan.Value.Tile, _objectId);
+                    var chest = new Chest(true, garbageCan.Value.Tile, ObjectId);
                     chest.modData.Add("furyx639.GarbageDay", garbageCan.Key);
                     chest.modData.Add("Pathoschild.ChestsAnywhere/IsIgnored", "true");
                     location.Objects.Add(garbageCan.Value.Tile, chest);
@@ -276,7 +162,7 @@ namespace ImJustMatt.GarbageDay
                             $"{garbageCan.Value.Tile.ToString()}")
                         ).ToList()
                 )
-            ), _config.LogLevelProperty);
+            ), Config.LogLevelProperty);
         }
 
         /// <summary>Reset object id and tracked garbage cans</summary>
@@ -284,18 +170,18 @@ namespace ImJustMatt.GarbageDay
         /// <param name="e">The event arguments.</param>
         private void OnReturnedToTitle(object sender, ReturnedToTitleEventArgs e)
         {
-            _objectId = 0;
+            ObjectId = 0;
             _objectsPlaced = false;
         }
 
-        /// <summary>Add trash to garbage cans</summary>
+        /// <summary>Raised after a new in-game day starts, or after connecting to a multiplayer world.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
         private static void OnDayStarted(object sender, DayStartedEventArgs e)
         {
-            foreach (var garbageCan in GarbageCans)
+            foreach (var garbageCan in GarbageCans.Values)
             {
-                garbageCan.Value.DayStart();
+                garbageCan.DayStart();
             }
         }
     }
