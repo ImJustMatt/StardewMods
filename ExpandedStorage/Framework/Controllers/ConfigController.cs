@@ -30,6 +30,16 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             private set => LogLevel = value.ToString();
         }
 
+        internal void Log(IMonitor monitor)
+        {
+            monitor.Log(string.Join("\n",
+                "Mod Config",
+                ConfigHelper.Summary(this),
+                ControlsModel.ConfigHelper.Summary(Controls, false),
+                StorageConfigController.ConfigHelper.Summary(DefaultStorage, false)
+            ), LogLevelProperty);
+        }
+
         internal void RegisterModConfig(IModHelper helper, IManifest manifest, GenericModConfigMenuIntegration modConfigMenu)
         {
             if (!modConfigMenu.IsLoaded)

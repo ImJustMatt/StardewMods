@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ImJustMatt.Common.Integrations.GenericModConfigMenu;
+using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -89,16 +91,16 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             }
 
             // Load Default Tabs
-            foreach (var xsTab in _mod.Config.DefaultTabs)
+            foreach (var storageTab in _mod.Config.DefaultTabs)
             {
-                var tabId = $"{_mod.ModManifest.UniqueID}/{xsTab.Key}";
-                var storageTab = new TabController(xsTab.Value)
+                var tabId = $"{_mod.ModManifest.UniqueID}/{storageTab.Key}";
+                var tab = new TabController(storageTab.Value)
                 {
                     ModUniqueId = _mod.ModManifest.UniqueID,
                     Path = $"Mods/furyx639.ExpandedStorage/Tabs/{tabId}",
-                    TabName = _mod.Helper.Translation.Get(xsTab.Key).Default(xsTab.Key)
+                    TabName = _mod.Helper.Translation.Get(storageTab.Key).Default(storageTab.Key)
                 };
-                ExpandedStorage.Tabs.Add(tabId, storageTab);
+                ExpandedStorage.Tabs.Add(tabId, tab);
             }
 
             _isContentLoaded = true;
@@ -181,6 +183,46 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     StorageController.ConfigHelper.Summary(defaultStorage),
                     StorageConfigController.ConfigHelper.Summary(defaultStorage.Config, false)
                 ), _mod.Config.LogLevelProperty);
+            }
+        }
+
+        internal static void RegisterModConfig(
+            IContentPack contentPack,
+            GenericModConfigMenuIntegration modConfigMenu,
+            IDictionary<string, StorageModel> expandedStorages,
+            Dictionary<string, StorageConfigController> playerConfigs)
+        {
+            if (!modConfigMenu.IsLoaded || !expandedStorages.Values.Any(expandedStorage => expandedStorage.PlayerConfig))
+                return;
+
+            void RevertToDefault()
+            {
+                foreach (var playerConfig in playerConfigs)
+                {
+                    if (!expandedStorages.TryGetValue(playerConfig.Key, out var expandedStorage)) continue;
+                    playerConfig.Value.Capacity = expandedStorage.Capacity;
+                    playerConfig.Value.Tabs = new List<string>(expandedStorage.Tabs);
+                    playerConfig.Value.EnabledFeatures = new HashSet<string>(expandedStorage.EnabledFeatures);
+                    playerConfig.Value.DisabledFeatures = new HashSet<string>(expandedStorage.DisabledFeatures);
+                }
+            }
+
+            void SaveToFile()
+            {
+                contentPack.WriteJsonFile("config.json", playerConfigs);
+            }
+
+            modConfigMenu.API.RegisterModConfig(contentPack.Manifest, RevertToDefault, SaveToFile);
+            modConfigMenu.API.RegisterLabel(contentPack.Manifest, contentPack.Manifest.Name, "");
+            modConfigMenu.API.RegisterParagraph(contentPack.Manifest, contentPack.Manifest.Description);
+            foreach (var expandedStorage in expandedStorages.Where(expandedStorage => expandedStorage.Value.PlayerConfig))
+            {
+                modConfigMenu.API.RegisterPageLabel(
+                    contentPack.Manifest,
+                    expandedStorage.Key,
+                    "",
+                    expandedStorage.Key
+                );
             }
         }
     }

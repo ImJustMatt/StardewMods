@@ -7,6 +7,7 @@ using ImJustMatt.ExpandedStorage.Common.Helpers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Buildings;
@@ -196,6 +197,15 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         internal bool HighlightMethod(Item item)
         {
             return Filter(item) && (SpecialChestType != "MiniShippingBin" || Utility.highlightShippableObjects(item));
+        }
+
+        internal void Log(string storageName, IMonitor monitor, LogLevel logLevel)
+        {
+            monitor.Log(string.Join("\n",
+                $"{storageName} Config:",
+                ConfigHelper.Summary(this),
+                StorageConfigController.ConfigHelper.Summary(Config, false)
+            ), logLevel);
         }
     }
 }

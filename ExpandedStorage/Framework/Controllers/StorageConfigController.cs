@@ -83,6 +83,18 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 : Choice.Unspecified;
         }
 
+        internal void RegisterModConfig(string storageName, IManifest manifest, GenericModConfigMenuIntegration modConfigMenu)
+        {
+            if (!modConfigMenu.IsLoaded)
+                return;
+
+            // Add Expanded Storage to Generic Mod Config Menu
+            modConfigMenu.API.StartNewPage(manifest, storageName);
+            modConfigMenu.API.RegisterLabel(manifest, storageName, "");
+            modConfigMenu.RegisterConfigOptions(manifest, ConfigHelper, this);
+            modConfigMenu.API.RegisterPageLabel(manifest, "Go Back", "", "");
+        }
+
         private class FieldHandler : ConfigHelper.IFieldHandler
         {
             private static readonly string[] Choices = Enum.GetNames(typeof(Choice));

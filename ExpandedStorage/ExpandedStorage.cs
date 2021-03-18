@@ -80,12 +80,7 @@ namespace ImJustMatt.ExpandedStorage
 
             Config = helper.ReadConfig<ConfigController>();
             Config.DefaultStorage.SetAsDefault();
-            Monitor.Log(string.Join("\n",
-                "Mod Config",
-                ConfigController.ConfigHelper.Summary(Config),
-                ControlsModel.ConfigHelper.Summary(Config.Controls, false),
-                StorageConfigController.ConfigHelper.Summary(Config.DefaultStorage, false)
-            ), Config.LogLevelProperty);
+            Config.Log(Monitor);
 
             ExpandedStorageAPI = new ExpandedStorageAPI(this);
             _contentController = new ContentController(this);
