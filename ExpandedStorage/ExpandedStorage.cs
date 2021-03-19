@@ -99,6 +99,7 @@ namespace ImJustMatt.ExpandedStorage
             {
                 helper.Events.World.ObjectListChanged += OnObjectListChanged;
             }
+
             helper.Events.GameLoop.UpdateTicking += OnUpdateTicking;
             helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             helper.Events.Player.InventoryChanged += OnInventoryChanged;
@@ -143,8 +144,8 @@ namespace ImJustMatt.ExpandedStorage
                 return;
 
             Helper.Events.World.ObjectListChanged -= OnObjectListChanged;
-            var removed = e.Removed.SingleOrDefault();
-            var added = e.Added.SingleOrDefault();
+            var removed = e.Removed.FirstOrDefault(r => TryGetStorage(r.Value, out _));
+            var added = e.Added.FirstOrDefault(a => TryGetStorage(a.Value, out _));
 
             if (removed.Value != null && TryGetStorage(removed.Value, out var storage))
             {
@@ -159,7 +160,7 @@ namespace ImJustMatt.ExpandedStorage
                         if (!pos.Equals(removed.Key) && e.Location.Objects.ContainsKey(pos)) e.Location.Objects.Remove(pos);
                     });
                 }
-            } 
+            }
             else if (added.Value is Chest chest && TryGetStorage(chest, out storage))
             {
                 chest.modData["furyx639.ExpandedStorage/X"] = added.Key.X.ToString(CultureInfo.InvariantCulture);
@@ -285,7 +286,12 @@ namespace ImJustMatt.ExpandedStorage
             if (!TryGetStorage(obj, out var storage) || storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable) return false;
             var x = obj.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
             var y = obj.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
-            if (!location.Objects.TryGetValue(new Vector2(x, y), out obj) || !Game1.player.addItemToInventoryBool(obj, true)) return false;
+            if (!location.Objects.TryGetValue(new Vector2(x, y), out obj)) return false;
+            var chest = obj.ToChest(storage);
+            chest.TileLocation = Vector2.Zero;
+            chest.modData.Remove("furyx639.ExpandedStorage/X");
+            chest.modData.Remove("furyx639.ExpandedStorage/Y");
+            if (!Game1.player.addItemToInventoryBool(chest, true)) return false;
             if (!string.IsNullOrWhiteSpace(storage.CarrySound)) location.playSound(storage.CarrySound);
             location.objects.Remove(pos);
             return true;
