@@ -292,7 +292,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 var farmerNearby = __instance.UpdateFarmerNearby(storage, time, environment);
                 if (StorageController.Frame > 0 && __instance.frameCounter.Value > -1)
                 {
-                    currentFrame = frameCounter.GetValue() + (farmerNearby ? 1 : -1) * (int) (StorageController.Frame - __instance.uses.Value) / storage.Delay;
+                    currentFrame = frameCounter.GetValue() + (farmerNearby ? 1 : -1) * (int) Math.Abs(StorageController.Frame - __instance.uses.Value) / storage.Delay;
                     currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
                 }
 
@@ -318,15 +318,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     frameCounter.SetValue(0);
                 }
             }
-            else if (__instance.frameCounter.Value == -1 && Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
+            else if (Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
             {
-                currentFrame = frameCounter.GetValue();
-                if (currentFrame > 0 && currentFrame >= storage.Frames - 1)
-                {
-                    frameCounter.SetValue(0);
-                    __instance.uses.Value = 0;
-                    __instance.GetMutex().ReleaseLock();
-                }
+                frameCounter.SetValue(0);
+                __instance.uses.Value = 0;
+                __instance.GetMutex().ReleaseLock();
             }
 
             return false;
