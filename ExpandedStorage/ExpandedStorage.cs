@@ -94,7 +94,11 @@ namespace ImJustMatt.ExpandedStorage
 
             // Events
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
-            helper.Events.World.ObjectListChanged += OnObjectListChanged;
+
+            if (Context.IsMainPlayer)
+            {
+                helper.Events.World.ObjectListChanged += OnObjectListChanged;
+            }
             helper.Events.GameLoop.UpdateTicking += OnUpdateTicking;
             helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             helper.Events.Player.InventoryChanged += OnInventoryChanged;
@@ -276,18 +280,20 @@ namespace ImJustMatt.ExpandedStorage
 
         private static bool CarryChest(Object obj, GameLocation location, Vector2 pos)
         {
-            if (!TryGetStorage(obj, out var storage)
+            var x = obj.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
+            var y = obj.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
+            if (!location.Objects.TryGetValue(new Vector2(x, y), out obj)
+                || !TryGetStorage(obj, out var storage)
                 || storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable
                 || !Game1.player.addItemToInventoryBool(obj, true))
                 return false;
-            obj!.TileLocation = Vector2.Zero;
             if (!string.IsNullOrWhiteSpace(storage.CarrySound))
                 location.playSound(storage.CarrySound);
             location.objects.Remove(pos);
             return true;
         }
 
-        private static bool AccessCarriedChest(Chest chest)
+        private static bool AccessCarriedChest(Object chest)
         {
             if (!TryGetStorage(chest, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable)
                 return false;
