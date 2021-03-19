@@ -143,23 +143,25 @@ namespace ImJustMatt.ExpandedStorage
                 return;
 
             Helper.Events.World.ObjectListChanged -= OnObjectListChanged;
-            foreach (var removed in e.Removed)
+            var removed = e.Removed.SingleOrDefault();
+            var added = e.Added.SingleOrDefault();
+
+            if (removed.Value != null && TryGetStorage(removed.Value, out var storage))
             {
                 var x = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
                 var y = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
-                if (!TryGetStorage(removed.Value, out var storage)
-                    || x == 0 && y == 0
-                    || storage.SpriteSheet is not { } spriteSheet
-                    || spriteSheet.TileWidth <= 1 && spriteSheet.TileHeight <= 1) continue;
-                spriteSheet.ForEachPos(x, y, pos =>
+                if ((x != 0 || y != 0)
+                    && storage.SpriteSheet is { } spriteSheet
+                    && (spriteSheet.TileWidth > 1 || spriteSheet.TileHeight > 1))
                 {
-                    if (!pos.Equals(removed.Key) && e.Location.Objects.ContainsKey(pos)) e.Location.Objects.Remove(pos);
-                });
-            }
-
-            foreach (var added in e.Added)
+                    spriteSheet.ForEachPos(x, y, pos =>
+                    {
+                        if (!pos.Equals(removed.Key) && e.Location.Objects.ContainsKey(pos)) e.Location.Objects.Remove(pos);
+                    });
+                }
+            } 
+            else if (added.Value is Chest chest && TryGetStorage(chest, out storage))
             {
-                if (added.Value is not Chest chest || !TryGetStorage(chest, out var storage)) continue;
                 chest.modData["furyx639.ExpandedStorage/X"] = added.Key.X.ToString(CultureInfo.InvariantCulture);
                 chest.modData["furyx639.ExpandedStorage/Y"] = added.Key.Y.ToString(CultureInfo.InvariantCulture);
 
@@ -280,23 +282,18 @@ namespace ImJustMatt.ExpandedStorage
 
         private static bool CarryChest(Object obj, GameLocation location, Vector2 pos)
         {
+            if (!TryGetStorage(obj, out var storage) || storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable) return false;
             var x = obj.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
             var y = obj.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
-            if (!location.Objects.TryGetValue(new Vector2(x, y), out obj)
-                || !TryGetStorage(obj, out var storage)
-                || storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable
-                || !Game1.player.addItemToInventoryBool(obj, true))
-                return false;
-            if (!string.IsNullOrWhiteSpace(storage.CarrySound))
-                location.playSound(storage.CarrySound);
+            if (!location.Objects.TryGetValue(new Vector2(x, y), out obj) || !Game1.player.addItemToInventoryBool(obj, true)) return false;
+            if (!string.IsNullOrWhiteSpace(storage.CarrySound)) location.playSound(storage.CarrySound);
             location.objects.Remove(pos);
             return true;
         }
 
         private static bool AccessCarriedChest(Object chest)
         {
-            if (!TryGetStorage(chest, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable)
-                return false;
+            if (!TryGetStorage(chest, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable) return false;
             chest.checkForAction(Game1.player);
             return true;
         }
