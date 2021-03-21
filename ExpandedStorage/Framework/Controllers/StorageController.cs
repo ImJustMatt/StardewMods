@@ -197,12 +197,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
         internal bool Filter(Item item)
         {
-            return IsAllowed(item) && !IsBlocked(item);
-        }
-
-        internal bool HighlightMethod(Item item)
-        {
-            return Filter(item) && (SpecialChestType != "MiniShippingBin" || Utility.highlightShippableObjects(item));
+            return IsAllowed(item) && !IsBlocked(item) && SpecialChestType != "MiniShippingBin" || Utility.highlightShippableObjects(item);
         }
 
         internal void Log(string storageName, IMonitor monitor, LogLevel logLevel)

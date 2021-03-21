@@ -27,7 +27,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 
         public static InventoryMenu.highlightThisItem HighlightMethod(this Chest chest, StorageController storage)
         {
-            return item => !ReferenceEquals(item, chest) && storage.HighlightMethod(item);
+            return item => !ReferenceEquals(item, chest) && storage.Filter(item);
         }
 
         public static Object ToObject(this Chest chest, StorageController storage = null)
