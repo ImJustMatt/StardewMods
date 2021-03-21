@@ -1,7 +1,7 @@
 ﻿{
   "Name": "Expanded Storage",
   "Author": "furyx639",
-  "Version": "1.6.5-beta.3",
+  "Version": "1.6.5",
   "Description": "Mod which allows Content Packs to add custom storage.",
   "UniqueID": "furyx639.ExpandedStorage",
   "EntryDll": "ExpandedStorage.dll",
