@@ -121,6 +121,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     SpecialChestType = "MiniShippingBin";
                     OpenNearby = 1;
                     OpenSound = "shwip";
+                    BlockList.Add("VacuumItems");
                     break;
                 case "Mini-Fridge":
                     IsFridge = true;
