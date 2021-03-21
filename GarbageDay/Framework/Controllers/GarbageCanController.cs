@@ -19,7 +19,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
     internal class GarbageCanController : GarbageCanModel
     {
         private static IEnumerable<SearchableItem> _items;
-        private readonly ConfigModel _config;
+        private readonly ConfigController _config;
         private readonly IContentHelper _contentHelper;
         private readonly Multiplayer _multiplayer;
         private Chest _chest;
@@ -29,7 +29,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
         private bool _mega;
         private NPC _npc;
 
-        internal GarbageCanController(IContentHelper contentHelper, IModEvents modEvents, IReflectionHelper reflection, ConfigModel config)
+        internal GarbageCanController(IContentHelper contentHelper, IModEvents modEvents, IReflectionHelper reflection, ConfigController config)
         {
             _contentHelper = contentHelper;
             _config = config;
@@ -128,15 +128,11 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
             _garbageChecked = false;
             _dropQiBeans = false;
             Chest.playerChoiceColor.Value = Color.DarkGray;
-            Chest.modData["Pathoschild.ChestsAnywhere/IsIgnored"] = "true";
+            if (_config.HideFromChestsAnywhere) Chest.modData["Pathoschild.ChestsAnywhere/IsIgnored"] = "true";
             if (!Chest.modData.TryGetValue("furyx639.GarbageDay", out var whichCan)) whichCan = "0";
+            if (Game1.dayOfMonth % 7 == _config.GarbageDay) Chest.items.Clear();
 
-            if (Game1.dayOfMonth % 7 == _config.GarbageDay)
-            {
-                Chest.items.Clear();
-            }
-
-            // Seed Random
+                // Seed Random
             if (!int.TryParse(whichCan, out var vanillaCanNumber)) vanillaCanNumber = 0;
             var garbageRandom = SeedRandom(vanillaCanNumber);
 

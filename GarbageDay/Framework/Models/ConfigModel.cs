@@ -8,6 +8,9 @@
         /// <summary>Day of week that trash is emptied out</summary>
         public int GarbageDay { get; set; } = 1;
 
+        /// <summary>Adds IsIgnored to all Garbage Cans every day</summary>
+        public bool HideFromChestsAnywhere { get; set; } = true;
+
         /// <summary>Edit all Maps instead of specific maps</summary>
         public bool Debug { get; set; } = false;
 
