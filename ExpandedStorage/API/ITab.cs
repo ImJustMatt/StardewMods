@@ -4,8 +4,6 @@ namespace ImJustMatt.ExpandedStorage.API
 {
     public interface ITab
     {
-        /// <summary>Display Name for tab.</summary>
-        string TabName { get; set; }
 
         /// <summary>Image to display for tab, will search asset folder first and default next.</summary>
         string TabImage { get; set; }

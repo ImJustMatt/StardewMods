@@ -18,13 +18,15 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <summary>The Asset path to the mod's Tab Image.</summary>
         internal string Path = "";
 
+        /// <summary>Display Name for tab.</summary>
+        public string TabName;
+
         [JsonConstructor]
         internal TabController(ITab storageTab = null)
         {
             if (storageTab == null)
                 return;
 
-            TabName = storageTab.TabName;
             TabImage = storageTab.TabImage;
             AllowList = new HashSet<string>(storageTab.AllowList);
             BlockList = new HashSet<string>(storageTab.BlockList);
