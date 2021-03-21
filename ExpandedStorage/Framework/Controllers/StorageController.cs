@@ -61,7 +61,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             "Stone Chest",
             "Junimo Chest",
             "Mini-Shipping Bin",
-            "Mini-Fridge"
+            "Mini-Fridge",
+            "Auto-Grabber"
         };
 
         internal static uint Frame;
@@ -110,6 +111,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             // Vanilla overrides
             switch (storageName)
             {
+                case "Auto-Grabber":
+                    Frames = 1;
+                    break;
+                case "Junimo Chest":
+                    SpecialChestType = "JunimoChest";
+                    break;
                 case "Mini-Shipping Bin":
                     SpecialChestType = "MiniShippingBin";
                     OpenNearby = 1;
@@ -121,9 +128,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     PlaceSound = "hammer";
                     PlayerColor = false;
                     Frames = 2;
-                    break;
-                case "Junimo Chest":
-                    SpecialChestType = "JunimoChest";
                     break;
                 case "Stone Chest":
                     PlaceSound = "hammer";
@@ -169,6 +173,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 GameLocation => SpecialChestType == "MiniShippingBin",
                 ShippingBin => SpecialChestType == "MiniShippingBin",
                 Chest chest when chest.fridge.Value => IsFridge,
+                Object obj when obj.bigCraftable.Value && obj.heldObject.Value is Chest => ObjectIds.Contains(obj.ParentSheetIndex),
                 Object obj when obj.bigCraftable.Value => ObjectIds.Contains(obj.ParentSheetIndex),
                 _ => false
             };
