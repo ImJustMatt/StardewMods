@@ -132,7 +132,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
             if (!Chest.modData.TryGetValue("furyx639.GarbageDay", out var whichCan)) whichCan = "0";
             if (Game1.dayOfMonth % 7 == _config.GarbageDay) Chest.items.Clear();
 
-                // Seed Random
+            // Seed Random
             if (!int.TryParse(whichCan, out var vanillaCanNumber)) vanillaCanNumber = 0;
             var garbageRandom = SeedRandom(vanillaCanNumber);
 

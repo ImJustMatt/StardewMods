@@ -13,7 +13,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
         {
             new("GetRandomItemFromSeason", "Global change that a random item from season is collected"),
             new("GarbageDay", "Day of week that trash is emptied out"),
-            new ("HideFromChestsAnywhere", "Adds IsIgnored to all Garbage Cans every day"),
+            new("HideFromChestsAnywhere", "Adds IsIgnored to all Garbage Cans every day"),
             new("LogLevel", "Log Level used when loading in garbage cans")
         });
 
