@@ -57,8 +57,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             );
 
             harmony.Patch(
+                AccessTools.Method(typeof(Chest), nameof(Chest.GetActualCapacity)),
+                postfix: new HarmonyMethod(GetType(), nameof(GetActualCapacityPostfix))
+            );
+
+            harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.GetItemsForPlayer)),
-                new HarmonyMethod(GetType(), nameof(GetItemsForPlayerPrefix))
+                postfix: new HarmonyMethod(GetType(), nameof(GetItemsForPlayerPostfix))
             );
 
             harmony.Patch(
@@ -69,11 +74,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.grabItemFromInventory)),
                 postfix: new HarmonyMethod(GetType(), nameof(GrabItemFromInventoryPostfix))
-            );
-
-            harmony.Patch(
-                AccessTools.Method(typeof(Chest), nameof(Chest.GetActualCapacity)),
-                new HarmonyMethod(GetType(), nameof(GetActualCapacityPrefix))
             );
 
             harmony.Patch(
@@ -160,45 +160,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             return false;
         }
 
-        /// <summary>Prevent breaking indestructible chests</summary>
-        private static bool PerformToolActionPrefix(Chest __instance, ref bool __result, Tool t, GameLocation location)
-        {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Config.Option("Indestructible", true) != StorageConfigController.Choice.Enable)
-                return true;
-            __result = false;
-            return false;
-        }
-
-        /// <summary>Get heldItem Chest items.</summary>
-        public static bool GetItemsForPlayerPrefix(Chest __instance, ref NetObjectList<Item> __result, long id)
-        {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || !storage.HeldStorage || __instance.heldObject.Value is not Chest chest)
-                return true;
-            __result = chest.GetItemsForPlayer(id);
-            return false;
-        }
-
-        /// <summary>Refresh inventory after item grabbed from chest.</summary>
-        public static void GrabItemFromChestPostfix()
-        {
-            MenuController.RefreshItems();
-        }
-
-        /// <summary>Refresh inventory after item grabbed from inventory.</summary>
-        public static void GrabItemFromInventoryPostfix()
-        {
-            MenuController.RefreshItems();
-        }
-
-        /// <summary>Returns modded capacity for storage.</summary>
-        public static bool GetActualCapacityPrefix(Chest __instance, ref int __result)
-        {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Config.ActualCapacity == 0)
-                return true;
-            __result = storage.Config.ActualCapacity;
-            return false;
-        }
-
         /// <summary>Draw chest with playerChoiceColor and lid animation when placed.</summary>
         public static bool DrawPrefix(Chest __instance, SpriteBatch spriteBatch, int x, int y, float alpha)
         {
@@ -267,6 +228,45 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             var items = __instance.GetItemsForPlayer(Game1.player.UniqueMultiplayerID).Count;
             if (items > 0)
                 Utility.drawTinyDigits(items, spriteBatch, location + new Vector2(64 - Utility.getWidthOfTinyDigitString(items, 3f * scaleSize) - 3f * scaleSize, 2f * scaleSize), 3f * scaleSize, 1f, color);
+            return false;
+        }
+
+        /// <summary>Returns modded capacity for storage.</summary>
+        public static void GetActualCapacityPostfix(Chest __instance, ref int __result)
+        {
+            if (ExpandedStorage.TryGetStorage(__instance, out var storage) && storage.Config.ActualCapacity != 0)
+            {
+                __result = storage.Config.ActualCapacity;
+            }
+        }
+
+        /// <summary>Get heldItem Chest items.</summary>
+        public static void GetItemsForPlayerPostfix(Chest __instance, ref NetObjectList<Item> __result, long id)
+        {
+            if (ExpandedStorage.TryGetStorage(__instance, out var storage) && storage.HeldStorage && __instance.heldObject.Value is Chest chest)
+            {
+                __result = chest.GetItemsForPlayer(id);
+            }
+        }
+
+        /// <summary>Refresh inventory after item grabbed from chest.</summary>
+        public static void GrabItemFromChestPostfix()
+        {
+            MenuController.RefreshItems();
+        }
+
+        /// <summary>Refresh inventory after item grabbed from inventory.</summary>
+        public static void GrabItemFromInventoryPostfix()
+        {
+            MenuController.RefreshItems();
+        }
+
+        /// <summary>Prevent breaking indestructible chests</summary>
+        private static bool PerformToolActionPrefix(Chest __instance, ref bool __result, Tool t, GameLocation location)
+        {
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Config.Option("Indestructible", true) != StorageConfigController.Choice.Enable)
+                return true;
+            __result = false;
             return false;
         }
 
