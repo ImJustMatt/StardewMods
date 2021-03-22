@@ -12,8 +12,5 @@ namespace ImJustMatt.ExpandedStorage.API
 
         /// <summary>List of features to toggle off.</summary>
         HashSet<string> DisabledFeatures { get; set; }
-
-        /// <summary>List of tabs to show on chest menu.</summary>
-        IList<string> Tabs { get; set; }
     }
 }

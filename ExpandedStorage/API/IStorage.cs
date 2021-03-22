@@ -55,13 +55,16 @@ namespace ImJustMatt.ExpandedStorage.API
         /// <summary>The depth from the bottom for the obstruction bounds.</summary>
         int Depth { get; set; }
 
-        /// <summary>Add modData to placed chests (if key does not already exist).</summary>
-        IDictionary<string, string> ModData { get; set; }
+        /// <summary>List of tabs to show on chest menu.</summary>
+        IList<string> Tabs { get; set; }
 
         /// <summary>When specified, storage may only hold items with allowed context tags.</summary>
         HashSet<string> AllowList { get; set; }
 
         /// <summary>When specified, storage may hold allowed items except for those with blocked context tags.</summary>
         HashSet<string> BlockList { get; set; }
+
+        /// <summary>Add modData to placed chests (if key does not already exist).</summary>
+        IDictionary<string, string> ModData { get; set; }
     }
 }
