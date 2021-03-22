@@ -1,9 +1,12 @@
 ﻿# Release Notes
 
+## 1.6.7
+- Split off Automate compatibility into its own mod [XSAutomate](https://github.com/ImJustMatt/StardewMods/tree/master/XSAutomate)
+
 ## 1.6.6
-- Added Auto-Grabber support
-- Fixed Junimo Chests unable to be opened
-- Fixed Automate connecting to Bigger Expanded Storages
+- Added support for Auto-Grabber
+- Fixed certain chests such as Junimo Chest could not be opened
+- Fixed Automate only connecting to top-left corner of Bigger Expanded Storages
 
 ## 1.6.5
 
