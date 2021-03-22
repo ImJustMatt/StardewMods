@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
@@ -15,6 +16,7 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal class ItemGrabMenuPatch : MenuPatch
     {
         public ItemGrabMenuPatch(IMod mod) : base(mod)
@@ -252,19 +254,19 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Set color picker to HSL Color Picker.</summary>
         private static void GameWindowSizeChangedPostfix(ItemGrabMenu __instance)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin || !Config.ColorPicker)
-                return;
-
-            __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? MenuView.ColorPicker : null;
+            if (ExpandedStorage.TryGetStorage(__instance.context, out var storage) && __instance.context is not ShippingBin && Config.ColorPicker)
+            {
+                __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? MenuView.ColorPicker : null;
+            }
         }
 
         /// <summary>Set color picker to HSL Color Picker.</summary>
-        private static void SetSourceItemPostfix(ItemGrabMenu __instance, Item item)
+        private static void SetSourceItemPostfix(ItemGrabMenu __instance)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin || !Config.ColorPicker)
-                return;
-
-            __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? MenuView.ColorPicker : null;
+            if (ExpandedStorage.TryGetStorage(__instance.context, out var storage) && __instance.context is not ShippingBin && Config.ColorPicker)
+            {
+                __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? MenuView.ColorPicker : null;
+            }
         }
 
         /// <summary>Reposition side buttons with offset.</summary>
@@ -275,15 +277,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             var menuConfig = storage.Config.Menu;
 
-            if (Config.ExpandInventoryMenu && menuConfig.Offset < 0)
-            {
-                if (__instance.colorPickerToggleButton != null)
-                    __instance.colorPickerToggleButton.bounds.Y += menuConfig.Offset / 2;
-                if (__instance.fillStacksButton != null)
-                    __instance.fillStacksButton.bounds.Y += menuConfig.Offset / 2;
-                if (__instance.organizeButton != null)
-                    __instance.organizeButton.bounds.Y += menuConfig.Offset / 2;
-            }
+            if (!Config.ExpandInventoryMenu || menuConfig.Offset >= 0) return;
+            if (__instance.colorPickerToggleButton != null)
+                __instance.colorPickerToggleButton.bounds.Y += menuConfig.Offset / 2;
+            if (__instance.fillStacksButton != null)
+                __instance.fillStacksButton.bounds.Y += menuConfig.Offset / 2;
+            if (__instance.organizeButton != null)
+                __instance.organizeButton.bounds.Y += menuConfig.Offset / 2;
         }
 
         /// <summary>Patch UI elements for ItemGrabMenu.</summary>

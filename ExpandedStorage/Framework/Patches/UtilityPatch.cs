@@ -20,14 +20,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Utility), nameof(Utility.playerCanPlaceItemHere)),
-                new HarmonyMethod(GetType(), nameof(PlayerCanPlaceItemHerePrefix))
+                postfix: new HarmonyMethod(GetType(), nameof(PlayerCanPlaceItemHerePostfix))
             );
         }
 
-        public static bool PlayerCanPlaceItemHerePrefix(ref bool __result, GameLocation location, Item item, int x, int y, Farmer f)
+        public static void PlayerCanPlaceItemHerePostfix(ref bool __result, GameLocation location, Item item, int x, int y, Farmer f)
         {
             if (!ExpandedStorage.TryGetStorage(item, out var storage) || storage.SpriteSheet is not {Texture: { }} spriteSheet)
-                return true;
+                return;
 
             x = 64 * (x / 64);
             y = 64 * (y / 64);
@@ -35,14 +35,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (Utility.isPlacementForbiddenHere(location) || item == null || Game1.eventUp || f.bathingClothes.Value || f.onBridge.Value)
             {
                 __result = false;
-                return false;
+                return;
             }
 
             // Is Within Tile With Leeway
             if (!Utility.withinRadiusOfPlayer(x, y, Math.Max(spriteSheet.TileWidth, spriteSheet.TileHeight), f))
             {
                 __result = false;
-                return false;
+                return;
             }
 
             // Position intersects with farmer
@@ -50,7 +50,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (location.farmers.Any(farmer => farmer.GetBoundingBox().Intersects(rect)))
             {
                 __result = false;
-                return false;
+                return;
             }
 
             // Is Close Enough to Farmer
@@ -58,7 +58,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (!rect.Intersects(f.GetBoundingBox()))
             {
                 __result = false;
-                return false;
+                return;
             }
 
             for (var i = 0; i < spriteSheet.TileWidth; i++)
@@ -73,12 +73,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
                     // Item cannot be placed here
                     __result = false;
-                    return false;
+                    return;
                 }
             }
 
             __result = true;
-            return false;
         }
     }
 }

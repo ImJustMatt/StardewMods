@@ -36,16 +36,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             );
 
             harmony.Patch(
-                AccessTools.Method(typeof(Object), nameof(Object.getOne)),
-                new HarmonyMethod(GetType(), nameof(GetOnePrefix))
-            );
-
-            harmony.Patch(
-                AccessTools.Method(typeof(Object), nameof(Object.placementAction)),
-                new HarmonyMethod(GetType(), nameof(PlacementActionPrefix))
-            );
-
-            harmony.Patch(
                 AccessTools.Method(typeof(Object), nameof(Object.draw), new[] {typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)}),
                 new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
@@ -61,8 +51,18 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             );
 
             harmony.Patch(
+                AccessTools.Method(typeof(Object), nameof(Object.getOne)),
+                postfix: new HarmonyMethod(GetType(), nameof(GetOnePostfix))
+            );
+
+            harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.maximumStackSize)),
-                new HarmonyMethod(GetType(), nameof(MaximumStackSizePrefix))
+                postfix: new HarmonyMethod(GetType(), nameof(MaximumStackSizePostfix))
+            );
+
+            harmony.Patch(
+                AccessTools.Method(typeof(Object), nameof(Object.placementAction)),
+                new HarmonyMethod(GetType(), nameof(PlacementActionPrefix))
             );
         }
 
@@ -75,65 +75,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             var y = __instance.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
             if (!Game1.currentLocation.Objects.TryGetValue(new Vector2(x, y), out var obj) || obj is not Chest chest) return true;
             __result = chest.checkForAction(who);
-            return false;
-        }
-
-        public static bool GetOnePrefix(Object __instance, ref Item __result)
-        {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
-            __result = __instance.ToChest(storage);
-            return false;
-        }
-
-        public static bool PlacementActionPrefix(Object __instance, ref bool __result, GameLocation location, int x, int y, Farmer who)
-        {
-            if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
-                || !ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
-
-            if (!storage.IsPlaceable)
-            {
-                __result = false;
-                return false;
-            }
-
-            // Verify pos is not already occupied
-            var pos = new Vector2(x, y) / 64f;
-            pos.X = (int) pos.X;
-            pos.Y = (int) pos.Y;
-            if (location.objects.ContainsKey(pos) || location is MineShaft || location is VolcanoDungeon)
-            {
-                Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Object.cs.13053"));
-                __result = false;
-                return false;
-            }
-
-            if (storage.IsFridge)
-            {
-                if (location is not FarmHouse && location is not IslandFarmHouse)
-                {
-                    Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Object.cs.13053"));
-                    __result = false;
-                    return false;
-                }
-
-                if (location is FarmHouse {upgradeLevel: < 1})
-                {
-                    Game1.showRedMessage(Game1.content.LoadString("Strings\\UI:MiniFridge_NoKitchen"));
-                    __result = false;
-                    return false;
-                }
-            }
-
-            // Get instance of object to place
-            var chest = __instance.ToChest(storage);
-            chest.shakeTimer = 50;
-            chest.TileLocation = pos;
-
-            // Place object at location
-            location.objects.Add(pos, chest);
-            location.localSound(storage.PlaceSound);
-
-            __result = true;
             return false;
         }
 
@@ -215,14 +156,76 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             return false;
         }
 
+        public static void GetOnePostfix(Object __instance, ref Item __result)
+        {
+            if (ExpandedStorage.TryGetStorage(__instance, out var storage))
+            {
+                __result = __instance.ToChest(storage);
+            }
+        }
+
         /// <summary>Disallow stacking carried chests.</summary>
-        public static bool MaximumStackSizePrefix(Object __instance, ref int __result)
+        public static void MaximumStackSizePostfix(Object __instance, ref int __result)
+        {
+            if (!__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
+                && __instance is Chest
+                || ExpandedStorage.TryGetStorage(__instance, out var storage)
+                && (storage.Config.Option("CarryChest", true) != StorageConfigController.Choice.Enable
+                    || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable))
+            {
+                __result = -1;
+            }
+        }
+
+        public static bool PlacementActionPrefix(Object __instance, ref bool __result, GameLocation location, int x, int y, Farmer who)
         {
             if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
-                || !ExpandedStorage.TryGetStorage(__instance, out var storage)
-                || storage.Config.Option("CarryChest", true) != StorageConfigController.Choice.Enable
-                && storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable) return true;
-            __result = -1;
+                || !ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
+
+            if (!storage.IsPlaceable)
+            {
+                __result = false;
+                return false;
+            }
+
+            // Verify pos is not already occupied
+            var pos = new Vector2(x, y) / 64f;
+            pos.X = (int) pos.X;
+            pos.Y = (int) pos.Y;
+            if (location.objects.ContainsKey(pos) || location is MineShaft || location is VolcanoDungeon)
+            {
+                Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Object.cs.13053"));
+                __result = false;
+                return false;
+            }
+
+            if (storage.IsFridge)
+            {
+                if (location is not FarmHouse && location is not IslandFarmHouse)
+                {
+                    Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Object.cs.13053"));
+                    __result = false;
+                    return false;
+                }
+
+                if (location is FarmHouse {upgradeLevel: < 1})
+                {
+                    Game1.showRedMessage(Game1.content.LoadString("Strings\\UI:MiniFridge_NoKitchen"));
+                    __result = false;
+                    return false;
+                }
+            }
+
+            // Get instance of object to place
+            var chest = __instance.ToChest(storage);
+            chest.shakeTimer = 50;
+            chest.TileLocation = pos;
+
+            // Place object at location
+            location.objects.Add(pos, chest);
+            location.localSound(storage.PlaceSound);
+
+            __result = true;
             return false;
         }
     }

@@ -25,17 +25,17 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
             harmony.Patch(
                 AccessTools.Method(typeof(DiscreteColorPicker), nameof(DiscreteColorPicker.getCurrentColor)),
-                new HarmonyMethod(GetType(), nameof(GetCurrentColorPrefix))
+                postfix: new HarmonyMethod(GetType(), nameof(GetCurrentColorPostfix))
             );
 
             harmony.Patch(
                 AccessTools.Method(typeof(DiscreteColorPicker), nameof(DiscreteColorPicker.getSelectionFromColor)),
-                new HarmonyMethod(GetType(), nameof(GetSelectionFromColorPrefix))
+                postfix: new HarmonyMethod(GetType(), nameof(GetSelectionFromColorPostfix))
             );
 
             harmony.Patch(
                 AccessTools.Method(typeof(DiscreteColorPicker), nameof(DiscreteColorPicker.getColorFromSelection)),
-                new HarmonyMethod(GetType(), nameof(GetColorFromSelectionPrefix))
+                postfix: new HarmonyMethod(GetType(), nameof(GetColorFromSelectionPostfix))
             );
         }
 
@@ -44,28 +44,28 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             __instance.visible = false;
         }
 
-        private static bool GetCurrentColorPrefix(DiscreteColorPicker __instance, ref Color __result)
+        private static void GetCurrentColorPostfix(DiscreteColorPicker __instance, ref Color __result)
         {
-            if (__instance is not HSLColorPicker colorPicker)
-                return true;
-            __result = colorPicker.getCurrentColor();
-            return false;
+            if (__instance is HSLColorPicker colorPicker)
+            {
+                __result = colorPicker.getCurrentColor();
+            }
         }
 
-        private static bool GetSelectionFromColorPrefix(DiscreteColorPicker __instance, ref int __result, Color c)
+        private static void GetSelectionFromColorPostfix(DiscreteColorPicker __instance, ref int __result, Color c)
         {
-            if (__instance is not HSLColorPicker colorPicker)
-                return true;
-            __result = colorPicker.getSelectionFromColor(c);
-            return false;
+            if (__instance is HSLColorPicker colorPicker)
+            {
+                __result = colorPicker.getSelectionFromColor(c);
+            }
         }
 
-        private static bool GetColorFromSelectionPrefix(DiscreteColorPicker __instance, ref Color __result, int selection)
+        private static void GetColorFromSelectionPostfix(DiscreteColorPicker __instance, ref Color __result, int selection)
         {
-            if (__instance is not HSLColorPicker colorPicker)
-                return true;
-            __result = colorPicker.getColorFromSelection(selection);
-            return false;
+            if (__instance is HSLColorPicker colorPicker)
+            {
+                __result = colorPicker.getColorFromSelection(selection);
+            }
         }
     }
 }

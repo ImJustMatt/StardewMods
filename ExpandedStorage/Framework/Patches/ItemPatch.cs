@@ -19,24 +19,20 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Item), nameof(Item.canStackWith), new[] {typeof(ISalable)}),
-                new HarmonyMethod(GetType(), nameof(CanStackWithPrefix))
+                postfix: new HarmonyMethod(GetType(), nameof(CanStackWithPostfix))
             );
         }
 
-        public static bool CanStackWithPrefix(Item __instance, ref bool __result, ISalable other)
+        public static void CanStackWithPostfix(Item __instance, ref bool __result, ISalable other)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
-                return true;
-
-            // Disallow stacking for any chest instance objects
-            if (storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable
-                && storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable
-                && __instance is not Chest
-                && other is not Chest)
-                return true;
-
-            __result = false;
-            return false;
+            if (__instance is Chest
+                || other is Chest
+                || ExpandedStorage.TryGetStorage(__instance, out var storage)
+                && (storage.Config.Option("CanCarry", true) == StorageConfigController.Choice.Enable
+                    || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable))
+            {
+                __result = false;
+            }
         }
     }
 }
