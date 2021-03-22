@@ -318,7 +318,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     frameCounter.SetValue(0);
                 }
             }
-            else if (Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
+            else if (_reflection.GetField<int>(__instance, "currentLidFrame").GetValue() > __instance.startingLidFrame.Value && Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
             {
                 frameCounter.SetValue(0);
                 __instance.uses.Value = 0;
