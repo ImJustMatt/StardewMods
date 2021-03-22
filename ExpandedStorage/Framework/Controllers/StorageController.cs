@@ -88,6 +88,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             if (storage != null)
             {
                 IsFridge = storage.IsFridge;
+                HeldStorage = storage.HeldStorage;
                 SpecialChestType = storage.SpecialChestType;
                 OpenNearby = storage.OpenNearby;
                 OpenNearbySound = storage.OpenNearbySound;
@@ -112,7 +113,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             switch (storageName)
             {
                 case "Auto-Grabber":
+                    HeldStorage = true;
                     Frames = 1;
+                    PlayerColor = false;
                     break;
                 case "Junimo Chest":
                     SpecialChestType = "JunimoChest";

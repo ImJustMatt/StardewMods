@@ -7,6 +7,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
     {
         public string SpecialChestType { get; set; } = "None";
         public bool IsFridge { get; set; }
+        public bool HeldStorage { get; set; }
         public float OpenNearby { get; set; }
         public string OpenNearbySound { get; set; } = "doorCreak";
         public string CloseNearbySound { get; set; } = "doorCreakReverse";

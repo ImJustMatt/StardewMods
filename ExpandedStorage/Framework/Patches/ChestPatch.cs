@@ -7,6 +7,7 @@ using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Netcode;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
@@ -42,6 +43,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.performToolAction)),
                 new HarmonyMethod(GetType(), nameof(PerformToolActionPrefix))
+            );
+
+            harmony.Patch(
+                AccessTools.Method(typeof(Chest), nameof(Chest.GetItemsForPlayer)),
+                new HarmonyMethod(GetType(), nameof(GetItemsForPlayerPrefix))
             );
 
             harmony.Patch(
@@ -130,6 +136,15 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (!ReferenceEquals(__instance, item) && (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Filter(item)))
                 return true;
             __result = item;
+            return false;
+        }
+
+        /// <summary>Get heldItem Chest items.</summary>
+        public static bool GetItemsForPlayerPrefix(Chest __instance, ref NetObjectList<Item> __result, long id)
+        {
+            if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || !storage.HeldStorage || __instance.heldObject.Value is not Chest chest)
+                return true;
+            __result = chest.GetItemsForPlayer(id);
             return false;
         }
 

@@ -26,6 +26,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             };
             chest.fridge.Value = storage.IsFridge;
 
+            // Add held object chest
+            if (storage.HeldStorage)
+            {
+                chest.heldObject.Value = new Chest();
+            }
+
             if (string.IsNullOrWhiteSpace(storage.Image))
                 chest.lidFrameCount.Value = Math.Max(storage.Frames, 1);
             else if (item.ParentSheetIndex == 216)

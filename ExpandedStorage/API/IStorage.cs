@@ -10,6 +10,9 @@ namespace ImJustMatt.ExpandedStorage.API
         /// <summary>Enable storage to function as a mini-fridge.</summary>
         bool IsFridge { get; set; }
 
+        /// <summary>Pull items from held chest such as Auto-Grabber.</summary>
+        bool HeldStorage { get; set; }
+
         /// <summary>Play opening animation when player is nearby.</summary>
         float OpenNearby { get; set; }
 
