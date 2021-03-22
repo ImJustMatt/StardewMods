@@ -29,12 +29,7 @@ namespace Helpers.ConfigData
 
         public virtual void CopyValue(IField field, object source, object target)
         {
-            if (field.Info == null)
-            {
-                return;
-            }
-
-            field.Info.SetValue(target, field.Info.GetValue(target, null));
+            field.Info?.SetValue(target, field.Info.GetValue(source, null));
         }
 
         public virtual void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, IField field)
