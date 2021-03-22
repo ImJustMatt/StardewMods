@@ -4,18 +4,16 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewValley.Menus;
 
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable InconsistentNaming
-
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal abstract class MenuPatch : Patch<ConfigController>
+    internal abstract class MenuPatch : BasePatch
     {
+        private protected static ConfigModel Config;
+
         private protected static readonly MethodInfo MenuCapacity =
             AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetMenuCapacity), new[] {typeof(object)});
 
@@ -40,11 +38,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         private protected static readonly FieldInfo IClickableMenuYPositionOnScreen =
             AccessTools.Field(typeof(IClickableMenu), nameof(IClickableMenu.yPositionOnScreen));
 
-        internal MenuPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
+        protected MenuPatch(IMod mod) : base(mod)
         {
+            Config = ((ExpandedStorage) mod).Config;
         }
-
-        protected internal abstract override void Apply(HarmonyInstance harmony);
 
         /// <summary>Adds a value to the end of the stack</summary>
         /// <param name="method">Method of the offset function</param>

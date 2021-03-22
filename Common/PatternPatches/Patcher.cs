@@ -1,21 +1,27 @@
-﻿using Harmony;
+﻿using System;
+using Harmony;
+using StardewModdingAPI;
 
 namespace ImJustMatt.Common.PatternPatches
 {
-    internal class Patcher<T>
+    internal class Patcher
     {
+        private readonly IMod _mod;
         private readonly string _uniqueId;
 
-        internal Patcher(string uniqueId)
+        internal Patcher(IMod mod)
         {
-            _uniqueId = uniqueId;
+            _mod = mod;
+            _uniqueId = mod.ModManifest.UniqueID;
         }
 
-        internal void ApplyAll(params Patch<T>[] patches)
+        internal void ApplyAll(params Type[] patchTypes)
         {
             var harmony = HarmonyInstance.Create(_uniqueId);
-
-            foreach (var patch in patches) patch.Apply(harmony);
+            foreach (var patchType in patchTypes)
+            {
+                ((BasePatch) Activator.CreateInstance(patchType, _mod)).Apply(harmony);
+            }
         }
     }
 }

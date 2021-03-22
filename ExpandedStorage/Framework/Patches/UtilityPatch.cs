@@ -1,17 +1,18 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class UtilityPatch : Patch<ConfigController>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    internal class UtilityPatch : BasePatch
     {
-        public UtilityPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
+        public UtilityPatch(IMod mod) : base(mod)
         {
         }
 

@@ -13,18 +13,12 @@ using StardewValley.Buildings;
 using StardewValley.Menus;
 using StardewValley.Objects;
 
-// ReSharper disable InvertIf
-// ReSharper disable InconsistentNaming
-
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     internal class ItemGrabMenuPatch : MenuPatch
     {
-        private static IReflectionHelper _reflection;
-
-        internal ItemGrabMenuPatch(IMonitor monitor, ConfigController config, IReflectionHelper reflection) : base(monitor, config)
+        public ItemGrabMenuPatch(IMod mod) : base(mod)
         {
-            _reflection = reflection;
         }
 
         protected internal override void Apply(HarmonyInstance harmony)
@@ -144,7 +138,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 Monitor.Log($"Failed to apply all patches in {nameof(ConstructorTranspiler)}", LogLevel.Warn);
         }
 
-        private static void ConstructorPostfix(ItemGrabMenu __instance)
+        private static void ConstructorPostfix(ItemGrabMenu __instance, ref ItemGrabMenu.behaviorOnItemSelect ___behaviorFunction)
         {
             if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
@@ -163,8 +157,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 && chest != null
                 && !ReferenceEquals(ExpandedStorage.HeldChest.Value, chest))
             {
-                var reflectedBehaviorFunction = _reflection.GetField<ItemGrabMenu.behaviorOnItemSelect>(__instance, "behaviorFunction");
-                reflectedBehaviorFunction.SetValue(delegate(Item item, Farmer who)
+                ___behaviorFunction = delegate(Item item, Farmer who)
                 {
                     var tmp = chest.addItem(item);
                     if (tmp == null)
@@ -177,7 +170,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     chest.ShowMenu();
                     if (Game1.activeClickableMenu is ItemGrabMenu menu)
                         menu.heldItem = tmp;
-                });
+                };
 
                 __instance.behaviorOnItemGrab = delegate(Item item, Farmer who)
                 {

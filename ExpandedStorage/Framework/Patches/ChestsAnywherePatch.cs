@@ -4,39 +4,32 @@ using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using StardewModdingAPI;
-using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ChestsAnywherePatch : Patch<ConfigController>
+    internal class ChestsAnywherePatch : BasePatch
     {
-        private readonly bool _isChestsAnywhereLoaded;
+        private readonly bool _loaded;
         private readonly Type _type;
 
-        internal ChestsAnywherePatch(IMonitor monitor, ConfigController config, bool isChestsAnywhereLoaded)
-            : base(monitor, config)
+        public ChestsAnywherePatch(IMod mod) : base(mod)
         {
-            _isChestsAnywhereLoaded = isChestsAnywhereLoaded;
-
-            if (!isChestsAnywhereLoaded)
-                return;
-
+            _loaded = mod.Helper.ModRegistry.IsLoaded("Pathoschild.ChestsAnywhere");
+            if (!_loaded) return;
             var chestsAnywhereAssembly = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith("ChestsAnywhere,"));
             _type = chestsAnywhereAssembly.GetType("Pathoschild.Stardew.ChestsAnywhere.Framework.Containers.ShippingBinContainer");
         }
 
         protected internal override void Apply(HarmonyInstance harmony)
         {
-            if (_isChestsAnywhereLoaded)
-            {
-                Monitor.LogOnce("Patching Chests Anywhere for Refreshing Shipping Bin");
-                var methodInfo = AccessTools.GetDeclaredMethods(_type)
-                    .Find(m => m.Name.Equals("GrabItemFromContainerImpl", StringComparison.OrdinalIgnoreCase));
-                harmony.Patch(methodInfo, postfix: new HarmonyMethod(GetType(), nameof(GrabItemFromContainerImplPostfix)));
-            }
+            if (!_loaded) return;
+            Monitor.LogOnce("Patching Chests Anywhere for Refreshing Shipping Bin");
+            var methodInfo = AccessTools.GetDeclaredMethods(_type)
+                .Find(m => m.Name.Equals("GrabItemFromContainerImpl", StringComparison.OrdinalIgnoreCase));
+            harmony.Patch(methodInfo, postfix: new HarmonyMethod(GetType(), nameof(GrabItemFromContainerImplPostfix)));
         }
 
-        public static void GrabItemFromContainerImplPostfix(object __instance, Item item, Farmer player)
+        public static void GrabItemFromContainerImplPostfix()
         {
             MenuController.RefreshItems();
         }

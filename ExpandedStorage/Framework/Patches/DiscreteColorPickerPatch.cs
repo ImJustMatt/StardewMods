@@ -1,20 +1,18 @@
-﻿using Harmony;
+﻿using System.Diagnostics.CodeAnalysis;
+using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Views;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 
-// ReSharper disable InconsistentNaming
-
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class DiscreteColorPickerPatch : Patch<ConfigController>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    internal class DiscreteColorPickerPatch : BasePatch
     {
-        public DiscreteColorPickerPatch(IMonitor monitor, ConfigController config)
-            : base(monitor, config)
+        public DiscreteColorPickerPatch(IMod mod) : base(mod)
         {
         }
 

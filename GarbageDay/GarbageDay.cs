@@ -87,8 +87,8 @@ namespace ImJustMatt.GarbageDay
                 }
             }
 
-            new Patcher<ConfigModel>(ModManifest.UniqueID).ApplyAll(
-                new ChestPatch(Monitor, Config)
+            new Patcher(this).ApplyAll(
+                typeof(ChestPatch)
             );
 
             // Console Commands

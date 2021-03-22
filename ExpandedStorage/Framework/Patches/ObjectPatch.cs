@@ -15,11 +15,11 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ObjectPatch : Patch<ConfigController>
+    internal class ObjectPatch : BasePatch
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
 
-        public ObjectPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
+        public ObjectPatch(IMod mod) : base(mod)
         {
         }
 

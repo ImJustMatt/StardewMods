@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Helpers.ConfigData;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
-using ImJustMatt.ExpandedStorage.Common.Helpers;
 using ImJustMatt.GarbageDay.Framework.Models;
 using StardewModdingAPI;
 

@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley.Menus;
@@ -13,7 +12,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
     [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
     internal class MenuWithInventoryPatch : MenuPatch
     {
-        internal MenuWithInventoryPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
+        public MenuWithInventoryPatch(IMod mod) : base(mod)
         {
         }
 

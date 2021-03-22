@@ -55,9 +55,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             new("PlayerColor", "Enables the Player Color Selector from the Storage Menu"),
             new("PlayerConfig", "Enables Storage Capacity and Features to be overriden by config file"),
             new("Tabs", "Tabs used to filter this Storage Menu inventory"),
-            new ("AllowList", "Storage may only hold items with allowed context tags"),
-            new ("BlockList", "Storage may hold allowed items except for those with blocked context tags"),
-            new ("ModData", "Add modData to placed chests (if key does not already exist)"),
+            new("AllowList", "Storage may only hold items with allowed context tags"),
+            new("BlockList", "Storage may hold allowed items except for those with blocked context tags"),
+            new("ModData", "Add modData to placed chests (if key does not already exist)"),
         });
 
         private static readonly HashSet<string> ExcludeModDataKeys = new();
@@ -215,6 +215,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         private class FieldHandler : BaseFieldHandler
         {
             private static readonly string[] Fields = {"Tabs", "AllowList", "BlockList", "ModData"};
+
             public override bool CanHandle(IField field)
             {
                 return Fields.Contains(field.Name);

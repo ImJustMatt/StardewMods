@@ -115,18 +115,18 @@ namespace ImJustMatt.ExpandedStorage
             }
 
             // Harmony Patches
-            new Patcher<ConfigController>(ModManifest.UniqueID).ApplyAll(
-                new ItemPatch(Monitor, Config),
-                new ObjectPatch(Monitor, Config),
-                new FarmerPatch(Monitor, Config),
-                new ChestPatch(Monitor, helper.Reflection, Config),
-                new ItemGrabMenuPatch(Monitor, Config, helper.Reflection),
-                new InventoryMenuPatch(Monitor, Config),
-                new MenuWithInventoryPatch(Monitor, Config),
-                new DiscreteColorPickerPatch(Monitor, Config),
-                new DebrisPatch(Monitor, Config),
-                new UtilityPatch(Monitor, Config),
-                new ChestsAnywherePatch(Monitor, Config, helper.ModRegistry.IsLoaded("Pathoschild.ChestsAnywhere"))
+            new Patcher(this).ApplyAll(
+                typeof(ItemPatch),
+                typeof(ObjectPatch),
+                typeof(FarmerPatch),
+                typeof(ChestPatch),
+                typeof(ItemGrabMenuPatch),
+                typeof(InventoryMenuPatch),
+                typeof(MenuWithInventoryPatch),
+                typeof(DiscreteColorPickerPatch),
+                typeof(DebrisPatch),
+                typeof(UtilityPatch),
+                typeof(ChestsAnywherePatch)
             );
         }
 

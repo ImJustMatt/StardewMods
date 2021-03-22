@@ -1,15 +1,17 @@
-﻿using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.GarbageDay.Framework.Models;
 using StardewModdingAPI;
 using StardewValley.Objects;
 
 namespace ImJustMatt.GarbageDay.Framework.Patches
 {
-    internal class ChestPatch : Patch<ConfigModel>
+    [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    internal class ChestPatch : BasePatch
     {
-        public ChestPatch(IMonitor monitor, ConfigModel config) : base(monitor, config)
+        public ChestPatch(IMod mod) : base(mod)
         {
         }
 

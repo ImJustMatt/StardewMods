@@ -1,17 +1,17 @@
-﻿using Harmony;
+﻿using System.Diagnostics.CodeAnalysis;
+using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 
-// ReSharper disable InconsistentNaming
-
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ItemPatch : Patch<ConfigController>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    internal class ItemPatch : BasePatch
     {
-        public ItemPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
+        public ItemPatch(IMod mod) : base(mod)
         {
         }
 

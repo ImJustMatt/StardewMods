@@ -1,6 +1,5 @@
 ﻿using System;
 using Helpers.ConfigData;
-using ImJustMatt.ExpandedStorage.Common.Helpers;
 using StardewModdingAPI;
 
 namespace ImJustMatt.Common.Integrations.GenericModConfigMenu

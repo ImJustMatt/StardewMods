@@ -2,7 +2,6 @@
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
-using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -12,7 +11,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     internal class InventoryMenuPatch : MenuPatch
     {
-        internal InventoryMenuPatch(IMonitor monitor, ConfigController config) : base(monitor, config)
+        public InventoryMenuPatch(IMod mod) : base(mod)
         {
         }
 
