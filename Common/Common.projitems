@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\SearchableItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\ConfigHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\Automate\AutomateIntegration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Integrations\Automate\Connector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\GenericModConfigMenuIntegration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\IGenericModConfigMenuAPI.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\IJsonAssetsAPI.cs" />
@@ -29,8 +30,8 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Automate">
-        <HintPath>$(GamePath)\Mod-Groups\Mods-All\Automate\Automate.dll</HintPath>
-        <Private>false</Private>
+      <HintPath>$(GamePath)\Mod-Groups\Mods-All\Automate\Automate.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -139,7 +139,7 @@ namespace ImJustMatt.ExpandedStorage
         {
             Config.RegisterModConfig(Helper, ModManifest, ModConfigMenu);
             if (Automate.IsLoaded)
-                Automate.API.AddFactory(new FactoryController());
+                Automate.API.AddFactory(new AutomationFactoryController());
         }
 
         /// <summary>Raised after objects are added/removed in any location (including machines, furniture, fences, etc).</summary>

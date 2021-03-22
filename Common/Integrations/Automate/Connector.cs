@@ -2,9 +2,9 @@
 using Pathoschild.Stardew.Automate;
 using StardewValley;
 
-namespace ImJustMatt.ExpandedStorage.Framework.Controllers
+namespace ImJustMatt.Common.Integrations.Automate
 {
-    internal class ConnectorController : IAutomatable
+    internal class Connector : IAutomatable
     {
         /*********
         ** Accessors
@@ -22,7 +22,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <summary>Construct an instance.</summary>
         /// <param name="location">The location which contains the machine.</param>
         /// <param name="tileArea">The tile area covered by the machine.</param>
-        public ConnectorController(GameLocation location, Rectangle tileArea)
+        public Connector(GameLocation location, Rectangle tileArea)
         {
             Location = location;
             TileArea = tileArea;
@@ -31,7 +31,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <summary>Construct an instance.</summary>
         /// <param name="location">The location which contains the machine.</param>
         /// <param name="tile">The tile covered by the machine.</param>
-        public ConnectorController(GameLocation location, Vector2 tile)
+        public Connector(GameLocation location, Vector2 tile)
             : this(location, new Rectangle((int)tile.X, (int)tile.Y, 1, 1)) { }
     }
 }

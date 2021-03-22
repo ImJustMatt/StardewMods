@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using ImJustMatt.Common.Integrations.Automate;
+using Microsoft.Xna.Framework;
 using Pathoschild.Stardew.Automate;
 using StardewValley;
 using StardewValley.Buildings;
@@ -7,7 +8,7 @@ using StardewValley.TerrainFeatures;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
-    internal class FactoryController : IAutomationFactory
+    internal class AutomationFactoryController : IAutomationFactory
     {
         /// <summary>Get a machine, container, or connector instance for a given object.</summary>
         /// <param name="obj">The in-game object.</param>
@@ -16,7 +17,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <returns>Returns an instance or <c>null</c>.</returns>
         public IAutomatable GetFor(Object obj, GameLocation location, in Vector2 tile)
         {
-            return obj.modData.ContainsKey("furyx639.ExpandedStorage/X") ? new ConnectorController(location, tile) : null;
+            return obj.modData.ContainsKey("furyx639.ExpandedStorage/X") ? new Connector(location, tile) : null;
         }
 
         /// <summary>Get a machine, container, or connector instance for a given terrain feature.</summary>
