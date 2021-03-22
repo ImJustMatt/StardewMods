@@ -30,7 +30,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             // Add held object chest
             if (storage.HeldStorage)
             {
-                var heldChest = new Chest();
+                var heldChest = new Chest(true, Vector2.Zero, item.ParentSheetIndex);
                 if (item is Object obj && obj.heldObject.Value is Chest oldHeldChest && oldHeldChest.items.Any())
                     heldChest.items.CopyFrom(oldHeldChest.items);
                 chest.heldObject.Value = heldChest;
