@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection.Emit;
 using Harmony;
@@ -13,20 +14,15 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 
-// ReSharper disable UnusedParameter.Global
-
-// ReSharper disable InconsistentNaming
-
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ChestPatch : Patch<ConfigController>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    internal class ChestPatch : BasePatch
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
-        private static IReflectionHelper _reflection;
 
-        internal ChestPatch(IMonitor monitor, IReflectionHelper reflection, ConfigController config) : base(monitor, config)
+        public ChestPatch(IMod mod) : base(mod)
         {
-            _reflection = reflection;
         }
 
         internal static void AddExclusion(string modDataKey)
@@ -49,11 +45,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.checkForAction)),
                 new HarmonyMethod(GetType(), nameof(CheckForActionPrefix))
-            );
-
-            harmony.Patch(
-                AccessTools.Method(typeof(Chest), nameof(Chest.performToolAction)),
-                new HarmonyMethod(GetType(), nameof(PerformToolActionPrefix))
             );
 
             harmony.Patch(
@@ -89,6 +80,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.drawInMenu), new[] {typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float), typeof(float), typeof(StackDrawType), typeof(Color), typeof(bool)}),
                 new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
+            );
+
+            harmony.Patch(
+                AccessTools.Method(typeof(Chest), nameof(Chest.performToolAction)),
+                new HarmonyMethod(GetType(), nameof(PerformToolActionPrefix))
             );
 
             harmony.Patch(
@@ -135,11 +131,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (justCheckingForActivity
                 || !__instance.playerChest.Value
-                || !Game1.didPlayerJustRightClick(true))
+                || !Game1.didPlayerJustRightClick(true)
+                || !ExpandedStorage.TryGetStorage(__instance, out var storage))
                 return true;
-            if (!ExpandedStorage.TryGetStorage(__instance, out var storage))
-                return true;
-            __result = true;
             if (storage.OpenNearby > 0 || Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType) && animationType != StorageController.AnimationType.None)
             {
                 who.currentLocation.playSound(storage.OpenSound);
@@ -157,6 +151,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 });
             }
 
+            __result = true;
             return false;
         }
 
@@ -262,7 +257,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Prevent breaking indestructible chests</summary>
-        private static bool PerformToolActionPrefix(Chest __instance, ref bool __result, Tool t, GameLocation location)
+        private static bool PerformToolActionPrefix(Chest __instance, ref bool __result)
         {
             if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Config.Option("Indestructible", true) != StorageConfigController.Choice.Enable)
                 return true;
@@ -270,7 +265,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             return false;
         }
 
-        public static bool UpdateWhenCurrentLocationPrefix(Chest __instance, GameTime time, GameLocation environment)
+        public static bool UpdateWhenCurrentLocationPrefix(Chest __instance, ref int ___health, ref int ____shippingBinFrameCounter, ref int ___currentLidFrame, GameTime time, GameLocation environment)
         {
             if (!ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
 
@@ -321,51 +316,46 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 __instance.shakeTimer -= time.ElapsedGameTime.Milliseconds;
                 if (__instance.shakeTimer <= 0)
                 {
-                    _reflection.GetField<int>(__instance, "health").SetValue(10);
+                    ___health = 10;
                 }
             }
 
-            var frameCounter = _reflection.GetField<int>(__instance, "_shippingBinFrameCounter");
             var currentFrame = 0;
             if (Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType) && animationType != StorageController.AnimationType.None)
             {
                 currentFrame = (int) (StorageController.Frame / storage.Delay) % storage.Frames;
-                frameCounter.SetValue(currentFrame);
+                ____shippingBinFrameCounter = currentFrame;
             }
             else if (storage.OpenNearby > 0)
             {
                 var farmerNearby = __instance.UpdateFarmerNearby(storage, time, environment);
                 if (StorageController.Frame > 0 && __instance.frameCounter.Value > -1)
                 {
-                    currentFrame = frameCounter.GetValue() + (farmerNearby ? 1 : -1) * (int) Math.Abs(StorageController.Frame - __instance.uses.Value) / storage.Delay;
+                    currentFrame = ____shippingBinFrameCounter + (farmerNearby ? 1 : -1) * (int) Math.Abs(StorageController.Frame - __instance.uses.Value) / storage.Delay;
                     currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
                 }
 
-                frameCounter.SetValue(currentFrame);
+                ____shippingBinFrameCounter = currentFrame;
             }
             else if (__instance.uses.Value > 0)
             {
                 currentFrame = Math.Max(0, (int) ((StorageController.Frame - __instance.uses.Value) / storage.Delay) % storage.Frames);
-                frameCounter.SetValue(currentFrame);
-                if (currentFrame == storage.Frames - 1)
-                {
-                    __instance.uses.Value = 0;
-                    __instance.frameCounter.Value = storage.Delay;
-                    _reflection.GetField<int>(__instance, "currentLidFrame").SetValue(__instance.getLastLidFrame());
-                }
+                ____shippingBinFrameCounter = currentFrame;
+                if (currentFrame != storage.Frames - 1) return false;
+                __instance.uses.Value = 0;
+                __instance.frameCounter.Value = storage.Delay;
+                ___currentLidFrame = __instance.getLastLidFrame();
             }
             else if (__instance.frameCounter.Value > -1)
             {
                 __instance.frameCounter.Value--;
-                if (__instance.frameCounter.Value < 0 && __instance.GetMutex().IsLockHeld())
-                {
-                    __instance.ShowMenu();
-                    frameCounter.SetValue(0);
-                }
+                if (__instance.frameCounter.Value >= 0 || !__instance.GetMutex().IsLockHeld()) return false;
+                __instance.ShowMenu();
+                ____shippingBinFrameCounter = 0;
             }
-            else if (_reflection.GetField<int>(__instance, "currentLidFrame").GetValue() > __instance.startingLidFrame.Value && Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
+            else if (___currentLidFrame > __instance.startingLidFrame.Value && Game1.activeClickableMenu == null && __instance.GetMutex().IsLockHeld())
             {
-                frameCounter.SetValue(0);
+                ____shippingBinFrameCounter = 0;
                 __instance.uses.Value = 0;
                 __instance.GetMutex().ReleaseLock();
             }
