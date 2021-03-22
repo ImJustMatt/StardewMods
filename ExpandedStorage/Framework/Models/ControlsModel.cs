@@ -20,12 +20,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             new("AccessCarriedChest", "Open the menu for a held storage")
         });
 
-        public KeybindList OpenCrafting { get; set; } = KeybindList.ForSingle(SButton.K);
-        public KeybindList ScrollUp { get; set; } = KeybindList.ForSingle(SButton.DPadUp);
-        public KeybindList ScrollDown { get; set; } = KeybindList.ForSingle(SButton.DPadDown);
-        public KeybindList PreviousTab { get; set; } = KeybindList.ForSingle(SButton.DPadLeft);
-        public KeybindList NextTab { get; set; } = KeybindList.ForSingle(SButton.DPadRight);
-        public KeybindList CarryChest { get; set; } = KeybindList.ForSingle(SButton.ControllerA);
-        public KeybindList AccessCarriedChest { get; set; } = KeybindList.ForSingle(SButton.ControllerX);
+        public KeybindList OpenCrafting { get; set; } = new(SButton.K);
+        public KeybindList ScrollUp { get; set; } = new(SButton.DPadUp);
+        public KeybindList ScrollDown { get; set; } = new(SButton.DPadDown);
+        public KeybindList PreviousTab { get; set; } = new(SButton.DPadLeft);
+        public KeybindList NextTab { get; set; } = new(SButton.DPadRight);
+        public KeybindList CarryChest { get; set; } = new(SButton.ControllerA);
+        public KeybindList AccessCarriedChest { get; set; } = new(SButton.ControllerX);
     }
 }
