@@ -114,15 +114,23 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             {
                 case "Auto-Grabber":
                     HeldStorage = true;
-                    Frames = 1;
-                    PlayerColor = false;
+                    if (string.IsNullOrWhiteSpace(Image))
+                    {
+                        Frames = 1;
+                        PlayerColor = false;
+                    }
+
                     break;
                 case "Junimo Chest":
                     SpecialChestType = "JunimoChest";
                     break;
                 case "Mini-Shipping Bin":
                     SpecialChestType = "MiniShippingBin";
-                    OpenNearby = 1;
+                    if (string.IsNullOrWhiteSpace(Image))
+                    {
+                        OpenNearby = 1;
+                    }
+
                     OpenSound = "shwip";
                     BlockList.Add("VacuumItems");
                     break;
@@ -130,8 +138,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     IsFridge = true;
                     OpenSound = "doorCreak";
                     PlaceSound = "hammer";
-                    PlayerColor = false;
-                    Frames = 2;
+                    if (string.IsNullOrWhiteSpace(Image))
+                    {
+                        Frames = 2;
+                        PlayerColor = false;
+                    }
+
                     break;
                 case "Stone Chest":
                     PlaceSound = "hammer";

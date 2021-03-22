@@ -3,6 +3,7 @@ using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
+using Object = StardewValley.Object;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 {
@@ -29,13 +30,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             // Add held object chest
             if (storage.HeldStorage)
             {
-                chest.heldObject.Value = new Chest();
+                var heldChest = new Chest();
+                if (item is Object obj && obj.heldObject.Value is Chest oldHeldChest && oldHeldChest.items.Any())
+                    heldChest.items.CopyFrom(oldHeldChest.items);
+                chest.heldObject.Value = heldChest;
             }
 
-            if (string.IsNullOrWhiteSpace(storage.Image))
-                chest.lidFrameCount.Value = Math.Max(storage.Frames, 1);
-            else if (item.ParentSheetIndex == 216)
-                chest.lidFrameCount.Value = 2;
+            chest.lidFrameCount.Value = Math.Max(storage.Frames, 1);
 
             // Copy modData from original item
             foreach (var modData in item.modData)

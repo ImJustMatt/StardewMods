@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
@@ -36,6 +37,16 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         protected internal override void Apply(HarmonyInstance harmony)
         {
             harmony.Patch(
+                AccessTools.Method(typeof(Chest), nameof(Chest.addItem), new[] {typeof(Item)}),
+                new HarmonyMethod(GetType(), nameof(AddItemPrefix))
+            );
+
+            harmony.Patch(
+                AccessTools.Method(typeof(Chest), nameof(Chest.addItem)),
+                transpiler: new HarmonyMethod(GetType(), nameof(AddItemTranspiler))
+            );
+
+            harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.checkForAction)),
                 new HarmonyMethod(GetType(), nameof(CheckForActionPrefix))
             );
@@ -58,11 +69,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.grabItemFromInventory)),
                 postfix: new HarmonyMethod(GetType(), nameof(GrabItemFromInventoryPostfix))
-            );
-
-            harmony.Patch(
-                AccessTools.Method(typeof(Chest), nameof(Chest.addItem), new[] {typeof(Item)}),
-                new HarmonyMethod(GetType(), nameof(AddItemPrefix))
             );
 
             harmony.Patch(
@@ -89,6 +95,39 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 AccessTools.Method(typeof(Chest), nameof(Chest.updateWhenCurrentLocation)),
                 new HarmonyMethod(GetType(), nameof(UpdateWhenCurrentLocationPrefix))
             );
+        }
+
+        /// <summary>Prevent adding item if filtered.</summary>
+        public static bool AddItemPrefix(Chest __instance, ref Item __result, Item item)
+        {
+            if (!ReferenceEquals(__instance, item) && (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Filter(item))) return true;
+            __result = item;
+            return false;
+        }
+
+        /// <summary>GetItemsForPlayer for all storages.</summary>
+        private static IEnumerable<CodeInstruction> AddItemTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var patternPatches = new PatternPatches(instructions, Monitor);
+
+            patternPatches
+                .Find(
+                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Chest), nameof(Chest.items)))
+                )
+                .Log("Use GetItemsForPlayer for all storages.")
+                .Patch(delegate(LinkedList<CodeInstruction> list)
+                {
+                    list.RemoveLast();
+                    list.AddLast(new CodeInstruction(OpCodes.Call, AccessTools.Property(typeof(Game1), nameof(Game1.player)).GetGetMethod()));
+                    list.AddLast(new CodeInstruction(OpCodes.Callvirt, AccessTools.Property(typeof(Farmer), nameof(Farmer.UniqueMultiplayerID)).GetGetMethod()));
+                    list.AddLast(new CodeInstruction(OpCodes.Callvirt, AccessTools.Method(typeof(Chest), nameof(Chest.GetItemsForPlayer))));
+                });
+
+            foreach (var patternPatch in patternPatches)
+                yield return patternPatch;
+
+            if (!patternPatches.Done)
+                Monitor.Log($"Failed to apply all patches in {nameof(AddItemTranspiler)}", LogLevel.Warn);
         }
 
         /// <summary>Play custom sound when opening chest</summary>
@@ -127,15 +166,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Config.Option("Indestructible", true) != StorageConfigController.Choice.Enable)
                 return true;
             __result = false;
-            return false;
-        }
-
-        /// <summary>Prevent adding item if filtered.</summary>
-        public static bool AddItemPrefix(Chest __instance, ref Item __result, Item item)
-        {
-            if (!ReferenceEquals(__instance, item) && (!ExpandedStorage.TryGetStorage(__instance, out var storage) || storage.Filter(item)))
-                return true;
-            __result = item;
             return false;
         }
 
