@@ -7,7 +7,6 @@
         public string Author { get; set; }
         public string Version { get; set; }
         public string UniqueID { get; set; }
-
         public string[] UpdateKeys { get; set; } = { };
     }
 }

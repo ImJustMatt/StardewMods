@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Helpers.ConfigData;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.ExpandedStorage.API;
-using ImJustMatt.ExpandedStorage.Common.Helpers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Newtonsoft.Json;
 using StardewModdingAPI;
@@ -43,7 +43,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             Capacity = config.Capacity;
             EnabledFeatures = new HashSet<string>(config.EnabledFeatures);
             DisabledFeatures = new HashSet<string>(config.DisabledFeatures);
-            Tabs = new List<string>(config.Tabs);
         }
 
         internal static IList<string> DefaultTabs => _defaultConfig?.Tabs;
@@ -95,21 +94,21 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             modConfigMenu.API.RegisterPageLabel(manifest, "Go Back", "", "");
         }
 
-        private class FieldHandler : ConfigHelper.IFieldHandler
+        private class FieldHandler : BaseFieldHandler
         {
             private static readonly string[] Choices = Enum.GetNames(typeof(Choice));
 
-            public bool CanHandle(ConfigHelper.IField field)
+            public override bool CanHandle(IField field)
             {
                 return !field.Name.Equals("Capacity");
             }
 
-            public object GetValue(object instance, ConfigHelper.IField field)
+            public override object GetValue(object instance, IField field)
             {
                 return ((StorageConfigController) instance).Option(field.Name);
             }
 
-            public void SetValue(object instance, ConfigHelper.IField field, object value)
+            public override void SetValue(object instance, IField field, object value)
             {
                 var storageConfig = (StorageConfigController) instance;
                 storageConfig.EnabledFeatures.Remove(field.Name);
@@ -131,7 +130,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 }
             }
 
-            public void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, ConfigHelper.IField field)
+            public override void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, IField field)
             {
                 modConfigMenu.API.RegisterChoiceOption(
                     manifest,

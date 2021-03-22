@@ -1,4 +1,5 @@
 ﻿using System;
+using Helpers.ConfigData;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
 using StardewModdingAPI;
 
@@ -17,7 +18,7 @@ namespace ImJustMatt.Common.Integrations.GenericModConfigMenu
             {
                 foreach (var field in configHelper.Fields)
                 {
-                    configHelper.SetValue(instance, field, field.DefaultValue);
+                    configHelper.FieldHandler.SetValue(instance, field, field.DefaultValue);
                 }
             };
         }
@@ -29,7 +30,7 @@ namespace ImJustMatt.Common.Integrations.GenericModConfigMenu
 
             foreach (var property in configHelper.Fields)
             {
-                configHelper.RegisterConfigOption(manifest, this, instance, property);
+                configHelper.FieldHandler.RegisterConfigOption(manifest, this, instance, property);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Helpers.ConfigData;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;

@@ -11,11 +11,16 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\CommonExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ItemExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ConfigData\BaseFieldHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ConfigData\ConfigHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ConfigData\Field.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ConfigData\FieldHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ConfigData\IField.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ConfigData\IFieldHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\HSLColor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\ItemRepository.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\ItemType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\ItemData\SearchableItem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helpers\ConfigHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\GenericModConfigMenuIntegration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\GenericModConfigMenu\IGenericModConfigMenuAPI.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\IJsonAssetsAPI.cs" />

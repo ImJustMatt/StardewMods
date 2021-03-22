@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Helpers.ConfigData;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
@@ -34,7 +35,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             CustomChestTypes
         }
 
-        internal static readonly ConfigHelper ConfigHelper = new(new StorageController(), new List<KeyValuePair<string, string>>
+        internal static readonly ConfigHelper ConfigHelper = new(new FieldHandler(), new StorageController(), new List<KeyValuePair<string, string>>
         {
             new("SpecialChestType", "Can be one of None, MiniShippingBin, JunimoChest, AutoLoader, or Enricher"),
             new("IsFridge", "Make the Storage into a Mini-Fridge when placed"),
@@ -42,15 +43,21 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             new("OpenSound", "Sound played when storage object is opened"),
             new("PlaceSound", "Sound played when storage object is placed"),
             new("CarrySound", "Sound played when storage object is picked up"),
+            new("OpenNearbySound", "Sound played when storage opens while approached"),
+            new("CloseNearbySound", "Sound played when storage closes after approached"),
+            new("HeldStorage", "Pull items from held chest such as Auto-Grabber"),
             new("IsPlaceable", "Allow storage to be placed in a game location"),
             new("Image", "SpriteSheet for the storage object"),
-            new("Frames", "Number of animation frames in the SpriteSheet"),
-            new("Depth", "Number of pixels from the bottom of the SpriteSheet that occupy the ground for placement"),
             new("Animation", "Can be one of None, Loop, or Color"),
+            new("Frames", "Number of animation frames in the SpriteSheet"),
             new("Delay", "Number of ticks for each Animation Frame"),
+            new("Depth", "Number of pixels from the bottom of the SpriteSheet that occupy the ground for placement"),
             new("PlayerColor", "Enables the Player Color Selector from the Storage Menu"),
             new("PlayerConfig", "Enables Storage Capacity and Features to be overriden by config file"),
-            new("Tabs", "Tabs used to filter this Storage Menu inventory")
+            new("Tabs", "Tabs used to filter this Storage Menu inventory"),
+            new ("AllowList", "Storage may only hold items with allowed context tags"),
+            new ("BlockList", "Storage may hold allowed items except for those with blocked context tags"),
+            new ("ModData", "Add modData to placed chests (if key does not already exist)"),
         });
 
         private static readonly HashSet<string> ExcludeModDataKeys = new();
@@ -87,26 +94,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         {
             if (storage != null)
             {
-                IsFridge = storage.IsFridge;
-                HeldStorage = storage.HeldStorage;
-                SpecialChestType = storage.SpecialChestType;
-                OpenNearby = storage.OpenNearby;
-                OpenNearbySound = storage.OpenNearbySound;
-                CloseNearbySound = storage.CloseNearbySound;
-                OpenSound = storage.OpenSound;
-                CarrySound = storage.CarrySound;
-                PlaceSound = storage.PlaceSound;
-                IsPlaceable = storage.IsPlaceable;
-                Image = storage.Image;
-                Animation = storage.Animation;
-                Frames = storage.Frames;
-                Delay = storage.Delay;
-                PlayerColor = storage.PlayerColor;
-                PlayerConfig = storage.PlayerConfig;
-                Depth = storage.Depth;
-                AllowList = new HashSet<string>(storage.AllowList);
-                BlockList = new HashSet<string>(storage.BlockList);
-                ModData = new Dictionary<string, string>(storage.ModData);
+                ConfigHelper.CopyValues(storage, this);
             }
 
             // Vanilla overrides
@@ -136,12 +124,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     break;
                 case "Mini-Fridge":
                     IsFridge = true;
-                    OpenSound = "doorCreak";
-                    PlaceSound = "hammer";
                     if (string.IsNullOrWhiteSpace(Image))
                     {
                         Frames = 2;
                         PlayerColor = false;
+                        OpenSound = "doorCreak";
+                        PlaceSound = "hammer";
                     }
 
                     break;
@@ -222,6 +210,39 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 ConfigHelper.Summary(this),
                 StorageConfigController.ConfigHelper.Summary(Config, false)
             ), logLevel);
+        }
+
+        private class FieldHandler : BaseFieldHandler
+        {
+            private static readonly string[] Fields = {"Tabs", "AllowList", "BlockList", "ModData"};
+            public override bool CanHandle(IField field)
+            {
+                return Fields.Contains(field.Name);
+            }
+
+            public override void CopyValue(IField field, object source, object target)
+            {
+                if (field.Info == null)
+                {
+                    return;
+                }
+
+                if (field.Info.PropertyType == typeof(HashSet<string>))
+                {
+                    var value = (HashSet<string>) field.Info.GetValue(source, null);
+                    field.Info.SetValue(target, new HashSet<string>(value));
+                }
+                else if (field.Info.PropertyType == typeof(IList<string>))
+                {
+                    var value = (IList<string>) field.Info.GetValue(source, null);
+                    field.Info.SetValue(target, new List<string>(value));
+                }
+                else if (field.Info.PropertyType == typeof(Dictionary<string, string>))
+                {
+                    var value = (Dictionary<string, string>) field.Info.GetValue(source, null);
+                    field.Info.SetValue(target, new Dictionary<string, string>(value));
+                }
+            }
         }
     }
 }

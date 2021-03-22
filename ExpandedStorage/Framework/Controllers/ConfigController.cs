@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Helpers.ConfigData;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.ExpandedStorage.Common.Helpers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
@@ -77,27 +78,27 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             modConfigMenu.API.RegisterPageLabel(manifest, "Go Back", "", "");
         }
 
-        private class FieldHandler : ConfigHelper.IFieldHandler
+        private class FieldHandler : BaseFieldHandler
         {
             private static readonly string[] Choices = Enum.GetNames(typeof(LogLevel));
 
-            public bool CanHandle(ConfigHelper.IField field)
+            public override bool CanHandle(IField field)
             {
                 return field.Name.Equals("LogLevel");
             }
 
-            public object GetValue(object instance, ConfigHelper.IField field)
+            public override object GetValue(object instance, IField field)
             {
                 return ((ConfigController) instance).LogLevelProperty;
             }
 
-            public void SetValue(object instance, ConfigHelper.IField field, object value)
+            public override void SetValue(object instance, IField field, object value)
             {
                 var modConfig = (ConfigController) instance;
                 modConfig.LogLevelProperty = Enum.TryParse((string) value, out LogLevel logLevel) ? logLevel : StardewModdingAPI.LogLevel.Trace;
             }
 
-            public void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, ConfigHelper.IField field)
+            public override void RegisterConfigOption(IManifest manifest, GenericModConfigMenuIntegration modConfigMenu, object instance, IField field)
             {
                 modConfigMenu.API.RegisterChoiceOption(
                     manifest,

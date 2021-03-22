@@ -38,7 +38,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             {
                 "Clothing", new TabController("Shirts.png",
                     "category_clothing",
-                    "category_boots", "category_hat")
+                    "category_boots",
+                    "category_hat")
             },
             {
                 "Cooking",
