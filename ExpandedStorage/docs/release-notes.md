@@ -1,5 +1,10 @@
 ﻿# Release Notes
 
+## 1.6.6
+- Added Auto-Grabber support
+- Fixed Junimo Chests unable to be opened
+- Fixed Automate connecting to Bigger Expanded Storages
+
 ## 1.6.5
 
 - Added Animation support
