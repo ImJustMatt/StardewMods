@@ -6,6 +6,8 @@ using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.Patches;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
+using StardewValley;
+using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage
 {
@@ -52,6 +54,11 @@ namespace ImJustMatt.ExpandedStorage
 
             storage = null;
             return false;
+        }
+
+        public bool AcceptsItem(Chest chest, Item item)
+        {
+            return !ExpandedStorage.TryGetStorage(chest, out var storage) || storage.Filter(item);
         }
 
         public bool LoadContentPack(string path)

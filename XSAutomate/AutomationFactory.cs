@@ -1,12 +1,11 @@
-﻿using ImJustMatt.Common.Integrations.Automate;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Pathoschild.Stardew.Automate;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
 using StardewValley.TerrainFeatures;
 
-namespace ImJustMatt.ExpandedStorage.Framework.Controllers
+namespace ImJustMatt.ExpandedStorageAutomate
 {
     internal class AutomationFactoryController : IAutomationFactory
     {

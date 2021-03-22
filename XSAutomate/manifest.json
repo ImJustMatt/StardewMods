@@ -1,0 +1,21 @@
+﻿{
+  "Name": "XSAutomate",
+  "Author": "furyx639",
+  "Version": "1.0.0",
+  "Description": "Adds Automate compatibility for Expanded Storage.",
+  "UniqueID": "furyx639.XSAutomate",
+  "EntryDll": "XSAutomate.dll",
+  "MinimumApiVersion": "3.9.0",
+  "UpdateKeys": [ "Nexus:7431@Automate" ],
+  "Dependencies": [
+    {
+      "UniqueID": "Pathoschild.Automate",
+      "IsRequired": true
+    },
+    {
+      "UniqueID": "furyx639.ExpandedStorage",
+      "IsRequired": true,
+      "MinimumVersion": "1.6.7"
+    }
+  ]
+}

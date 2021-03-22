@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using ImJustMatt.Common.Integrations.Automate;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.Common.PatternPatches;
@@ -45,9 +44,8 @@ namespace ImJustMatt.ExpandedStorage
         /// <summary>Expanded Storage API.</summary>
         internal ExpandedStorageAPI ExpandedStorageAPI;
 
-        internal AutomateIntegration Automate;
-        internal GenericModConfigMenuIntegration ModConfigMenu;
         internal JsonAssetsIntegration JsonAssets;
+        internal GenericModConfigMenuIntegration ModConfigMenu;
 
         /// <summary>Returns Storage by object context.</summary>
         internal static bool TryGetStorage(object context, out StorageController storage)
@@ -76,7 +74,6 @@ namespace ImJustMatt.ExpandedStorage
 
         public override void Entry(IModHelper helper)
         {
-            Automate = new AutomateIntegration(helper.ModRegistry);
             JsonAssets = new JsonAssetsIntegration(helper.ModRegistry);
             ModConfigMenu = new GenericModConfigMenuIntegration(helper.ModRegistry);
 
@@ -129,7 +126,6 @@ namespace ImJustMatt.ExpandedStorage
                 new DiscreteColorPickerPatch(Monitor, Config),
                 new DebrisPatch(Monitor, Config),
                 new UtilityPatch(Monitor, Config),
-                new AutomatePatch(Monitor, Config, helper.Reflection, helper.ModRegistry.IsLoaded("Pathoschild.Automate")),
                 new ChestsAnywherePatch(Monitor, Config, helper.ModRegistry.IsLoaded("Pathoschild.ChestsAnywhere"))
             );
         }
@@ -138,8 +134,6 @@ namespace ImJustMatt.ExpandedStorage
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             Config.RegisterModConfig(Helper, ModManifest, ModConfigMenu);
-            if (Automate.IsLoaded)
-                Automate.API.AddFactory(new AutomationFactoryController());
         }
 
         /// <summary>Raised after objects are added/removed in any location (including machines, furniture, fences, etc).</summary>

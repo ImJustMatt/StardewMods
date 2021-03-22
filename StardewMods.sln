@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GarbageDay", "GarbageDay\Ga
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomBundles", "CustomBundles\CustomBundles.csproj", "{68E8305E-5ED6-4EAA-9788-95B70C2CF5EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSAutomate", "XSAutomate\XSAutomate.csproj", "{67B80E88-412A-4901-BD9D-E1BADFA193EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,5 +29,9 @@ Global
 		{68E8305E-5ED6-4EAA-9788-95B70C2CF5EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68E8305E-5ED6-4EAA-9788-95B70C2CF5EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68E8305E-5ED6-4EAA-9788-95B70C2CF5EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67B80E88-412A-4901-BD9D-E1BADFA193EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67B80E88-412A-4901-BD9D-E1BADFA193EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67B80E88-412A-4901-BD9D-E1BADFA193EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67B80E88-412A-4901-BD9D-E1BADFA193EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

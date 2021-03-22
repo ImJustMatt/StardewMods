@@ -2,20 +2,10 @@
 using Pathoschild.Stardew.Automate;
 using StardewValley;
 
-namespace ImJustMatt.Common.Integrations.Automate
+namespace ImJustMatt.ExpandedStorageAutomate
 {
     internal class Connector : IAutomatable
     {
-        /*********
-        ** Accessors
-        *********/
-        /// <summary>The location which contains the machine.</summary>
-        public GameLocation Location { get; }
-
-        /// <summary>The tile area covered by the machine.</summary>
-        public Rectangle TileArea { get; }
-
-
         /*********
         ** Public methods
         *********/
@@ -32,6 +22,17 @@ namespace ImJustMatt.Common.Integrations.Automate
         /// <param name="location">The location which contains the machine.</param>
         /// <param name="tile">The tile covered by the machine.</param>
         public Connector(GameLocation location, Vector2 tile)
-            : this(location, new Rectangle((int)tile.X, (int)tile.Y, 1, 1)) { }
+            : this(location, new Rectangle((int) tile.X, (int) tile.Y, 1, 1))
+        {
+        }
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The location which contains the machine.</summary>
+        public GameLocation Location { get; }
+
+        /// <summary>The tile area covered by the machine.</summary>
+        public Rectangle TileArea { get; }
     }
 }
