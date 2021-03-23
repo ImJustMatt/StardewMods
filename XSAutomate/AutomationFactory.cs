@@ -5,7 +5,7 @@ using StardewValley.Buildings;
 using StardewValley.Locations;
 using StardewValley.TerrainFeatures;
 
-namespace ImJustMatt.ExpandedStorageAutomate
+namespace ImJustMatt.XSAutomate
 {
     internal class AutomationFactoryController : IAutomationFactory
     {

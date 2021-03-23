@@ -1,6 +1,6 @@
 ﻿using StardewValley;
 
-namespace ImJustMatt.ExpandedStorageAutomate
+namespace ImJustMatt.XSAutomate
 {
     internal interface ITrackedStack
     {

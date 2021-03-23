@@ -2,7 +2,7 @@
 using Pathoschild.Stardew.Automate;
 using StardewValley;
 
-namespace ImJustMatt.ExpandedStorageAutomate
+namespace ImJustMatt.XSAutomate
 {
     internal class Connector : IAutomatable
     {

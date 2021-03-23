@@ -26,6 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\IJsonAssetsAPI.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\JsonAssetsIntegration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\ModIntegration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\AssemblyPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\BasePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Patcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\PatternPatch.cs" />
