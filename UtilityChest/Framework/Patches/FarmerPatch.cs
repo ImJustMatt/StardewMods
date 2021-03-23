@@ -8,13 +8,13 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.UtilityChest.Framework.Patches
 {
-    internal class FarmerPatch : BasePatch
+    internal class FarmerPatch : BasePatch<UtilityChest>
     {
         private static PerScreen<Chest> CurrentChest;
 
         public FarmerPatch(IMod mod) : base(mod)
         {
-            CurrentChest = ((UtilityChest) mod).CurrentChest;
+            CurrentChest = Mod.CurrentChest;
         }
 
         protected internal override void Apply(HarmonyInstance harmony)

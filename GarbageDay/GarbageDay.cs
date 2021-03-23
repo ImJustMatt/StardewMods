@@ -87,7 +87,7 @@ namespace ImJustMatt.GarbageDay
                 }
             }
 
-            new Patcher(this).ApplyAll(
+            new Patcher<GarbageDay>(this).ApplyAll(
                 typeof(ChestPatch)
             );
 

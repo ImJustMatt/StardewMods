@@ -17,7 +17,7 @@ using StardewValley.Objects;
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class ChestPatch : BasePatch
+    internal class ChestPatch : BasePatch<ExpandedStorage>
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
 

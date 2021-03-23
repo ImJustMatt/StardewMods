@@ -11,7 +11,7 @@ using StardewValley.Tools;
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class DebrisPatch : BasePatch
+    internal class DebrisPatch : BasePatch<ExpandedStorage>
     {
         public DebrisPatch(IMod mod) : base(mod)
         {

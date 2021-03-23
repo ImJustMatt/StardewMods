@@ -115,7 +115,7 @@ namespace ImJustMatt.ExpandedStorage
             }
 
             // Harmony Patches
-            new Patcher(this).ApplyAll(
+            new Patcher<ExpandedStorage>(this).ApplyAll(
                 typeof(ItemPatch),
                 typeof(ObjectPatch),
                 typeof(FarmerPatch),

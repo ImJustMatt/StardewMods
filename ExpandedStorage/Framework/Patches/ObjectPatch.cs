@@ -15,7 +15,7 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ObjectPatch : BasePatch
+    internal class ObjectPatch : BasePatch<ExpandedStorage>
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
 

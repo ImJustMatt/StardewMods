@@ -9,7 +9,7 @@ namespace ImJustMatt.GarbageDay.Framework.Patches
 {
     [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class ChestPatch : BasePatch
+    internal class ChestPatch : BasePatch<GarbageDay>
     {
         public ChestPatch(IMod mod) : base(mod)
         {

@@ -9,7 +9,6 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Objects;
-using StardewValley.Tools;
 
 namespace ImJustMatt.UtilityChest
 {
@@ -26,7 +25,7 @@ namespace ImJustMatt.UtilityChest
             helper.Events.Input.ButtonPressed += OnButtonPressed;
             helper.Events.Input.MouseWheelScrolled += OnMouseWheelScrolled;
 
-            new Patcher(this).ApplyAll(
+            new Patcher<UtilityChest>(this).ApplyAll(
                 typeof(Game1Patch),
                 typeof(FarmerPatch),
                 typeof(ChestPatch)

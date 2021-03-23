@@ -10,7 +10,7 @@ using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class FarmerPatch : BasePatch
+    internal class FarmerPatch : BasePatch<ExpandedStorage>
     {
         public FarmerPatch(IMod mod) : base(mod)
         {

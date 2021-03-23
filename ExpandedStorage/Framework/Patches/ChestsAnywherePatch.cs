@@ -7,14 +7,14 @@ using StardewModdingAPI;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ChestsAnywherePatch : BasePatch
+    internal class ChestsAnywherePatch : BasePatch<ExpandedStorage>
     {
         private readonly bool _loaded;
         private readonly Type _type;
 
         public ChestsAnywherePatch(IMod mod) : base(mod)
         {
-            _loaded = mod.Helper.ModRegistry.IsLoaded("Pathoschild.ChestsAnywhere");
+            _loaded = Mod.Helper.ModRegistry.IsLoaded("Pathoschild.ChestsAnywhere");
             if (!_loaded) return;
             var chestsAnywhereAssembly = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith("ChestsAnywhere,"));
             _type = chestsAnywhereAssembly.GetType("Pathoschild.Stardew.ChestsAnywhere.Framework.Containers.ShippingBinContainer");

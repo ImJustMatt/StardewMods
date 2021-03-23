@@ -10,7 +10,7 @@ using StardewValley.Menus;
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class DiscreteColorPickerPatch : BasePatch
+    internal class DiscreteColorPickerPatch : BasePatch<ExpandedStorage>
     {
         public DiscreteColorPickerPatch(IMod mod) : base(mod)
         {

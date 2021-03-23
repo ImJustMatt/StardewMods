@@ -9,7 +9,7 @@ using StardewValley.Objects;
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class ItemPatch : BasePatch
+    internal class ItemPatch : BasePatch<ExpandedStorage>
     {
         public ItemPatch(IMod mod) : base(mod)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using Harmony;
@@ -10,7 +11,8 @@ using StardewValley.Menus;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal abstract class MenuPatch : BasePatch
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    internal abstract class MenuPatch : BasePatch<ExpandedStorage>
     {
         private protected static ConfigModel Config;
 
@@ -40,7 +42,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         protected MenuPatch(IMod mod) : base(mod)
         {
-            Config = ((ExpandedStorage) mod).Config;
+            Config = Mod.Config;
         }
 
         /// <summary>Adds a value to the end of the stack</summary>

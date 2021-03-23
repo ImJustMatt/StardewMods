@@ -1,19 +1,17 @@
-﻿using System.Linq;
-using System.Reflection;
-using Harmony;
+﻿using Harmony;
 using ImJustMatt.Common.PatternPatches;
 using StardewModdingAPI;
 using StardewValley;
 
 namespace ImJustMatt.UtilityChest.Framework.Patches
 {
-    internal class Game1Patch : BasePatch
+    internal class Game1Patch : BasePatch<UtilityChest>
     {
         private static IInputHelper InputHelper;
 
         public Game1Patch(IMod mod) : base(mod)
         {
-            InputHelper = mod.Helper.Input;
+            InputHelper = Mod.Helper.Input;
         }
 
         protected internal override void Apply(HarmonyInstance harmony)
