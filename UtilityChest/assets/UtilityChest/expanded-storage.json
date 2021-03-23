@@ -1,0 +1,14 @@
+﻿{
+  "Utility Chest": {
+    "Image": "UtilityChest.png",
+    "Frames": 1,
+    "PlayerColor": false,
+    "PlayerConfig": false,
+    "OpenNearby": 0,
+    "OpenSound": "trashcan",
+    "Capacity": 12,
+    "IsPlaceable": false,
+    "EnabledFeatures": ["AccessCarried", "CanCarry"],
+    "DisabledFeatures": ["ShowSearchBar", "ShowColorPicker", "ShowTabs", "VacuumItems"]
+  }
+}

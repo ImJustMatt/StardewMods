@@ -1,0 +1,30 @@
+﻿{
+  "Name": "Utility Chest",
+  "Description": "\"The true crimefighter always carries everything he needs in his utility belt, Robin.\" - Batman",
+  "NameLocalization": {
+    //"es": "", //Spanish
+    //"ko": "",
+    //"de": "", //German
+    //"fr": "", //French
+    //"hu": "", //Hungarian
+    //"it": "", //Italian
+    //"ja": "", //Japanese
+    //"pt": "", //Portuguese
+    //"ru": "", //Russian
+    //"tr": "", //Turkish
+    //"zh": "" //Chinese (Simplified)
+  },
+  "DescriptionLocalization": {
+    //"es": "", //Spanish
+    //"ko": "",
+    //"de": "", //German
+    //"fr": "", //French
+    //"hu": "", //Hungarian
+    //"it": "", //Italian
+    //"ja": "", //Japanese
+    //"pt": "", //Portuguese
+    //"ru": "", //Russian
+    //"tr": "", //Turkish
+    //"zh": "" //Chinese (Simplified)
+  }
+}

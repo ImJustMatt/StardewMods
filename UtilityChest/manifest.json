@@ -1,0 +1,30 @@
+﻿{
+  "Name": "Utility Chest",
+  "Author": "furyx639",
+  "Version": "1.0.0",
+  "Description": "Use tools and place items from the chest as if they were in your inventory.",
+  "UniqueID": "furyx639.UtilityChest",
+  "EntryDll": "UtilityChest.dll",
+  "MinimumApiVersion": "3.9.0",
+  "UpdateKeys": [ "Nexus:????" ],
+  "Dependencies": [
+    {
+      "UniqueID": "furyx639.ExpandedStorage",
+      "IsRequired": true,
+      "MinimumVersion": "1.6.5"
+    },
+    {
+      "UniqueID": "spacechase0.JsonAssets",
+      "IsRequired": true
+    },
+    {
+      "UniqueID": "spacechase0.GenericModConfigMenu",
+      "IsRequired": false,
+      "MinimumVersion": "1.3.2"
+    },
+    {
+      "UniqueID": "Pathoschild.ContentPatcher",
+      "IsRequired": false
+    },
+  ]
+}

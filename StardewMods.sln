@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomBundles", "CustomBund
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSAutomate", "XSAutomate\XSAutomate.csproj", "{67B80E88-412A-4901-BD9D-E1BADFA193EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilityChest", "UtilityChest\UtilityChest.csproj", "{235F8EF8-938D-4293-B6EF-729E4B8B12E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,5 +35,9 @@ Global
 		{67B80E88-412A-4901-BD9D-E1BADFA193EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67B80E88-412A-4901-BD9D-E1BADFA193EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67B80E88-412A-4901-BD9D-E1BADFA193EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{235F8EF8-938D-4293-B6EF-729E4B8B12E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{235F8EF8-938D-4293-B6EF-729E4B8B12E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{235F8EF8-938D-4293-B6EF-729E4B8B12E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{235F8EF8-938D-4293-B6EF-729E4B8B12E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
