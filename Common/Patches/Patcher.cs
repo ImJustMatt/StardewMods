@@ -2,9 +2,9 @@
 using Harmony;
 using StardewModdingAPI;
 
-namespace ImJustMatt.Common.PatternPatches
+namespace ImJustMatt.Common.Patches
 {
-    internal class Patcher<T> where T : IMod
+    internal class Patcher
     {
         private readonly IMod _mod;
         private readonly string _uniqueId;
@@ -20,7 +20,7 @@ namespace ImJustMatt.Common.PatternPatches
             var harmony = HarmonyInstance.Create(_uniqueId);
             foreach (var patchType in patchTypes)
             {
-                ((BasePatch<T>) Activator.CreateInstance(patchType, _mod)).Apply(harmony);
+                Activator.CreateInstance(patchType, _mod, harmony);
             }
         }
     }

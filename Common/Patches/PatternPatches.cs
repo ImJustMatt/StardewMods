@@ -6,7 +6,7 @@ using StardewModdingAPI;
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Global
 
-namespace ImJustMatt.Common.PatternPatches
+namespace ImJustMatt.Common.Patches
 {
     internal class PatternPatches : IEnumerable<CodeInstruction>
     {

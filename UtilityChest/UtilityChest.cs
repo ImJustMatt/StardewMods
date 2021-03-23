@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using ImJustMatt.Common.Integrations.JsonAssets;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.UtilityChest.Framework.Extensions;
 using ImJustMatt.UtilityChest.Framework.Patches;
@@ -25,7 +25,7 @@ namespace ImJustMatt.UtilityChest
             helper.Events.Input.ButtonPressed += OnButtonPressed;
             helper.Events.Input.MouseWheelScrolled += OnMouseWheelScrolled;
 
-            new Patcher<UtilityChest>(this).ApplyAll(
+            new Patcher(this).ApplyAll(
                 typeof(Game1Patch),
                 typeof(FarmerPatch),
                 typeof(ChestPatch)

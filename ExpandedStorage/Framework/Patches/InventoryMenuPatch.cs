@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection.Emit;
 using Harmony;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -11,11 +11,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     internal class InventoryMenuPatch : MenuPatch
     {
-        public InventoryMenuPatch(IMod mod) : base(mod)
-        {
-        }
-
-        protected internal override void Apply(HarmonyInstance harmony)
+        public InventoryMenuPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(InventoryMenu), nameof(InventoryMenu.draw), new[] {typeof(SpriteBatch), typeof(int), typeof(int), typeof(int)}),

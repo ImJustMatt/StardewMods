@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection.Emit;
 using Harmony;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using Microsoft.Xna.Framework;
@@ -21,16 +21,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
 
-        public ChestPatch(IMod mod) : base(mod)
-        {
-        }
-
-        internal static void AddExclusion(string modDataKey)
-        {
-            ExcludeModDataKeys.Add(modDataKey);
-        }
-
-        protected internal override void Apply(HarmonyInstance harmony)
+        public ChestPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.addItem), new[] {typeof(Item)}),
@@ -91,6 +82,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 AccessTools.Method(typeof(Chest), nameof(Chest.updateWhenCurrentLocation)),
                 new HarmonyMethod(GetType(), nameof(UpdateWhenCurrentLocationPrefix))
             );
+        }
+
+        internal static void AddExclusion(string modDataKey)
+        {
+            ExcludeModDataKeys.Add(modDataKey);
         }
 
         /// <summary>Prevent adding item if filtered.</summary>

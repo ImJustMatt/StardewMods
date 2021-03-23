@@ -1,5 +1,5 @@
 ﻿using Harmony;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using ImJustMatt.UtilityChest.Framework.Extensions;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -12,13 +12,10 @@ namespace ImJustMatt.UtilityChest.Framework.Patches
     {
         private static PerScreen<Chest> CurrentChest;
 
-        public FarmerPatch(IMod mod) : base(mod)
+        public FarmerPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             CurrentChest = Mod.CurrentChest;
-        }
 
-        protected internal override void Apply(HarmonyInstance harmony)
-        {
             harmony.Patch(
                 AccessTools.Property(typeof(Farmer), nameof(Farmer.CurrentTool)).GetGetMethod(),
                 new HarmonyMethod(GetType(), nameof(CurrentToolPrefix))

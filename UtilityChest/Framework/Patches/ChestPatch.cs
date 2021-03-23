@@ -1,5 +1,5 @@
 ﻿using Harmony;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using ImJustMatt.UtilityChest.Framework.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,13 +14,10 @@ namespace ImJustMatt.UtilityChest.Framework.Patches
     {
         private static PerScreen<Chest> CurrentChest;
 
-        public ChestPatch(IMod mod) : base(mod)
+        public ChestPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             CurrentChest = Mod.CurrentChest;
-        }
 
-        protected internal override void Apply(HarmonyInstance harmony)
-        {
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.drawInMenu), new[] {typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float), typeof(float), typeof(StackDrawType), typeof(Color), typeof(bool)}),
                 postfix: new HarmonyMethod(GetType(), nameof(DrawInMenuPostfix))

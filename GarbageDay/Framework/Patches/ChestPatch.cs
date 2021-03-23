@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Harmony;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using StardewModdingAPI;
 using StardewValley.Objects;
 
@@ -11,11 +11,7 @@ namespace ImJustMatt.GarbageDay.Framework.Patches
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal class ChestPatch : BasePatch<GarbageDay>
     {
-        public ChestPatch(IMod mod) : base(mod)
-        {
-        }
-
-        protected internal override void Apply(HarmonyInstance harmony)
+        public ChestPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.ShowMenu)),

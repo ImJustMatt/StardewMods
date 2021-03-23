@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.Integrations.JsonAssets;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.GarbageDay.Framework.Controllers;
 using ImJustMatt.GarbageDay.Framework.Models;
@@ -87,7 +87,7 @@ namespace ImJustMatt.GarbageDay
                 }
             }
 
-            new Patcher<GarbageDay>(this).ApplyAll(
+            new Patcher(this).ApplyAll(
                 typeof(ChestPatch)
             );
 

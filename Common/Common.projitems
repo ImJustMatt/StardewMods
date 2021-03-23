@@ -26,10 +26,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\IJsonAssetsAPI.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\JsonAssets\JsonAssetsIntegration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Integrations\ModIntegration.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\BasePatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\Patcher.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\PatternPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PatternPatches\PatternPatches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\BasePatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\PatternPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\PatternPatches.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Helpers\ItemData\LICENSE" />

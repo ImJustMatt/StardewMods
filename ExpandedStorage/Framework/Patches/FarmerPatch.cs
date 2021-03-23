@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Harmony;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using StardewModdingAPI;
@@ -12,11 +12,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     internal class FarmerPatch : BasePatch<ExpandedStorage>
     {
-        public FarmerPatch(IMod mod) : base(mod)
-        {
-        }
-
-        protected internal override void Apply(HarmonyInstance harmony)
+        public FarmerPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Farmer), nameof(Farmer.addItemToInventory), new[] {typeof(Item), typeof(List<Item>)}),

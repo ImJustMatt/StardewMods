@@ -1,5 +1,5 @@
 ﻿using Harmony;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using StardewModdingAPI;
 using StardewValley;
 
@@ -9,13 +9,10 @@ namespace ImJustMatt.UtilityChest.Framework.Patches
     {
         private static IInputHelper InputHelper;
 
-        public Game1Patch(IMod mod) : base(mod)
+        public Game1Patch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             InputHelper = Mod.Helper.Input;
-        }
 
-        protected internal override void Apply(HarmonyInstance harmony)
-        {
             harmony.Patch(
                 AccessTools.Method(typeof(Game1), nameof(Game1.pressSwitchToolButton)),
                 new HarmonyMethod(GetType(), nameof(PressSwitchToolButtonPrefix))

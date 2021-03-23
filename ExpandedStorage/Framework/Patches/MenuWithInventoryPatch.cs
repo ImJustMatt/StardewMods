@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using Harmony;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley.Menus;
@@ -12,11 +12,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
     [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
     internal class MenuWithInventoryPatch : MenuPatch
     {
-        public MenuWithInventoryPatch(IMod mod) : base(mod)
-        {
-        }
-
-        protected internal override void Apply(HarmonyInstance harmony)
+        public MenuWithInventoryPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             var drawMethod = AccessTools.Method(typeof(MenuWithInventory), nameof(MenuWithInventory.draw),
                 new[]

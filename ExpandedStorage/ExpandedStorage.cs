@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.Integrations.JsonAssets;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using ImJustMatt.ExpandedStorage.Framework.Models;
@@ -115,7 +115,7 @@ namespace ImJustMatt.ExpandedStorage
             }
 
             // Harmony Patches
-            new Patcher<ExpandedStorage>(this).ApplyAll(
+            new Patcher(this).ApplyAll(
                 typeof(ItemPatch),
                 typeof(ObjectPatch),
                 typeof(FarmerPatch),

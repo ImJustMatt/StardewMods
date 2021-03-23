@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Harmony;
-using ImJustMatt.Common.PatternPatches;
+using ImJustMatt.Common.Patches;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -13,14 +13,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal class DebrisPatch : BasePatch<ExpandedStorage>
     {
-        public DebrisPatch(IMod mod) : base(mod)
+        public DebrisPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
-        }
-
-        protected internal override void Apply(HarmonyInstance harmony)
-        {
-            harmony.Patch(AccessTools.Method(typeof(Debris), nameof(Debris.collect)),
-                new HarmonyMethod(GetType(), nameof(collect_Prefix)));
+            harmony.Patch(
+                AccessTools.Method(typeof(Debris), nameof(Debris.collect)),
+                new HarmonyMethod(GetType(), nameof(collect_Prefix))
+            );
         }
 
         /// <summary>Collect debris directly into carried chest.</summary>
