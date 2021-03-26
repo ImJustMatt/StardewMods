@@ -1,18 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <AssemblyName>ExpandedStorage</AssemblyName>
-        <RootNamespace>ImJustMatt.ExpandedStorage</RootNamespace>
-        <Version>1.6.8-beta.1</Version>
+        <AssemblyName>SlimeFramework</AssemblyName>
+        <RootNamespace>ImJustMatt.SlimeFramework</RootNamespace>
+        <Version>1.0.0</Version>
         <TargetFramework>net452</TargetFramework>
         <EnableHarmony>true</EnableHarmony>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="3.2.2" />
     </ItemGroup>
-    
+
     <Import Project="..\build\common.targets" />
     <Import Project="..\Common\Common.projitems" Label="Shared" />
 </Project>

@@ -12,7 +12,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         private readonly string _path;
         private readonly bool _playerColor;
 
-        internal StorageSpriteController(StorageController storage)
+        public StorageSpriteController(StorageController storage)
         {
             _frames = storage.Frames;
             _depth = storage.Depth;
@@ -21,23 +21,31 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         }
 
         /// <summary>Property to access the SpriteSheet image.</summary>
-        internal Texture2D Texture
+        public Texture2D Texture
         {
             get
             {
-                var texture = Game1.content.Load<Texture2D>(_path);
-                Width = texture.Width / Math.Max(1, _frames);
-                Height = _playerColor ? texture.Height / 3 : texture.Height;
+                if (_texture != null) return _texture;
+                _texture = Game1.content.Load<Texture2D>(_path);
+                Width = _texture.Width / Math.Max(1, _frames);
+                Height = _playerColor ? _texture.Height / 3 : _texture.Height;
                 TileWidth = Width / 16;
                 TileHeight = (_depth is { } depth && depth > 0 ? depth : Height - 16) / 16;
-                return texture;
+                return _texture;
             }
         }
 
-        internal int Width { get; private set; }
-        internal int Height { get; private set; }
-        internal int TileWidth { get; private set; }
-        internal int TileHeight { get; private set; }
+        private Texture2D _texture;
+
+        public void InvalidateCache()
+        {
+            _texture = null;
+        }
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int TileWidth { get; private set; }
+        public int TileHeight { get; private set; }
 
         internal float ScaleSize
         {

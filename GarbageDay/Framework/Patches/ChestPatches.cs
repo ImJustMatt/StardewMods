@@ -9,9 +9,9 @@ namespace ImJustMatt.GarbageDay.Framework.Patches
 {
     [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class ChestPatch : BasePatch<GarbageDay>
+    internal class ChestPatches : BasePatch<GarbageDay>
     {
-        public ChestPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public ChestPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Chest), nameof(Chest.ShowMenu)),

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
@@ -9,7 +10,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 {
     internal static class FarmerExtensions
     {
-        private const string ChestsAnywhereOrderKey = "Pathoschild.ChestsAnywhere/Order";
+        private static VacuumChestController VacuumChests;
+
+        public static void Init(VacuumChestController vacuumChests)
+        {
+            VacuumChests = vacuumChests;
+        }
 
         public static Item AddItemToInventory(this Farmer farmer, Item item)
         {
@@ -17,14 +23,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 return item;
 
             // Find prioritized storage
-            var storages = ExpandedStorage.VacuumChests.Value
-                .Where(s => s.Value.Filter(item))
-                .Select(s => s.Key)
-                .OrderByDescending(s => s.modData.TryGetValue(ChestsAnywhereOrderKey, out var order) ? Convert.ToInt32(order) : 0)
-                .ToList();
-
-            if (!storages.Any())
-                return item;
+            if (!VacuumChests.TryGetPrioritized(item, out var storages)) return item;
 
             static void ShowHud(Item showItem)
             {

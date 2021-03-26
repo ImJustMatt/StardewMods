@@ -10,9 +10,9 @@ using StardewValley;
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class UtilityPatch : BasePatch<ExpandedStorage>
+    internal class UtilityPatches : BasePatch<ExpandedStorage>
     {
-        public UtilityPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public UtilityPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Utility), nameof(Utility.playerCanPlaceItemHere)),
@@ -22,7 +22,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static void PlayerCanPlaceItemHerePostfix(ref bool __result, GameLocation location, Item item, int x, int y, Farmer f)
         {
-            if (!ExpandedStorage.TryGetStorage(item, out var storage) || storage.SpriteSheet is not {Texture: { }} spriteSheet)
+            if (!Mod.AssetController.TryGetStorage(item, out var storage) || storage.StorageSprite is not {Texture: { }} spriteSheet)
                 return;
 
             x = 64 * (x / 64);

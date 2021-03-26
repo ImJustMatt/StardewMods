@@ -9,9 +9,9 @@ using StardewValley.Objects;
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class ItemPatch : BasePatch<ExpandedStorage>
+    internal class ItemPatches : BasePatch<ExpandedStorage>
     {
-        public ItemPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public ItemPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Item), nameof(Item.canStackWith), new[] {typeof(ISalable)}),
@@ -23,7 +23,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (__instance is Chest
                 || other is Chest
-                || ExpandedStorage.TryGetStorage(__instance, out var storage)
+                || Mod.AssetController.TryGetStorage(__instance, out var storage)
                 && (storage.Config.Option("CanCarry", true) == StorageConfigController.Choice.Enable
                     || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable))
             {

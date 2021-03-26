@@ -4,7 +4,6 @@ using System.Linq;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
@@ -14,30 +13,18 @@ using Object = StardewValley.Object;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 {
-    public static class ChestExtensions
+    internal static class ChestExtensions
     {
         private static readonly HashSet<int> HideColorPickerIds = new() {216, 248, 256};
         private static readonly HashSet<int> ShowBottomBraceIds = new() {130, 232};
-        private static IReflectionHelper _reflection;
-
-        internal static void Init(IReflectionHelper reflection)
-        {
-            _reflection = reflection;
-        }
 
         public static InventoryMenu.highlightThisItem HighlightMethod(this Chest chest, StorageController storage)
         {
             return item => !ReferenceEquals(item, chest) && storage.Filter(item);
         }
 
-        public static Object ToObject(this Chest chest, StorageController storage = null)
+        public static Object ToObject(this Chest chest, StorageController storage)
         {
-            // Get config for chest
-            if (storage == null && !ExpandedStorage.TryGetStorage(chest, out storage))
-            {
-                throw new InvalidOperationException($"Unexpected item '{chest.Name}'.");
-            }
-
             // Create Chest from Item
             var obj = new Object(Vector2.Zero, chest.ParentSheetIndex)
             {
@@ -58,19 +45,19 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             return obj;
         }
 
-        public static void Draw(this Chest chest, StorageController storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha = 1f, float layerDepth = 0.89f, float scaleSize = 4f)
+        public static void Draw(this Chest chest, int currentFrame, StorageController storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha = 1f, float layerDepth = 0.89f, float scaleSize = 4f)
         {
             var drawColored = storage.PlayerColor
                               && !chest.playerChoiceColor.Value.Equals(Color.Black)
                               && !HideColorPickerIds.Contains(chest.ParentSheetIndex);
 
-            if (storage.SpriteSheet is {Texture: { } texture} spriteSheet)
+            if (!Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType))
+                animationType = StorageController.AnimationType.None;
+            if (animationType == StorageController.AnimationType.None || chest.uses.Value >= StorageController.Frame)
+                currentFrame = 0;
+
+            if (storage.StorageSprite is {Texture: { } texture} spriteSheet)
             {
-                if (!Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType))
-                    animationType = StorageController.AnimationType.None;
-                var currentFrame = animationType != StorageController.AnimationType.None || chest.uses.Value < StorageController.Frame
-                    ? _reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue()
-                    : 0;
                 if (animationType == StorageController.AnimationType.Color)
                 {
                     if (storage.PlayerColor)
@@ -100,48 +87,34 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                         SpriteEffects.None,
                         layerDepth + (1 + layer - startLayer) * 1E-05f);
                 }
-
-                return;
             }
+            else if (!drawColored)
+            {
+                spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
+                    pos + ShakeOffset(chest, -1, 2),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, chest.ParentSheetIndex, 16, 32),
+                    chest.Tint * alpha,
+                    0f,
+                    origin,
+                    scaleSize,
+                    SpriteEffects.None,
+                    layerDepth);
 
-            if (!drawColored) DrawVanillaDefault(chest, storage, spriteBatch, pos, origin, alpha, layerDepth, scaleSize);
-            else DrawVanillaColored(chest, storage, spriteBatch, pos, origin, alpha, layerDepth, scaleSize);
-        }
-
-        private static void DrawVanillaDefault(Chest chest, StorageController storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha, float layerDepth, float scaleSize)
-        {
-            var currentFrame = _reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue();
-
-            spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
-                pos + ShakeOffset(chest, -1, 2),
-                Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, chest.ParentSheetIndex, 16, 32),
-                chest.Tint * alpha,
-                0f,
-                origin,
-                scaleSize,
-                SpriteEffects.None,
-                layerDepth);
-
-            if (chest.uses.Value < 0 || storage.Frames == 1 || scaleSize < 4f) return;
-            spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
-                pos + ShakeOffset(chest, -1, 2),
-                Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, currentFrame + chest.startingLidFrame.Value, 16, 32),
-                chest.Tint * alpha,
-                0f,
-                origin,
-                scaleSize,
-                SpriteEffects.None,
-                layerDepth + 1E-05f);
-        }
-
-        private static int GetBaseOffset(Item item) => item.ParentSheetIndex switch {130 => 38, 232 => 0, _ => 6};
-        private static int GetAboveOffset(Item item) => item.ParentSheetIndex switch {130 => 46, 232 => 8, _ => 11};
-
-        private static void DrawVanillaColored(this Chest chest, StorageController storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha, float layerDepth, float scaleSize)
-        {
-            var baseOffset = GetBaseOffset(chest);
+                if (chest.uses.Value < 0 || storage.Frames == 1 || scaleSize < 4f) return;
+                spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
+                    pos + ShakeOffset(chest, -1, 2),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, currentFrame + chest.startingLidFrame.Value, 16, 32),
+                    chest.Tint * alpha,
+                    0f,
+                    origin,
+                    scaleSize,
+                    SpriteEffects.None,
+                    layerDepth + 1E-05f);
+            }
+            else
+            {
+                var baseOffset = GetBaseOffset(chest);
             var aboveOffset = GetAboveOffset(chest);
-            var currentFrame = _reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue();
 
             // Draw Storage Layer (Colorized)
             spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
@@ -192,12 +165,16 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 scaleSize,
                 SpriteEffects.None,
                 layerDepth + 3E-05f);
+            }
         }
 
-        public static bool UpdateFarmerNearby(this Chest chest, StorageController storage, GameTime time, GameLocation location)
+        private static int GetBaseOffset(Item item) => item.ParentSheetIndex switch {130 => 38, 232 => 0, _ => 6};
+        private static int GetAboveOffset(Item item) => item.ParentSheetIndex switch {130 => 46, 232 => 8, _ => 11};
+
+        public static bool UpdateFarmerNearby(this Chest chest, ref int _shippingBinFrameCounter, ref bool _farmerNearby, StorageController storage, GameLocation location)
         {
             var shouldOpen = false;
-            if (storage.SpriteSheet is {Texture: { }} spriteSheet)
+            if (storage.StorageSprite is {Texture: { }} spriteSheet && (spriteSheet.TileWidth > 1 || spriteSheet.TileHeight > 1))
             {
                 var x = chest.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : (int) chest.TileLocation.X;
                 var y = chest.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : (int) chest.TileLocation.Y;
@@ -205,7 +182,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 {
                     for (var j = 0; j < spriteSheet.TileHeight; j++)
                     {
-                        shouldOpen = location.farmers.Any(f => Math.Abs(f.getTileX() - x - i) <= storage.OpenNearby && Math.Abs(f.getTileY() - y - j) <= storage.OpenNearby);
+                        shouldOpen = location.farmers.Any(
+                            f =>
+                                (f.getTileX() - x - i) * (f.getTileX() - x - i) +
+                                (f.getTileY() - y - j) * (f.getTileY() - y - j) <=
+                                storage.OpenNearby * storage.OpenNearby
+                        );
                         if (shouldOpen) break;
                     }
 
@@ -214,28 +196,31 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             }
             else
             {
-                shouldOpen = location.farmers.Any(f => Math.Abs(f.getTileX() - chest.TileLocation.X) <= 1f && Math.Abs(f.getTileY() - chest.TileLocation.Y) <= 1f);
+                shouldOpen = location.farmers.Any(
+                    f =>
+                        (f.getTileX() - chest.TileLocation.X) * (f.getTileX() - chest.TileLocation.X) +
+                        (f.getTileY() - chest.TileLocation.Y) * (f.getTileY() - chest.TileLocation.Y) <=
+                        storage.OpenNearby * storage.OpenNearby
+                );
             }
 
-            var farmerNearby = _reflection.GetField<bool>(chest, "_farmerNearby");
-            if (shouldOpen == farmerNearby.GetValue())
+            if (shouldOpen == _farmerNearby)
                 return shouldOpen;
 
             if (chest.uses.Value > 0)
             {
-                var currentLidFrame = _reflection.GetField<int>(chest, "_shippingBinFrameCounter");
-                var currentFrame = currentLidFrame.GetValue() + (shouldOpen ? -1 : 1) * (int) (StorageController.Frame - chest.uses.Value) / storage.Delay;
+                var currentFrame = _shippingBinFrameCounter + (shouldOpen ? -1 : 1) * (int) (StorageController.Frame - chest.uses.Value) / storage.Delay;
                 currentFrame = (int) MathHelper.Clamp(currentFrame, 0, storage.Frames - 1);
-                currentLidFrame.SetValue(currentFrame);
+                _shippingBinFrameCounter = currentFrame;
             }
             else
             {
-                _reflection.GetField<int>(chest, "_shippingBinFrameCounter").SetValue(0);
+                _shippingBinFrameCounter = 0;
             }
 
             chest.uses.Value = (int) StorageController.Frame;
             chest.frameCounter.Value = storage.Delay;
-            farmerNearby.SetValue(shouldOpen);
+            _farmerNearby = shouldOpen;
             location.localSound(shouldOpen ? storage.OpenNearbySound ?? "doorCreak" : storage.CloseNearbySound ?? "doorCreakReverse");
 
             return shouldOpen;

@@ -88,7 +88,7 @@ namespace ImJustMatt.GarbageDay
             }
 
             new Patcher(this).ApplyAll(
-                typeof(ChestPatch)
+                typeof(ChestPatches)
             );
 
             // Console Commands

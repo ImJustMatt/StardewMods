@@ -18,7 +18,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
     public class MenuModel : IDisposable
     {
         private static readonly PerScreen<MenuModel> Instance = new();
-        private static ConfigController _config;
 
         /// <summary>The object that the inventory menu is associated with</summary>
         internal readonly object Context;
@@ -33,7 +32,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         internal readonly StorageController Storage;
 
         /// <summary>Expanded Storage Tab data for Menu</summary>
-        internal readonly IList<TabController> StorageTabs;
+        internal IList<TabController> StorageTabs;
 
         private int _currentTab;
         private string _searchText;
@@ -42,14 +41,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>Track which menu is being handled and refresh if it changes</summary>
         internal ItemGrabMenu Menu;
 
-        private MenuModel(ItemGrabMenu menu)
+        private MenuModel(ItemGrabMenu menu, StorageController storage)
         {
             Instance.Value = this;
 
             Menu = menu;
             Context = menu.context;
+            Storage = storage;
             MenuRows = Menu.ItemsToGrabMenu.rows;
-            ExpandedStorage.TryGetStorage(Context, out Storage);
             Items = menu.ItemsToGrabMenu.actualInventory;
             FilteredItems = Items;
             MaxRows = Math.Max(0, Items.Count.RoundUp(12) / 12 - MenuRows);
@@ -57,21 +56,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             _currentTab = -1;
             _skippedRows = 0;
             _searchText = "";
-
-            if (Storage?.Tabs.Count > 0)
-            {
-                StorageTabs = Storage.Tabs
-                    .Select(t => ExpandedStorage.GetTab(Storage.ModUniqueId, t))
-                    .Where(t => t != null)
-                    .ToList();
-            }
-            else if (Storage?.Config.Option("ShowTabs", true) == StorageConfigController.Choice.Enable && StorageConfigController.DefaultTabs?.Count > 0)
-            {
-                StorageTabs = StorageConfigController.DefaultTabs
-                    .Select(t => ExpandedStorage.GetTab(Storage.ModUniqueId, t))
-                    .Where(t => t != null)
-                    .ToList();
-            }
 
             RegisterEvents();
         }
@@ -150,54 +134,15 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
 
         internal event EventHandler ItemChanged;
 
-        /// <summary>Returns Offset to lower menu for expanded menus.</summary>
-        public static int GetOffset(MenuWithInventory menu)
-        {
-            return _config.ExpandInventoryMenu
-                   && menu is ItemGrabMenu {shippingBin: false} igm
-                   && ExpandedStorage.TryGetStorage(igm.context, out var storage)
-                ? storage.Config.Menu.Offset
-                : 0;
-        }
-
-        /// <summary>Returns Padding to top menu for search box.</summary>
-        public static int GetPadding(MenuWithInventory menu)
-        {
-            return menu is ItemGrabMenu {shippingBin: false} igm && ExpandedStorage.TryGetStorage(igm.context, out var storage) ? storage.Config.Menu.Padding : 0;
-        }
-
-        /// <summary>Returns Display Capacity of MenuWithInventory.</summary>
-        public static int GetMenuCapacity(object context)
-        {
-            return _config.ExpandInventoryMenu && ExpandedStorage.TryGetStorage(context, out var storage) ? storage.Config.Menu.Capacity : 36;
-        }
-
-        /// <summary>Returns Displayed Rows of MenuWithInventory.</summary>
-        public static int GetMenuRows(object context)
-        {
-            return _config.ExpandInventoryMenu && ExpandedStorage.TryGetStorage(context, out var storage) ? storage.Config.Menu.Rows : 3;
-        }
-
-        /// <summary>Returns the filtered list of items in the InventoryMenu.</summary>
-        public static IList<Item> GetItems(IList<Item> items)
-        {
-            return Instance.Value != null && ReferenceEquals(Instance.Value.Items, items) ? Instance.Value.FilteredItems : items;
-        }
-
-        internal static void Init(ConfigController config)
-        {
-            _config = config;
-        }
-
-        protected internal static MenuModel Get(ItemGrabMenu menu)
+        protected internal static MenuModel Get(ItemGrabMenu menu, StorageController storage)
         {
             if (Instance.Value == null)
-                return new MenuModel(menu);
+                return new MenuModel(menu, storage);
 
             if (Instance.Value != null && !Instance.Value.ContextMatches(menu))
             {
                 Instance.Value.Dispose();
-                return new MenuModel(menu);
+                return new MenuModel(menu, storage);
             }
 
             if (Game1.options.SnappyMenus)
@@ -256,6 +201,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             if (ItemChanged == null)
                 return;
             foreach (var @delegate in ItemChanged.GetInvocationList()) @delegate.DynamicInvoke(this, null);
+        }
+
+        /// <summary>Returns the filtered list of items in the InventoryMenu.</summary>
+        public static IList<Item> GetItems(IList<Item> items)
+        {
+            return ReferenceEquals(Instance.Value?.Items, items) ? Instance.Value?.FilteredItems : items;
         }
     }
 }

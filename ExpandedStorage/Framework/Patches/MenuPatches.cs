@@ -5,28 +5,31 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.Patches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 using StardewValley.Menus;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal abstract class MenuPatch : BasePatch<ExpandedStorage>
+    internal abstract class MenuPatches : BasePatch<ExpandedStorage>
     {
-        private protected static ConfigModel Config;
+        private protected static ConfigModel Config => Mod.Config;
+        private protected static AssetController AssetController => Mod.AssetController;
 
         private protected static readonly MethodInfo MenuCapacity =
-            AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetMenuCapacity), new[] {typeof(object)});
+            AccessTools.Method(typeof(MenuPatches), nameof(GetMenuCapacity));
 
         private protected static readonly MethodInfo MenuRows =
-            AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetMenuRows), new[] {typeof(object)});
+            AccessTools.Method(typeof(MenuPatches), nameof(GetMenuRows));
 
         private protected static readonly MethodInfo MenuOffset =
-            AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetOffset), new[] {typeof(MenuWithInventory)});
+            AccessTools.Method(typeof(MenuPatches), nameof(GetMenuOffset));
 
         private protected static readonly MethodInfo MenuPadding =
-            AccessTools.Method(typeof(MenuModel), nameof(MenuModel.GetPadding), new[] {typeof(MenuWithInventory)});
+            AccessTools.Method(typeof(MenuPatches), nameof(GetMenuPadding));
 
         private protected static readonly FieldInfo IClickableMenuHeight =
             AccessTools.Field(typeof(IClickableMenu), nameof(IClickableMenu.height));
@@ -40,9 +43,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         private protected static readonly FieldInfo IClickableMenuYPositionOnScreen =
             AccessTools.Field(typeof(IClickableMenu), nameof(IClickableMenu.yPositionOnScreen));
 
-        protected MenuPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        protected MenuPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
-            Config = Mod.Config;
         }
 
         /// <summary>Adds a value to the end of the stack</summary>
@@ -56,6 +58,34 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 instructions.AddLast(new CodeInstruction(OpCodes.Call, method));
                 instructions.AddLast(new CodeInstruction(operation));
             };
+        }
+
+        /// <summary>Returns Offset to lower menu for expanded menus.</summary>
+        public static int GetMenuOffset(MenuWithInventory menu)
+        {
+            return Config.ExpandInventoryMenu
+                   && menu is ItemGrabMenu {shippingBin: false} igm
+                   && AssetController.TryGetStorage(igm.context, out var storage)
+                ? storage.Config.Menu.Offset
+                : 0;
+        }
+
+        /// <summary>Returns Padding to top menu for search box.</summary>
+        public static int GetMenuPadding(MenuWithInventory menu)
+        {
+            return menu is ItemGrabMenu {shippingBin: false} igm && AssetController.TryGetStorage(igm.context, out var storage) ? storage.Config.Menu.Padding : 0;
+        }
+
+        /// <summary>Returns Display Capacity of MenuWithInventory.</summary>
+        public static int GetMenuCapacity(object context)
+        {
+            return Config.ExpandInventoryMenu && AssetController.TryGetStorage(context, out var storage) ? storage.Config.Menu.Capacity : 36;
+        }
+
+        /// <summary>Returns Displayed Rows of MenuWithInventory.</summary>
+        public static int GetMenuRows(object context)
+        {
+            return Config.ExpandInventoryMenu && AssetController.TryGetStorage(context, out var storage) ? storage.Config.Menu.Rows : 3;
         }
     }
 }

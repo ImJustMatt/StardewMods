@@ -7,12 +7,18 @@ using Object = StardewValley.Object;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 {
-    public static class ItemExtensions
+    internal static class ItemExtensions
     {
+        private static AssetController Assets;
+
+        public static void Init(AssetController assets)
+        {
+            Assets = assets;
+        }
         public static Chest ToChest(this Item item, StorageController storage = null, Chest oldChest = null)
         {
             // Get config for chest
-            if (storage == null && !ExpandedStorage.TryGetStorage(item, out storage))
+            if (storage == null && !Assets.TryGetStorage(item, out storage))
             {
                 throw new InvalidOperationException($"Unexpected item '{item.Name}'.");
             }

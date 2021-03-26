@@ -3,6 +3,7 @@ using ImJustMatt.ExpandedStorage.Common.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
@@ -11,8 +12,10 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Views
 {
-    internal class HSLColorPicker : DiscreteColorPicker
+    internal class HSLColorPicker : DiscreteColorPicker, IDisposable
     {
+        public static readonly PerScreen<HSLColorPicker> Instance = new();
+
         private const int Height = 598;
         private const int Width = 98;
         private const int Cells = 16;
@@ -38,6 +41,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Views
         internal HSLColorPicker(int xPosition, int yPosition, Item itemToDrawColored = null)
             : base(xPosition, yPosition, 0, itemToDrawColored)
         {
+            Instance.Value = this;
+
             visible = Game1.player.showChestColorPicker;
             height = Height;
             width = Width;
@@ -59,6 +64,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Views
 
             _color = HSLColor.FromColor(chest.playerChoiceColor.Value);
             colorSelection = (int) (_color.H * HueBar.Height);
+        }
+
+        public void Dispose()
+        {
+            Instance.Value = null;
         }
 
         internal static void Init(IContentHelper contentHelper)

@@ -14,10 +14,12 @@ namespace ImJustMatt.ExpandedStorage
     public class ExpandedStorageAPI : IExpandedStorageAPI
     {
         private readonly ExpandedStorage _mod;
+        private readonly AssetController _assets;
 
-        internal ExpandedStorageAPI(ExpandedStorage mod)
+        internal ExpandedStorageAPI(ExpandedStorage mod, AssetController assets)
         {
             _mod = mod;
+            _assets = assets;
         }
 
         public void DisableWithModData(string modDataKey)
@@ -27,18 +29,18 @@ namespace ImJustMatt.ExpandedStorage
 
         public void DisableDrawWithModData(string modDataKey)
         {
-            ChestPatch.AddExclusion(modDataKey);
-            ObjectPatch.AddExclusion(modDataKey);
+            ChestPatches.AddExclusion(modDataKey);
+            ObjectPatches.AddExclusion(modDataKey);
         }
 
         public IList<string> GetAllStorages()
         {
-            return ExpandedStorage.Storages.Keys.ToList();
+            return _assets.Storages.Keys.ToList();
         }
 
         public IList<string> GetOwnedStorages(IManifest manifest)
         {
-            return ExpandedStorage.Storages
+            return _assets.Storages
                 .Where(storageConfig => storageConfig.Value.ModUniqueId == manifest.UniqueID)
                 .Select(storageConfig => storageConfig.Key)
                 .ToList();
@@ -46,7 +48,7 @@ namespace ImJustMatt.ExpandedStorage
 
         public bool TryGetStorage(string storageName, out IStorage storage)
         {
-            if (ExpandedStorage.Storages.TryGetValue(storageName, out var foundStorage))
+            if (_assets.Storages.TryGetValue(storageName, out var foundStorage))
             {
                 storage = new StorageController(storageName, foundStorage);
                 return true;
@@ -58,7 +60,7 @@ namespace ImJustMatt.ExpandedStorage
 
         public bool AcceptsItem(Chest chest, Item item)
         {
-            return !ExpandedStorage.TryGetStorage(chest, out var storage) || storage.Filter(item);
+            return !_assets.TryGetStorage(chest, out var storage) || storage.Filter(item);
         }
 
         public bool LoadContentPack(string path)
@@ -99,7 +101,7 @@ namespace ImJustMatt.ExpandedStorage
             var playerConfigs = new Dictionary<string, StorageConfigController>();
 
             // Register Generic Mod Config Menu for Content Pack
-            ContentController.RegisterModConfig(contentPack, _mod.ModConfigMenu, expandedStorages, playerConfigs);
+            AssetController.RegisterModConfig(contentPack, _mod.ModConfigMenu, expandedStorages, playerConfigs);
 
             // Load default expanded storage config if specified
             StorageConfigController parentConfig = null;
@@ -113,7 +115,7 @@ namespace ImJustMatt.ExpandedStorage
             foreach (var expandedStorage in expandedStorages)
             {
                 // Skip duplicate storage configs
-                if (ExpandedStorage.Storages.ContainsKey(expandedStorage.Key))
+                if (_assets.Storages.ContainsKey(expandedStorage.Key))
                 {
                     _mod.Monitor.Log($"Duplicate storage {expandedStorage.Key} in {contentPack.Manifest.UniqueID}.", LogLevel.Warn);
                     continue;
@@ -128,7 +130,7 @@ namespace ImJustMatt.ExpandedStorage
                         ? () => contentPack.LoadAsset<Texture2D>($"assets/{expandedStorage.Value.Image}")
                         : null
                 };
-                ExpandedStorage.Storages.Add(expandedStorage.Key, storage);
+                _assets.Storages.Add(expandedStorage.Key, storage);
 
                 // Register storage configuration
                 var defaultConfig = new StorageConfigController(expandedStorage.Value)
@@ -168,7 +170,7 @@ namespace ImJustMatt.ExpandedStorage
                             ? () => contentPack.LoadAsset<Texture2D>($"assets/{storageTab.Value.TabImage}")
                             : null
                     };
-                    ExpandedStorage.Tabs.Add(tabId, tab);
+                    _assets.Tabs.Add(tabId, tab);
                 }
             }
 

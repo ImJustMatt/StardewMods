@@ -10,21 +10,44 @@ using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
-    internal class ContentController : IAssetLoader, IAssetEditor
+    internal class AssetController : IAssetLoader, IAssetEditor
     {
+        /// <summary>Dictionary of Expanded Storage configs</summary>
+        internal readonly IDictionary<string, StorageController> Storages = new Dictionary<string, StorageController>();
+
+        /// <summary>Dictionary of Expanded Storage tabs</summary>
+        internal readonly IDictionary<string, TabController> Tabs = new Dictionary<string, TabController>();
+
         private readonly ExpandedStorage _mod;
         private bool _isContentLoaded;
 
-        internal ContentController(ExpandedStorage mod)
+        internal AssetController(ExpandedStorage mod)
         {
             _mod = mod;
 
-            // Default Exclusions
-            _mod.ExpandedStorageAPI.DisableWithModData("aedenthorn.AdvancedLootFramework/IsAdvancedLootFrameworkChest");
-            _mod.ExpandedStorageAPI.DisableDrawWithModData("aedenthorn.CustomChestTypes/IsCustomChest");
-
             // Events
             _mod.Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            _mod.Helper.Events.GameLoop.DayStarted += OnDayStarted;
+        }
+
+        /// <summary>Returns Storage by object context.</summary>
+        internal bool TryGetStorage(object context, out StorageController storage)
+        {
+            storage = Storages
+                .Select(c => c.Value)
+                .FirstOrDefault(c => c.MatchesContext(context));
+            return storage != null;
+        }
+
+        /// <summary>Returns ExpandedStorageTab by tab name.</summary>
+        internal TabController GetTab(string modUniqueId, string tabName)
+        {
+            return Tabs
+                .Where(t => t.Key.EndsWith($"/{tabName}"))
+                .Select(t => t.Value)
+                .OrderByDescending(t => t.ModUniqueId.Equals(modUniqueId))
+                .ThenByDescending(t => t.ModUniqueId.Equals("furyx639.ExpandedStorage"))
+                .FirstOrDefault();
         }
 
         /// <summary>Get whether this instance can load the initial version of the given asset.</summary>
@@ -49,7 +72,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <summary>Load Data for Mods/furyx639.ExpandedStorage path</summary>
         public bool CanLoad<T>(IAssetInfo asset)
         {
-            return asset.AssetName.StartsWith(PathUtilities.NormalizePath("Mods/furyx639.ExpandedStorage"));
+            return asset.AssetName.StartsWith(PathUtilities.NormalizePath("Mods/furyx639.ExpandedStorage/"));
         }
 
         /// <summary>Provide base versions of ExpandedStorage assets</summary>
@@ -61,12 +84,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 case "SpriteSheets":
                     var storageName = assetParts.ElementAtOrDefault(1);
                     if (string.IsNullOrWhiteSpace(storageName)
-                        || !ExpandedStorage.Storages.TryGetValue(storageName, out var storage)
+                        || !Storages.TryGetValue(storageName, out var storage)
                         || storage.Texture == null) throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
                     return (T) (object) storage.Texture.Invoke();
                 case "Tabs":
                     var tabId = $"{assetParts.ElementAtOrDefault(1)}/{assetParts.ElementAtOrDefault(2)}";
-                    if (!ExpandedStorage.Tabs.TryGetValue(tabId, out var tab))
+                    if (!Tabs.TryGetValue(tabId, out var tab))
                         throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
                     return (T) (object) tab.Texture?.Invoke() ?? _mod.Helper.Content.Load<T>($"assets/{tab.TabImage}");
             }
@@ -75,8 +98,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         }
 
         /// <summary>Raised after the game is launched, right before the first update tick.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             if (_mod.JsonAssets.IsLoaded)
@@ -100,10 +121,19 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     Path = $"Mods/furyx639.ExpandedStorage/Tabs/{tabId}",
                     TabName = _mod.Helper.Translation.Get(storageTab.Key).Default(storageTab.Key)
                 };
-                ExpandedStorage.Tabs.Add(tabId, tab);
+                Tabs.Add(tabId, tab);
             }
 
             _isContentLoaded = true;
+        }
+
+        /// <summary>Raised after a new in-game day starts, or after connecting to a multiplayer world.</summary>
+        private void OnDayStarted(object sender, DayStartedEventArgs e)
+        {
+            foreach (var sprite in Storages.Values.Where(s => s.StorageSprite != null).Select(s => s.StorageSprite))
+            {
+                sprite.InvalidateCache();
+            }
         }
 
         /// <summary>Load Json Assets Ids.</summary>
@@ -111,7 +141,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <param name="e">The event arguments.</param>
         private void OnIdsLoaded(object sender, EventArgs e)
         {
-            foreach (var storage in ExpandedStorage.Storages)
+            foreach (var storage in Storages)
             {
                 var bigCraftableId = _mod.JsonAssets.API.GetBigCraftableId(storage.Key);
                 if (bigCraftableId != -1)
@@ -143,7 +173,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 .Select(data => new KeyValuePair<int, string>(data.Key, data.Value.Split('/')[0]))
                 .ToList();
 
-            foreach (var storage in ExpandedStorage.Storages.Where(storage => storage.Value.Source != StorageController.SourceType.JsonAssets))
+            foreach (var storage in Storages.Where(storage => storage.Value.Source != StorageController.SourceType.JsonAssets))
             {
                 var bigCraftableIds = bigCraftables
                     .Where(data => data.Value.Equals(storage.Key))
@@ -168,7 +198,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 }
             }
 
-            foreach (var bigCraftable in bigCraftables.Where(data => !ExpandedStorage.Storages.ContainsKey(data.Value)))
+            foreach (var bigCraftable in bigCraftables.Where(data => !Storages.ContainsKey(data.Value)))
             {
                 var defaultStorage = new StorageController(bigCraftable.Value)
                 {
@@ -177,7 +207,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     Source = StorageController.SourceType.Vanilla
                 };
                 defaultStorage.ObjectIds.Add(bigCraftable.Key);
-                ExpandedStorage.Storages.Add(bigCraftable.Value, defaultStorage);
+                Storages.Add(bigCraftable.Value, defaultStorage);
                 _mod.Monitor.Log(string.Join("\n",
                     $"{bigCraftable.Value} Config:",
                     StorageController.ConfigHelper.Summary(defaultStorage),

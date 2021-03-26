@@ -144,7 +144,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
         internal Func<Texture2D> Texture { get; set; }
 
-        internal StorageSpriteController SpriteSheet => Texture != null
+        internal StorageSpriteController StorageSprite => Texture != null
             ? _storageSprite ??= new StorageSpriteController(this)
             : null;
 

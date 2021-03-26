@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
@@ -19,12 +18,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
     [SuppressMessage("ReSharper", "IdentifierTypo")]
     internal class MenuController : IDisposable
     {
-        private static readonly PerScreen<MenuController> Instance = new();
-
-        private static IModEvents _events;
-        private static IInputHelper _inputHelper;
-        private static ConfigController _config;
-
+        //private static ExpandedStorage Mod;
         private readonly MenuModel _model;
 
         /// <summary>The screen ID for which the overlay was created, to support split-screen mode.</summary>
@@ -32,12 +26,22 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
         private readonly MenuView _view;
 
-        private MenuController(ItemGrabMenu menu)
-        {
-            _screenId = Context.ScreenId;
-            _model = MenuModel.Get(menu);
+        private readonly AssetController _assetController;
+        private readonly ConfigModel _config;
+        private readonly IModEvents _events;
+        private readonly IInputHelper _input;
 
-            if (_model.Storage == null)
+        public MenuController(ItemGrabMenu menu, AssetController assetController, ConfigModel config, IModEvents events, IInputHelper input)
+        {
+            _assetController ??= assetController;
+            _config ??= config;
+            _events ??= events;
+            _input ??= input;
+
+            _screenId = Context.ScreenId;
+            _assetController.TryGetStorage(menu.context, out var storage);
+            _model = MenuModel.Get(menu, storage);
+            if (storage == null)
                 return;
 
             Chest chest = null;
@@ -50,8 +54,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             _view = new MenuView(menu,
                 new MenuView.Options
                 {
-                    ShowSearch = _model.Storage.Config.Option("ShowSearchBar", true) == StorageConfigController.Choice.Enable,
-                    ShowColor = chest != null && _config.ColorPicker && _model.Storage.PlayerColor && _model.Storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable,
+                    ShowSearch = storage.Config.Option("ShowSearchBar", true) == StorageConfigController.Choice.Enable,
+                    ShowColor = chest != null && _config.ColorPicker && storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable,
                     Chest = chest,
                     Text = _model.SearchText
                 },
@@ -61,18 +65,37 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
             // Events
             _model.ItemChanged += OnItemChanged;
-            _events.Display.RenderingActiveMenu += OnRenderingActiveMenu;
-            _events.Display.RenderedActiveMenu += OnRenderedActiveMenu;
-            _events.Input.ButtonsChanged += OnButtonsChanged;
-            _events.Input.ButtonPressed += OnButtonPressed;
-            _events.Input.ButtonReleased += OnButtonReleased;
-            _events.Input.CursorMoved += OnCursorMoved;
-            _events.Input.MouseWheelScrolled += OnMouseWheelScrolled;
+            events.GameLoop.UpdateTicked += OnUpdateTicked;
+            events.Display.RenderingActiveMenu += OnRenderingActiveMenu;
+            events.Display.RenderedActiveMenu += OnRenderedActiveMenu;
+            events.Input.ButtonsChanged += OnButtonsChanged;
+            events.Input.ButtonPressed += OnButtonPressed;
+            events.Input.ButtonReleased += OnButtonReleased;
+            events.Input.CursorMoved += OnCursorMoved;
+            events.Input.MouseWheelScrolled += OnMouseWheelScrolled;
 
-            if (_model.Storage.Config.Option("ShowTabs", true) == StorageConfigController.Choice.Enable && _model.StorageTabs.Any())
+            if (storage.Config.Option("ShowTabs", true) == StorageConfigController.Choice.Enable)
             {
-                foreach (var tab in _model.StorageTabs) _view.AddTab(tab.TabName, Game1.content.Load<Texture2D>(tab.Path));
-                _view.CurrentTab = _model.CurrentTab;
+                if (storage.Tabs.Count > 0)
+                {
+                    _model.StorageTabs = storage.Tabs
+                        .Select(t => _assetController.GetTab(storage.ModUniqueId, t))
+                        .Where(t => t != null)
+                        .ToList();
+                }
+                else if (StorageConfigController.DefaultTabs?.Count > 0)
+                {
+                    _model.StorageTabs = StorageConfigController.DefaultTabs
+                        .Select(t => _assetController.GetTab(storage.ModUniqueId, t))
+                        .Where(t => t != null)
+                        .ToList();
+                }
+
+                if (_model.StorageTabs != null)
+                {
+                    foreach (var tab in _model.StorageTabs) _view.AddTab(tab.TabName, Game1.content.Load<Texture2D>(tab.Path));
+                    _view.CurrentTab = _model.CurrentTab;
+                }
             }
 
             OnItemChanged(this, null);
@@ -80,7 +103,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
         public void Dispose()
         {
-            Instance.Value = null;
+            _events.GameLoop.UpdateTicked -= OnUpdateTicked;
             _events.Display.RenderingActiveMenu -= OnRenderingActiveMenu;
             _events.Display.RenderedActiveMenu -= OnRenderedActiveMenu;
             _events.Input.ButtonsChanged -= OnButtonsChanged;
@@ -93,47 +116,20 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             _view?.Dispose();
         }
 
-        public static void RefreshItems()
+        public void RefreshItems()
         {
-            if (Instance.Value == null || Context.ScreenId != Instance.Value._screenId)
+            if (Context.ScreenId != _screenId)
                 return;
-            Instance.Value.OnItemChanged(Instance.Value, null);
-        }
-
-        internal static void Init(IModEvents events, IInputHelper inputHelper, ConfigController config)
-        {
-            _events = events;
-            _inputHelper = inputHelper;
-            _config = config;
-
-            // Events
-            _events.GameLoop.UpdateTicked += OnUpdateTicked;
-            _events.Display.MenuChanged += OnMenuChanged;
+            OnItemChanged(this, null);
         }
 
         /// <summary>Raised after the game state is updated (≈60 times per second).</summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private static void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
+        private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
         {
-            if (Instance.Value == null)
-                return;
-            if (!Context.HasScreenId(Instance.Value._screenId) || Game1.activeClickableMenu is not ItemGrabMenu)
-                Instance.Value.Dispose();
+            if (!Context.HasScreenId(_screenId) || Game1.activeClickableMenu is not ItemGrabMenu)
+                Dispose();
             else
-                Instance.Value._model.SearchText = MenuView.SearchText;
-        }
-
-        /// <summary>
-        ///     Resets scrolling/overlay when chest menu exits or context changes.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event arguments.</param>
-        private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
-        {
-            Instance.Value?.Dispose();
-            if (e.NewMenu is ItemGrabMenu {shippingBin: false} menu)
-                Instance.Value = new MenuController(menu);
+                _model.SearchText = _view.SearchText;
         }
 
         /// <summary>Attempts to scroll offset by one row of slots relative to the inventory menu.</summary>
@@ -198,12 +194,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             if (_config.Controls.ScrollDown.JustPressed())
             {
                 Scroll(-1);
-                _inputHelper.SuppressActiveKeybinds(_config.Controls.ScrollDown);
+                _input.SuppressActiveKeybinds(_config.Controls.ScrollDown);
             }
             else if (_config.Controls.ScrollUp.JustPressed())
             {
                 Scroll(1);
-                _inputHelper.SuppressActiveKeybinds(_config.Controls.ScrollUp);
+                _input.SuppressActiveKeybinds(_config.Controls.ScrollUp);
             }
 
             if (_model.Storage?.Tabs == null)
@@ -213,13 +209,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             {
                 PreviousTab();
                 _view.CurrentTab = _model.CurrentTab;
-                _inputHelper.SuppressActiveKeybinds(_config.Controls.PreviousTab);
+                _input.SuppressActiveKeybinds(_config.Controls.PreviousTab);
             }
             else if (_config.Controls.NextTab.JustPressed())
             {
                 NextTab();
                 _view.CurrentTab = _model.CurrentTab;
-                _inputHelper.SuppressActiveKeybinds(_config.Controls.NextTab);
+                _input.SuppressActiveKeybinds(_config.Controls.NextTab);
             }
         }
 
@@ -235,11 +231,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             var y = Game1.getMouseY(true);
 
             if ((e.Button == SButton.MouseLeft || e.Button.IsUseToolButton()) && _view.LeftClick(x, y))
-                _inputHelper.Suppress(e.Button);
+                _input.Suppress(e.Button);
             else if ((e.Button == SButton.MouseRight || e.Button.IsActionButton()) && _view.RightClick(x, y))
-                _inputHelper.Suppress(e.Button);
+                _input.Suppress(e.Button);
             else if (_view.ReceiveKeyPress(e.Button))
-                _inputHelper.Suppress(e.Button);
+                _input.Suppress(e.Button);
         }
 
         /// <summary>Track if configured control buttons are pressed or pass input to overlay.</summary>
@@ -254,9 +250,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             var y = Game1.getMouseY(true);
 
             if ((e.Button == SButton.MouseLeft || e.Button.IsUseToolButton()) && _view.LeftClick(x, y, true))
-                _inputHelper.Suppress(e.Button);
+                _input.Suppress(e.Button);
             else if ((e.Button == SButton.MouseRight || e.Button.IsActionButton()) && _view.RightClick(x, y, true))
-                _inputHelper.Suppress(e.Button);
+                _input.Suppress(e.Button);
 
             if (_model.Context is Chest chest)
             {

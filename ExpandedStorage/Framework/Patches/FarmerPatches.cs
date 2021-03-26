@@ -10,9 +10,9 @@ using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class FarmerPatch : BasePatch<ExpandedStorage>
+    internal class FarmerPatches : BasePatch<ExpandedStorage>
     {
-        public FarmerPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public FarmerPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Farmer), nameof(Farmer.addItemToInventory), new[] {typeof(Item), typeof(List<Item>)}),
@@ -24,7 +24,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         public static bool AddItemToInventoryPrefix(Farmer __instance, ref Item __result, Item item, List<Item> affected_items_list)
         {
             if (item.Stack > 1
-                || !ExpandedStorage.TryGetStorage(item, out var storage)
+                || !Mod.AssetController.TryGetStorage(item, out var storage)
                 || storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable
                 && storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable) return true;
 

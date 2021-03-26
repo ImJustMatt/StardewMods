@@ -10,9 +10,9 @@ using StardewValley.Menus;
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
-    internal class MenuWithInventoryPatch : MenuPatch
+    internal class MenuWithInventoryPatches : MenuPatches
     {
-        public MenuWithInventoryPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public MenuWithInventoryPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             var drawMethod = AccessTools.Method(typeof(MenuWithInventory), nameof(MenuWithInventory.draw),
                 new[]

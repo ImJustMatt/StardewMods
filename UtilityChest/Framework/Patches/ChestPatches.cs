@@ -1,4 +1,5 @@
-﻿using Harmony;
+﻿using System.Diagnostics.CodeAnalysis;
+using Harmony;
 using ImJustMatt.Common.Patches;
 using ImJustMatt.UtilityChest.Framework.Extensions;
 using Microsoft.Xna.Framework;
@@ -10,11 +11,12 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.UtilityChest.Framework.Patches
 {
-    internal class ChestPatch : BasePatch<UtilityChest>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    internal class ChestPatches : BasePatch<UtilityChest>
     {
         private static PerScreen<Chest> CurrentChest;
 
-        public ChestPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public ChestPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             CurrentChest = Mod.CurrentChest;
 
@@ -26,7 +28,7 @@ namespace ImJustMatt.UtilityChest.Framework.Patches
 
         public static void DrawInMenuPostfix(Chest __instance, SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, StackDrawType drawStackNumber, Color color, bool drawShadow)
         {
-            if (CurrentChest.Value?.CurrentItem() is not { } item) return;
+            if (!ReferenceEquals(__instance, CurrentChest.Value) || __instance.CurrentItem() is not { } item) return;
             item.drawInMenu(spriteBatch, location, scaleSize * 0.8f, transparency, layerDepth, drawStackNumber, color, drawShadow);
         }
     }

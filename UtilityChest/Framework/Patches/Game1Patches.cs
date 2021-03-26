@@ -5,11 +5,11 @@ using StardewValley;
 
 namespace ImJustMatt.UtilityChest.Framework.Patches
 {
-    internal class Game1Patch : BasePatch<UtilityChest>
+    internal class Game1Patches : BasePatch<UtilityChest>
     {
         private static IInputHelper InputHelper;
 
-        public Game1Patch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public Game1Patches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             InputHelper = Mod.Helper.Input;
 

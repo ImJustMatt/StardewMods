@@ -2,6 +2,7 @@
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.Patches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -9,9 +10,9 @@ using StardewValley.Menus;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class InventoryMenuPatch : MenuPatch
+    internal class InventoryMenuPatches : MenuPatches
     {
-        public InventoryMenuPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public InventoryMenuPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(InventoryMenu), nameof(InventoryMenu.draw), new[] {typeof(SpriteBatch), typeof(int), typeof(int), typeof(int)}),

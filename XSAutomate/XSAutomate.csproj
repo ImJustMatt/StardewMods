@@ -19,7 +19,9 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\ExpandedStorage\ExpandedStorage.csproj" />
+        <ProjectReference Include="..\ExpandedStorage\ExpandedStorage.csproj">
+            <Private>False</Private>
+        </ProjectReference>
     </ItemGroup>
 
     <Import Project="..\build\common.targets" />

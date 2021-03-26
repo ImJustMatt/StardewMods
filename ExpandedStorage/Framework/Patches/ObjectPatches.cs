@@ -15,7 +15,7 @@ using StardewValley.Objects;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
-    internal class ObjectPatch : BasePatch<ExpandedStorage>
+    internal class ObjectPatches : BasePatch<ExpandedStorage>
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
 
@@ -24,7 +24,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             ExcludeModDataKeys.Add(modDataKey);
         }
 
-        public ObjectPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public ObjectPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Object), nameof(Object.checkForAction)),
@@ -66,7 +66,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         public static bool CheckForActionPrefix(Object __instance, ref bool __result, Farmer who, bool justCheckingForActivity)
         {
             if (justCheckingForActivity || !Game1.didPlayerJustRightClick(true)) return true;
-            if (!ExpandedStorage.TryGetStorage(__instance, out _)) return true;
+            if (!Mod.AssetController.TryGetStorage(__instance, out _)) return true;
             var x = __instance.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
             var y = __instance.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
             if (!Game1.currentLocation.Objects.TryGetValue(new Vector2(x, y), out var obj) || obj is not Chest chest) return true;
@@ -78,8 +78,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         public static bool DrawPrefix(Object __instance, SpriteBatch spriteBatch, int x, int y, float alpha)
         {
             if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
-                || !ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
-            return storage.SpriteSheet is not { } spriteSheet
+                || !Mod.AssetController.TryGetStorage(__instance, out var storage)) return true;
+            return storage.StorageSprite is not { } spriteSheet
                    || spriteSheet.TileWidth <= 1 && spriteSheet.TileHeight <= 1
                    || (int) __instance.TileLocation.X == x && (int) __instance.TileLocation.Y == y;
         }
@@ -87,10 +87,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         public static bool DrawWhenHeldPrefix(Object __instance, SpriteBatch spriteBatch, Vector2 objectPosition, Farmer f)
         {
             if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
-                || !ExpandedStorage.TryGetStorage(__instance, out var storage)
+                || !Mod.AssetController.TryGetStorage(__instance, out var storage)
                 || __instance is not Chest chest) return true;
 
-            if (storage.SpriteSheet is {Texture: { }} spriteSheet)
+            if (storage.StorageSprite is {Texture: { }} spriteSheet)
             {
                 objectPosition.X -= spriteSheet.Width * 2f - 32;
                 objectPosition.Y -= spriteSheet.Height * 2f - 64 - (storage.IsPlaceable ? 0 : spriteSheet.Height / 2f);
@@ -100,15 +100,16 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 objectPosition.Y += 16;
             }
 
-            chest.Draw(storage, spriteBatch, objectPosition, Vector2.Zero);
+            var currentFrame = Mod.Helper.Reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue();
+            chest.Draw(currentFrame, storage, spriteBatch, objectPosition, Vector2.Zero);
             return false;
         }
 
         public static bool DrawPlacementBoundsPrefix(Object __instance, SpriteBatch spriteBatch, GameLocation location)
         {
             if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)) return true;
-            if (ExpandedStorage.TryGetStorage(__instance, out var storage) && !storage.IsPlaceable) return false;
-            if (storage?.SpriteSheet is not {Texture: { }} spriteSheet) return true;
+            if (Mod.AssetController.TryGetStorage(__instance, out var storage) && !storage.IsPlaceable) return false;
+            if (storage?.StorageSprite is not {Texture: { }} spriteSheet) return true;
 
             var tile = 64 * Game1.GetPlacementGrabTile();
             var x = (int) tile.X;
@@ -144,7 +145,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (__instance is Chest chest)
             {
                 var globalPosition = new Vector2((int) (x / 64f), (int) (y / 64f - storage.Depth / 16f - 1f));
-                chest.Draw(storage, spriteBatch, Game1.GlobalToLocal(Game1.viewport, globalPosition * 64), Vector2.Zero, 0.5f);
+                var currentFrame = Mod.Helper.Reflection.GetField<int>(chest, "_shippingBinFrameCounter").GetValue();
+                chest.Draw(currentFrame, storage, spriteBatch, Game1.GlobalToLocal(Game1.viewport, globalPosition * 64), Vector2.Zero, 0.5f);
             }
             else
                 __instance.draw(spriteBatch, x / 64, y / 64, 0.5f);
@@ -154,7 +156,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         public static void GetOnePostfix(Object __instance, ref Item __result)
         {
-            if (ExpandedStorage.TryGetStorage(__instance, out var storage))
+            if (Mod.AssetController.TryGetStorage(__instance, out var storage))
             {
                 __result = __instance.ToChest(storage);
             }
@@ -165,7 +167,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         {
             if (!__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
                 && __instance is Chest
-                || ExpandedStorage.TryGetStorage(__instance, out var storage)
+                || Mod.AssetController.TryGetStorage(__instance, out var storage)
                 && (storage.Config.Option("CarryChest", true) != StorageConfigController.Choice.Enable
                     || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable))
             {
@@ -176,7 +178,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         public static bool PlacementActionPrefix(Object __instance, ref bool __result, GameLocation location, int x, int y, Farmer who)
         {
             if (__instance.modData.Keys.Any(ExcludeModDataKeys.Contains)
-                || !ExpandedStorage.TryGetStorage(__instance, out var storage)) return true;
+                || !Mod.AssetController.TryGetStorage(__instance, out var storage)) return true;
 
             if (!storage.IsPlaceable)
             {

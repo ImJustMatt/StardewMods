@@ -26,9 +26,9 @@ namespace ImJustMatt.UtilityChest
             helper.Events.Input.MouseWheelScrolled += OnMouseWheelScrolled;
 
             new Patcher(this).ApplyAll(
-                typeof(Game1Patch),
-                typeof(FarmerPatch),
-                typeof(ChestPatch)
+                typeof(Game1Patches),
+                typeof(FarmerPatches),
+                typeof(ChestPatches)
             );
         }
 

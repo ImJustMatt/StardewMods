@@ -4,7 +4,6 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
@@ -13,8 +12,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Views
 {
     internal class MenuView : IDisposable
     {
-        private static readonly PerScreen<MenuView> Instance = new();
-
         /// <summary>Chest color picker.</summary>
         private readonly HSLColorPicker _colorPicker;
 
@@ -68,7 +65,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Views
             Action<int> setTab,
             Action<string> search)
         {
-            Instance.Value = this;
             _screenId = Context.ScreenId;
 
             _menu = menu;
@@ -134,21 +130,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Views
         /// <summary>Returns whether the menu and its components have been initialized.</summary>
         private bool IsInitialized => _drawCount > 1;
 
-        /// <summary>Returns Displayed Rows of MenuWithInventory.</summary>
-        internal static HSLColorPicker ColorPicker =>
-            Instance.Value == null || Instance.Value._screenId != Context.ScreenId
-                ? null
-                : Instance.Value._colorPicker;
-
-        internal static string SearchText =>
-            Instance.Value == null || Instance.Value._screenId != Context.ScreenId
-                ? null
-                : Instance.Value._searchField?.Text;
+        internal string SearchText => _screenId != Context.ScreenId ? null : _searchField?.Text;
 
         /// <summary>Unregister Event Handling</summary>
         public void Dispose()
         {
-            Instance.Value = null;
+            _colorPicker?.Dispose();
         }
 
         public void AddTab(string tabName, Texture2D texture)

@@ -17,9 +17,9 @@ using StardewValley.Objects;
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class ItemGrabMenuPatch : MenuPatch
+    internal class ItemGrabMenuPatches : MenuPatches
     {
-        public ItemGrabMenuPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public ItemGrabMenuPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             var constructor = AccessTools.Constructor(typeof(ItemGrabMenu),
                 new[]
@@ -138,7 +138,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
         private static void ConstructorPostfix(ItemGrabMenu __instance, ref ItemGrabMenu.behaviorOnItemSelect ___behaviorFunction)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
+            if (!Mod.AssetController.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
             var menuConfig = storage.Config.Menu;
@@ -151,18 +151,18 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (__instance.context is not Chest chest)
                 chest = null;
 
-            if (ExpandedStorage.HeldChest.Value != null
+            if (Mod.ChestController?.HeldChest != null
                 && chest != null
-                && !ReferenceEquals(ExpandedStorage.HeldChest.Value, chest))
+                && !ReferenceEquals(Mod.ChestController?.HeldChest, chest))
             {
                 ___behaviorFunction = delegate(Item item, Farmer who)
                 {
                     var tmp = chest.addItem(item);
                     if (tmp == null)
                     {
-                        ExpandedStorage.HeldChest.Value.GetItemsForPlayer(who.UniqueMultiplayerID).Remove(item);
-                        ExpandedStorage.HeldChest.Value.clearNulls();
-                        MenuController.RefreshItems();
+                        Mod.ChestController?.HeldChest.GetItemsForPlayer(who.UniqueMultiplayerID).Remove(item);
+                        Mod.ChestController?.HeldChest.clearNulls();
+                        Mod.ActiveMenu.Value.RefreshItems();
                     }
 
                     chest.ShowMenu();
@@ -172,12 +172,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
 
                 __instance.behaviorOnItemGrab = delegate(Item item, Farmer who)
                 {
-                    __instance.heldItem = ExpandedStorage.HeldChest.Value.addItem(item);
+                    __instance.heldItem = Mod.ChestController?.HeldChest.addItem(item);
                     if (__instance.heldItem == null)
                     {
                         chest.GetItemsForPlayer(who.UniqueMultiplayerID).Remove(item);
                         chest.clearNulls();
-                        MenuController.RefreshItems();
+                        Mod.ActiveMenu.Value.RefreshItems();
                     }
                 };
 
@@ -185,7 +185,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     __instance.xPositionOnScreen + IClickableMenu.spaceToClearSideBorder + IClickableMenu.borderWidth / 2,
                     __instance.yPositionOnScreen + IClickableMenu.spaceToClearTopBorder + IClickableMenu.borderWidth + 192 - 16,
                     false,
-                    ExpandedStorage.HeldChest.Value.GetItemsForPlayer(Game1.player.UniqueMultiplayerID),
+                    Mod.ChestController?.HeldChest.GetItemsForPlayer(Game1.player.UniqueMultiplayerID),
                     chest.HighlightMethod(storage));
             }
             else
@@ -250,25 +250,25 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         /// <summary>Set color picker to HSL Color Picker.</summary>
         private static void GameWindowSizeChangedPostfix(ItemGrabMenu __instance)
         {
-            if (ExpandedStorage.TryGetStorage(__instance.context, out var storage) && __instance.context is not ShippingBin && Config.ColorPicker)
+            if (Mod.AssetController.TryGetStorage(__instance.context, out var storage) && __instance.context is not ShippingBin && Config.ColorPicker)
             {
-                __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? MenuView.ColorPicker : null;
+                __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? HSLColorPicker.Instance.Value : null;
             }
         }
 
         /// <summary>Set color picker to HSL Color Picker.</summary>
         private static void SetSourceItemPostfix(ItemGrabMenu __instance)
         {
-            if (ExpandedStorage.TryGetStorage(__instance.context, out var storage) && __instance.context is not ShippingBin && Config.ColorPicker)
+            if (Mod.AssetController.TryGetStorage(__instance.context, out var storage) && __instance.context is not ShippingBin && Config.ColorPicker)
             {
-                __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? MenuView.ColorPicker : null;
+                __instance.chestColorPicker = storage.PlayerColor && storage.Config.Option("ShowColorPicker", true) == StorageConfigController.Choice.Enable ? HSLColorPicker.Instance.Value : null;
             }
         }
 
         /// <summary>Reposition side buttons with offset.</summary>
         private static void RepositionSideButtonsPostfix(ItemGrabMenu __instance)
         {
-            if (!ExpandedStorage.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
+            if (!Mod.AssetController.TryGetStorage(__instance.context, out var storage) || __instance.context is ShippingBin)
                 return;
 
             var menuConfig = storage.Config.Menu;

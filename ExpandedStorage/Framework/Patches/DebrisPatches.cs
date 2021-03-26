@@ -1,19 +1,23 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Harmony;
 using ImJustMatt.Common.Patches;
+using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.Objects;
 using StardewValley.Tools;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class DebrisPatch : BasePatch<ExpandedStorage>
+    internal class DebrisPatches : BasePatch<ExpandedStorage>
     {
-        public DebrisPatch(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
+        public DebrisPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
                 AccessTools.Method(typeof(Debris), nameof(Debris.collect)),
@@ -25,7 +29,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         public static bool collect_Prefix(Debris __instance, ref bool __result, Farmer farmer, Chunk chunk)
         {
             chunk ??= __instance.Chunks.FirstOrDefault();
-            if (chunk == null || !(ExpandedStorage.VacuumChests.Value?.Any() ?? false))
+            if (chunk == null || !Mod.VacuumChests.Any())
                 return true;
 
             var switcher = __instance.debrisType.Value.Equals(Debris.DebrisType.ARCHAEOLOGY) || __instance.debrisType.Value.Equals(Debris.DebrisType.OBJECT)

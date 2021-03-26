@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XSAutomate", "XSAutomate\XS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilityChest", "UtilityChest\UtilityChest.csproj", "{235F8EF8-938D-4293-B6EF-729E4B8B12E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimeFramework", "SlimeFramework\SlimeFramework.csproj", "{BE7C1D47-0C19-4D85-81BD-9B1C6542F8E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,5 +41,9 @@ Global
 		{235F8EF8-938D-4293-B6EF-729E4B8B12E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{235F8EF8-938D-4293-B6EF-729E4B8B12E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{235F8EF8-938D-4293-B6EF-729E4B8B12E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE7C1D47-0C19-4D85-81BD-9B1C6542F8E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE7C1D47-0C19-4D85-81BD-9B1C6542F8E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE7C1D47-0C19-4D85-81BD-9B1C6542F8E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE7C1D47-0C19-4D85-81BD-9B1C6542F8E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
