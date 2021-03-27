@@ -177,6 +177,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 GameLocation => SpecialChestType == "MiniShippingBin",
                 ShippingBin => SpecialChestType == "MiniShippingBin",
                 Chest chest when chest.fridge.Value => IsFridge,
+                Chest chest => chest.playerChest.Value && chest.Type.Equals("Crafting") && !chest.giftbox.Value && chest.bigCraftableSpriteIndex.Value < 0 && ObjectIds.Contains(chest.ParentSheetIndex),
                 Object obj when obj.bigCraftable.Value && obj.heldObject.Value is Chest => ObjectIds.Contains(obj.ParentSheetIndex),
                 Object obj when obj.bigCraftable.Value => ObjectIds.Contains(obj.ParentSheetIndex),
                 _ => false
