@@ -81,6 +81,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <summary>Returns Storage by object context.</summary>
         internal bool TryGetStorage(object context, out StorageController storage)
         {
+            if (context is Item item && item.modData.TryGetValue("furyx639.ExpandedStorage/Storage", out var key) && Storages.TryGetValue(key, out storage)) return true;
             storage = Storages
                 .Select(c => c.Value)
                 .FirstOrDefault(c => c.MatchesContext(context));

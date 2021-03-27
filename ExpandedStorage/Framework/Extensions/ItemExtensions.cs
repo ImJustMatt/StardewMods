@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Microsoft.Xna.Framework;
 using StardewValley;
@@ -16,14 +17,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             Assets = assets;
         }
 
-        public static Chest ToChest(this Item item, StorageController storage = null, Chest oldChest = null)
+        public static Chest ToChest(this Item item, StorageController storage, Chest oldChest = null)
         {
-            // Get config for chest
-            if (storage == null && !Assets.TryGetStorage(item, out storage))
-            {
-                throw new InvalidOperationException($"Unexpected item '{item.Name}'.");
-            }
-
             // Create Chest from Item
             var chest = new Chest(true, Vector2.Zero, item.ParentSheetIndex)
             {
@@ -55,6 +50,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
                 if (!chest.modData.ContainsKey(modData.Key))
                     chest.modData.Add(modData.Key, modData.Value);
             }
+
+            // Add modData for Storage Type
+            chest.modData["furyx639.ExpandedStorage/Storage"] = Assets.Storages.FirstOrDefault(s => s.Value.Equals(storage)).Key;
 
             oldChest ??= item is Chest oldItemChest ? oldItemChest : null;
             if (oldChest == null) return chest;
