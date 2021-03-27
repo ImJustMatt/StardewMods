@@ -11,11 +11,12 @@ using xTile.ObjectModel;
 
 namespace ImJustMatt.GarbageDay.Framework.Controllers
 {
-    internal class ContentController : IAssetLoader, IAssetEditor
+    internal class AssetController : IAssetLoader, IAssetEditor
     {
         private readonly GarbageDay _mod;
+        private readonly HashSet<string> _excludedAssets = new(); 
 
-        internal ContentController(GarbageDay mod)
+        internal AssetController(GarbageDay mod)
         {
             _mod = mod;
         }
@@ -23,20 +24,25 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
         /// <summary>Allows editing Maps to remove vanilla garbage cans</summary>
         public bool CanEdit<T>(IAssetInfo asset)
         {
-            return asset.DataType == typeof(Map) && _mod.Maps.Contains(asset.AssetName) || _mod.Config.Debug;
+            return asset.DataType == typeof(Map) && !_excludedAssets.Contains(asset.AssetName);
         }
 
         /// <summary>Remove and store</summary>
         public void Edit<T>(IAssetData asset)
         {
-            var map = asset.AsMap();
+            var map = asset.AsMap().Data;
+            if (!asset.AssetNameEquals(@"Maps\Town") && !map.Properties.ContainsKey("GarbageDay"))
+            {
+                _excludedAssets.Add(asset.AssetName);
+                return;
+            }
             var additions = 0;
             var edits = 0;
-            for (var x = 0; x < map.Data.Layers[0].LayerWidth; x++)
+            for (var x = 0; x < map.Layers[0].LayerWidth; x++)
             {
-                for (var y = 0; y < map.Data.Layers[0].LayerHeight; y++)
+                for (var y = 0; y < map.Layers[0].LayerHeight; y++)
                 {
-                    var layer = map.Data.GetLayer("Buildings");
+                    var layer = map.GetLayer("Buildings");
 
                     // Look for Action: Garbage
                     PropertyValue property = null;
@@ -49,7 +55,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
                     {
                         if (!GarbageDay.GarbageCans.TryGetValue(parts[1], out var garbageCan))
                         {
-                            garbageCan = new GarbageCanController(_mod.Helper.Content, _mod.Helper.Events, _mod.Helper.Reflection, _mod.Config);
+                            garbageCan = new GarbageCanController(_mod.Helper.Events, _mod.Helper.Reflection, _mod.Config);
                             GarbageDay.GarbageCans.Add(parts[1], garbageCan);
                             additions++;
                         }
@@ -58,7 +64,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
                             edits++;
                         }
 
-                        garbageCan.MapName = map.AssetName;
+                        garbageCan.MapName = asset.AssetName;
                         garbageCan.Tile = new Vector2(x, y);
                     }
 
@@ -69,7 +75,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
                     }
 
                     // Remove Lid
-                    layer = map.Data.GetLayer("Front");
+                    layer = map.GetLayer("Front");
                     if ((layer.Tiles[x, y]?.TileSheet.Id.Equals("Town") ?? false) && layer.Tiles[x, y].TileIndex == 46)
                     {
                         layer.Tiles[x, y] = null;
@@ -83,26 +89,22 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
             }
         }
 
-        /// <summary>Load Data for Mods/furyx639.GarbageDay path</summary>
+        /// <summary>Load Data for Mods/GarbageDay/Loot path</summary>
         public bool CanLoad<T>(IAssetInfo asset)
         {
-            var assetPrefix = PathUtilities.NormalizePath("Mods/furyx639.GarbageDay");
-            return asset.AssetName.StartsWith(assetPrefix) && asset.DataType == typeof(Dictionary<string, double>);
+            return asset.AssetName.StartsWith(PathUtilities.NormalizePath("Mods/GarbageDay/Loot/"))
+                && asset.DataType == typeof(Dictionary<string, double>);
         }
 
         /// <summary>Provide base versions of GarbageDay loot</summary>
         public T Load<T>(IAssetInfo asset)
         {
-            if (asset.DataType != typeof(Dictionary<string, double>))
-                throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
-            var assetParts = PathUtilities.GetSegments(asset.AssetName).Skip(2).ToList();
-            if (assetParts.ElementAtOrDefault(0) == "GlobalLoot")
-                return (T) _mod.GlobalLoot;
-            if (assetParts.ElementAtOrDefault(0) != "Loot" || assetParts.Count != 2)
-                throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
-            return _mod.LocalLoot.TryGetValue(assetParts[1], out var lootTable)
-                ? (T) lootTable
-                : (T) (object) new Dictionary<string, double>();
+            var whichCan = PathUtilities.GetSegments(asset.AssetName).ElementAtOrDefault(3);
+            if (whichCan != null && _mod.Loot.TryGetValue(whichCan, out var lootTable))
+            {
+                return (T) (object) lootTable;
+            }
+            throw new InvalidOperationException();
         }
     }
 }

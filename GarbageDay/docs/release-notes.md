@@ -1,5 +1,8 @@
 ﻿# Release Notes
 
+## 1.1.0
+- Simplified map integrations
+
 ## 1.0.3
 - Added config option to hide Garbage Cans from Chests Anywhere
 

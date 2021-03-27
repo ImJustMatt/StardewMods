@@ -3,7 +3,7 @@
     <PropertyGroup>
         <AssemblyName>GarbageDay</AssemblyName>
         <RootNamespace>ImJustMatt.GarbageDay</RootNamespace>
-        <Version>1.0.2</Version>
+        <Version>2.0.0-beta.1</Version>
         <TargetFramework>net452</TargetFramework>
         <EnableHarmony>true</EnableHarmony>
     </PropertyGroup>
@@ -19,9 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="maps\default.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+        <None Update="BigCraftables\Garbage Can\big-craftable.json" CopyToOutputDirectory="PreserveNewest" />
+        <None Update="BigCraftables\Garbage Can\big-craftable.png" CopyToOutputDirectory="PreserveNewest" />
+        <None Update="expanded-storage.json" CopyToOutputDirectory="PreserveNewest" />
+        <None Update="content-pack.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <Import Project="..\build\common.targets" />

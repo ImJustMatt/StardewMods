@@ -74,9 +74,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <summary>Raised after objects are added/removed in any location (including machines, furniture, fences, etc).</summary>
         private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
         {
-            if (!Context.IsPlayerFree)
-                return;
-
             _events.World.ObjectListChanged -= OnObjectListChanged;
             var removed = e.Removed.FirstOrDefault(r => _assetController.TryGetStorage(r.Value, out _));
             var added = e.Added.FirstOrDefault(a => _assetController.TryGetStorage(a.Value, out _));
@@ -180,8 +177,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         private bool AccessCarriedChest(Object chest)
         {
             if (!_assetController.TryGetStorage(chest, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable) return false;
-            chest.checkForAction(Game1.player);
-            return true;
+            return chest.checkForAction(Game1.player);
         }
 
         private bool OpenCrafting()

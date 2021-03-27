@@ -6,65 +6,24 @@ namespace ImJustMatt.GarbageDay
 {
     public class GarbageDayAPI : IGarbageDayAPI
     {
-        private readonly IDictionary<string, double> _globalLoot;
-        private readonly IDictionary<string, IDictionary<string, double>> _localLoot;
-        private readonly HashSet<string> _maps;
+        private readonly Dictionary<string, Dictionary<string, double>> _loot;
 
-        internal GarbageDayAPI(HashSet<string> maps,
-            IDictionary<string, double> globalLoot,
-            IDictionary<string, IDictionary<string, double>> localLoot)
+        internal GarbageDayAPI(Dictionary<string, Dictionary<string, double>> loot)
         {
-            _maps = maps;
-            _globalLoot = globalLoot;
-            _localLoot = localLoot;
-        }
-
-        public void AddMaps(IEnumerable<string> paths)
-        {
-            foreach (var path in paths)
-            {
-                _maps.Add(PathUtilities.NormalizePath(path));
-            }
-        }
-
-        public void AddMap(string path)
-        {
-            _maps.Add(PathUtilities.NormalizePath(path));
-        }
-
-        public void AddLoot(IDictionary<string, double> lootTable)
-        {
-            foreach (var loot in lootTable)
-            {
-                if (_globalLoot.ContainsKey(loot.Key))
-                {
-                    _globalLoot[loot.Key] = loot.Value;
-                }
-                else
-                {
-                    _globalLoot.Add(loot.Key, loot.Value);
-                }
-            }
+            _loot = loot;
         }
 
         public void AddLoot(string whichCan, IDictionary<string, double> lootTable)
         {
-            if (!_localLoot.TryGetValue(whichCan, out var localLoot))
+            if (!_loot.TryGetValue(whichCan, out var loot))
             {
-                localLoot = new Dictionary<string, double>();
-                _localLoot.Add(whichCan, localLoot);
+                loot = new Dictionary<string, double>();
+                _loot.Add(whichCan, loot);
             }
 
-            foreach (var loot in lootTable)
+            foreach (var lootItem in lootTable)
             {
-                if (localLoot.ContainsKey(loot.Key))
-                {
-                    localLoot[loot.Key] = loot.Value;
-                }
-                else
-                {
-                    localLoot.Add(loot.Key, loot.Value);
-                }
+                loot[lootItem.Key] = lootItem.Value;
             }
         }
     }

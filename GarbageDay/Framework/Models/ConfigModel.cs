@@ -1,4 +1,6 @@
-﻿namespace ImJustMatt.GarbageDay.Framework.Models
+﻿using System.Collections.Generic;
+
+namespace ImJustMatt.GarbageDay.Framework.Models
 {
     internal class ConfigModel
     {
@@ -16,5 +18,21 @@
 
         /// <summary>Log Level used when loading in garbage cans</summary>
         public string LogLevel { get; set; } = "Trace";
+
+        /// <summary>Loot available to all garbage cans</summary>
+        public Dictionary<string, double> GlobalLoot { get; set; } = new Dictionary<string, double>
+        {
+            {"item_trash", 1},
+            {"item_joja_cola", 1},
+            {"item_broken_glasses", 1},
+            {"item_broken_cd", 1},
+            {"item_soggy_newspaper", 1},
+            {"item_bread", 1},
+            {"item_field_snack", 1},
+            {"item_acorn", 0.3},
+            {"item_maple_seed", 0.3},
+            {"item_pine_cone", 0.3},
+            {"item_green_algae", 0.3}
+        };
     }
 }

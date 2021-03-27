@@ -20,7 +20,6 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
     {
         private static IEnumerable<SearchableItem> _items;
         private readonly ConfigController _config;
-        private readonly IContentHelper _contentHelper;
         private readonly Multiplayer _multiplayer;
         private Chest _chest;
         private bool _doubleMega;
@@ -29,9 +28,8 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
         private bool _mega;
         private NPC _npc;
 
-        internal GarbageCanController(IContentHelper contentHelper, IModEvents modEvents, IReflectionHelper reflection, ConfigController config)
+        internal GarbageCanController(IModEvents modEvents, IReflectionHelper reflection, ConfigController config)
         {
-            _contentHelper = contentHelper;
             _config = config;
             _multiplayer = reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
 
@@ -164,7 +162,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
             // Custom Local Loot
             if (garbageRandom.NextDouble() < 0.2 + Game1.player.DailyLuck + luck)
             {
-                var localItem = GetLocalLoot(garbageRandom, whichCan);
+                var localItem = RandomLoot(garbageRandom, whichCan);
                 if (localItem != null)
                 {
                     Chest.addItem(localItem.CreateItem());
@@ -185,7 +183,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
                 }
             }
 
-            var globalItem = GetGlobalLoot(garbageRandom);
+            var globalItem = RandomLoot(garbageRandom, "Global");
             if (globalItem != null)
             {
                 Chest.addItem(globalItem.CreateItem());
@@ -223,21 +221,11 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
             return Color.Gray;
         }
 
-        private SearchableItem GetGlobalLoot(Random randomizer)
+        private SearchableItem RandomLoot(Random randomizer, string key)
         {
-            return RandomLoot(randomizer, "Mods/furyx639.GarbageDay/GlobalLoot");
-        }
-
-        private SearchableItem GetLocalLoot(Random randomizer, string whichCan)
-        {
-            return RandomLoot(randomizer, $"Mods/furyx639.GarbageDay/Loot/{whichCan}");
-        }
-
-        private SearchableItem RandomLoot(Random randomizer, string path)
-        {
-            path = PathUtilities.NormalizePath(path);
-            var lootTable = _contentHelper.Load<Dictionary<string, double>>(path, ContentSource.GameContent);
-            if (lootTable == null || !lootTable.Any())
+            var path = PathUtilities.NormalizePath($"Mods/GarbageDay/Loot{key}");
+            var lootTable = Game1.content.Load<Dictionary<string, double>>(path);
+            if (!lootTable.Any())
                 return null;
             var totalWeight = lootTable.Values.Sum();
             var targetIndex = randomizer.NextDouble() * totalWeight;

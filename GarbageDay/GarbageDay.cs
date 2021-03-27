@@ -22,12 +22,10 @@ namespace ImJustMatt.GarbageDay
     {
         internal static readonly IDictionary<string, GarbageCanController> GarbageCans = new Dictionary<string, GarbageCanController>();
         internal static int ObjectId;
-        internal readonly IDictionary<string, double> GlobalLoot = new Dictionary<string, double>();
-        internal readonly IDictionary<string, IDictionary<string, double>> LocalLoot = new Dictionary<string, IDictionary<string, double>>();
-        internal readonly HashSet<string> Maps = new();
+        internal readonly Dictionary<string, Dictionary<string, double>> Loot = new();
 
         /// <summary>Handled content loaded by Expanded Storage.</summary>
-        private ContentController _contentController;
+        private AssetController _assetController;
 
         private IExpandedStorageAPI _expandedStorageAPI;
 
@@ -37,55 +35,20 @@ namespace ImJustMatt.GarbageDay
         private bool _objectsPlaced;
         internal ConfigController Config;
 
+        public override object GetApi()
+        {
+            return _garbageDayAPI ??= new GarbageDayAPI(Loot);
+        }
+
         public override void Entry(IModHelper helper)
         {
             Config = helper.ReadConfig<ConfigController>();
+            _assetController = new AssetController(this);
+            helper.Content.AssetLoaders.Add(_assetController);
+            helper.Content.AssetEditors.Add(_assetController);
 
-            _garbageDayAPI = new GarbageDayAPI(Maps, GlobalLoot, LocalLoot);
-            _contentController = new ContentController(this);
-            helper.Content.AssetLoaders.Add(_contentController);
-            helper.Content.AssetEditors.Add(_contentController);
-
-            // Initialize Global Loot from assets
-            var globalLoot = helper.Content.Load<IDictionary<string, double>>(Path.Combine("assets", "global-loot.json"));
-            _garbageDayAPI.AddLoot(globalLoot);
-
-            // Add Maps from maps folder
-            var files = Directory.GetFiles(Path.Combine(helper.DirectoryPath, "maps"), "*.json");
-            foreach (var path in files)
-            {
-                var file = Path.GetFileName(path);
-                var paths = helper.Content.Load<IList<string>>(Path.Combine("maps", file));
-                _garbageDayAPI.AddMaps(paths);
-            }
-
-            // Load from Content Packs
-            var contentPacks = helper.ContentPacks.GetOwned();
-            foreach (var contentPack in contentPacks)
-            {
-                var content = contentPack.ReadJsonFile<ContentModel>("garbage-day.json");
-                if (content != null)
-                {
-                    Monitor.Log($"Loading {contentPack.Manifest.Name} {contentPack.Manifest.Version}", LogLevel.Debug);
-                }
-                else
-                {
-                    Monitor.Log($"Nothing to load from {contentPack.Manifest.Name} {contentPack.Manifest.Version}", LogLevel.Warn);
-                    continue;
-                }
-
-                // Add Maps
-                _garbageDayAPI.AddMaps(content.Maps);
-
-                // Add Global Loot
-                _garbageDayAPI.AddLoot(content.GlobalLoot);
-
-                // Add Local Loot
-                foreach (var loot in content.LocalLoot)
-                {
-                    _garbageDayAPI.AddLoot(loot.Key, loot.Value);
-                }
-            }
+            // Initialize Global Loot from config
+            Loot.Add("Global", Config.GlobalLoot);
 
             new Patcher(this).ApplyAll(
                 typeof(ChestPatches)
@@ -113,7 +76,7 @@ namespace ImJustMatt.GarbageDay
         {
             // Load Expanded Storage content
             _expandedStorageAPI = Helper.ModRegistry.GetApi<IExpandedStorageAPI>("furyx639.ExpandedStorage");
-            _expandedStorageAPI.LoadContentPack(Path.Combine(Helper.DirectoryPath, "assets", "GarbageCan"));
+            _expandedStorageAPI.LoadContentPack(Helper.DirectoryPath);
 
             // Get ParentSheetIndex for object
             var jsonAssets = new JsonAssetsIntegration(Helper.ModRegistry);
@@ -135,17 +98,16 @@ namespace ImJustMatt.GarbageDay
             Utility.ForAllLocations(delegate(GameLocation location)
             {
                 var mapPath = PathUtilities.NormalizePath(location.mapPath.Value);
-                if (!Maps.Contains(mapPath)) return;
 
                 foreach (var garbageCan in GarbageCans.Where(gc => gc.Value.MapName.Equals(mapPath)))
                 {
                     garbageCan.Value.Location = location;
-                    if (location.Objects.ContainsKey(garbageCan.Value.Tile))
-                        continue;
+                    if (location.Objects.ContainsKey(garbageCan.Value.Tile)) continue;
                     var chest = new Chest(true, garbageCan.Value.Tile, ObjectId);
                     chest.modData.Add("furyx639.GarbageDay", garbageCan.Key);
                     chest.modData.Add("Pathoschild.ChestsAnywhere/IsIgnored", "true");
                     location.Objects.Add(garbageCan.Value.Tile, chest);
+                    if (!Loot.ContainsKey(garbageCan.Key)) Loot.Add(garbageCan.Key, new Dictionary<string, double>());
                 }
             });
 

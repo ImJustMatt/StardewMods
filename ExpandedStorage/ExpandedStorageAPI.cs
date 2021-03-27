@@ -97,7 +97,12 @@ namespace ImJustMatt.ExpandedStorage
             }
 
             var storageTabs = contentPack.ReadJsonFile<IDictionary<string, TabModel>>("storage-tabs.json");
-            var configs = contentPack.ReadJsonFile<Dictionary<string, StorageConfigModel>>("config.json") ?? new Dictionary<string, StorageConfigModel>();
+            Dictionary<string, StorageConfigModel> configs = null;
+            if (expandedStorages.Values.Any(expandedStorage => expandedStorage.PlayerConfig))
+            {
+                configs = contentPack.ReadJsonFile<Dictionary<string, StorageConfigModel>>("config.json");
+            }
+            configs ??= new Dictionary<string, StorageConfigModel>();
             var playerConfigs = new Dictionary<string, StorageConfigController>();
 
             // Register Generic Mod Config Menu for Content Pack

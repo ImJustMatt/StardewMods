@@ -245,6 +245,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             }
 
             modConfigMenu.API.RegisterModConfig(contentPack.Manifest, RevertToDefault, SaveToFile);
+            modConfigMenu.API.SetDefaultIngameOptinValue(contentPack.Manifest, true);
             modConfigMenu.API.RegisterLabel(contentPack.Manifest, contentPack.Manifest.Name, "");
             modConfigMenu.API.RegisterParagraph(contentPack.Manifest, contentPack.Manifest.Description);
             foreach (var expandedStorage in expandedStorages.Where(expandedStorage => expandedStorage.Value.PlayerConfig))

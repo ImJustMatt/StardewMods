@@ -57,6 +57,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             }
 
             modConfigMenu.API.RegisterModConfig(manifest, DefaultConfig, SaveConfig);
+            modConfigMenu.API.SetDefaultIngameOptinValue(manifest, true);
             modConfigMenu.API.RegisterPageLabel(manifest, "Controls", "Controller/Keyboard controls", "Controls");
             modConfigMenu.API.RegisterPageLabel(manifest, "Tweaks", "Modify behavior for certain features", "Tweaks");
             modConfigMenu.API.RegisterPageLabel(manifest, "Default Storage", "Global default storage config", "Default Storage");
