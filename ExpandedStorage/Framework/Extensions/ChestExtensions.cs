@@ -53,7 +53,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
 
             if (!Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType))
                 animationType = StorageController.AnimationType.None;
-            if (animationType == StorageController.AnimationType.None || chest.uses.Value >= StorageController.Frame)
+            if (chest.uses.Value >= StorageController.Frame)
                 currentFrame = 0;
 
             if (storage.StorageSprite is {Texture: { } texture} spriteSheet)
