@@ -15,8 +15,8 @@ namespace ImJustMatt.UtilityChest
     public class UtilityChest : Mod
     {
         internal static int ObjectId;
-        private IExpandedStorageAPI _expandedStorageAPI;
         internal readonly PerScreen<Chest> CurrentChest = new();
+        private IExpandedStorageAPI _expandedStorageAPI;
 
         public override void Entry(IModHelper helper)
         {

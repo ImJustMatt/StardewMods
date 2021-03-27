@@ -8,7 +8,6 @@ using ImJustMatt.Common.Patches;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using StardewModdingAPI;
-using StardewModdingAPI.Utilities;
 using StardewValley.Menus;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
@@ -16,9 +15,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal abstract class MenuPatches : BasePatch<ExpandedStorage>
     {
-        private protected static ConfigModel Config => Mod.Config;
-        private protected static AssetController AssetController => Mod.AssetController;
-
         private protected static readonly MethodInfo MenuCapacity =
             AccessTools.Method(typeof(MenuPatches), nameof(GetMenuCapacity));
 
@@ -46,6 +42,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         protected MenuPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
         }
+
+        private protected static ConfigModel Config => Mod.Config;
+        private protected static AssetController AssetController => Mod.AssetController;
 
         /// <summary>Adds a value to the end of the stack</summary>
         /// <param name="method">Method of the offset function</param>

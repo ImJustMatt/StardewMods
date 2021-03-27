@@ -66,7 +66,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 _ => Capacity
             };
 
-        internal void SetAsDefault()
+        internal void SetDefault()
         {
             _defaultConfig = this;
         }

@@ -16,16 +16,13 @@ namespace ImJustMatt.ExpandedStorage
 {
     public class ExpandedStorage : Mod
     {
-        /// <summary>Tracks all chests that may be used for vacuum items.</summary>
-        internal VacuumChestController VacuumChests;
-
-        internal ChestController ChestController;
-
         /// <summary>Controller for Active ItemGrabMenu.</summary>
         internal readonly PerScreen<MenuController> ActiveMenu = new();
 
         /// <summary>Handled content loaded by Expanded Storage.</summary>
         internal AssetController AssetController;
+
+        internal ChestController ChestController;
 
         /// <summary>The mod configuration.</summary>
         internal ConfigController Config;
@@ -35,6 +32,9 @@ namespace ImJustMatt.ExpandedStorage
 
         internal JsonAssetsIntegration JsonAssets;
         internal GenericModConfigMenuIntegration ModConfigMenu;
+
+        /// <summary>Tracks all chests that may be used for vacuum items.</summary>
+        internal VacuumChestController VacuumChests;
 
         public override object GetApi()
         {
@@ -47,14 +47,14 @@ namespace ImJustMatt.ExpandedStorage
             ModConfigMenu = new GenericModConfigMenuIntegration(helper.ModRegistry);
 
             Config = helper.ReadConfig<ConfigController>();
-            Config.DefaultStorage.SetAsDefault();
+            Config.DefaultStorage.SetDefault();
             Config.Log(Monitor);
             
             AssetController = new AssetController(this);
             helper.Content.AssetLoaders.Add(AssetController);
             helper.Content.AssetEditors.Add(AssetController);
 
-            ExpandedStorageAPI = new ExpandedStorageAPI(this, AssetController);
+            ExpandedStorageAPI = new ExpandedStorageAPI(this);
             // Default Exclusions
             ExpandedStorageAPI.DisableWithModData("aedenthorn.AdvancedLootFramework/IsAdvancedLootFrameworkChest");
             ExpandedStorageAPI.DisableDrawWithModData("aedenthorn.CustomChestTypes/IsCustomChest");

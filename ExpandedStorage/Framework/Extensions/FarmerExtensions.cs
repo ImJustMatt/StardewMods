@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Microsoft.Xna.Framework;
 using StardewValley;

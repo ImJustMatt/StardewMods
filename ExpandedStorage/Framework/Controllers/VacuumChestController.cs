@@ -13,12 +13,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
     {
         private const string ChestsAnywhereOrderKey = "Pathoschild.ChestsAnywhere/Order";
 
+        private readonly AssetController _assetController;
+        private readonly bool _firstRow;
+        private readonly IMonitor _monitor;
+
         /// <summary>Tracks all chests that may be used for vacuum items.</summary>
         private readonly PerScreen<IDictionary<Chest, StorageController>> Chests = new();
-
-        private readonly AssetController _assetController;
-        private readonly IMonitor _monitor;
-        private readonly bool _firstRow;
 
         public VacuumChestController(AssetController assetController, IMonitor monitor, IModEvents events, bool firstRow)
         {

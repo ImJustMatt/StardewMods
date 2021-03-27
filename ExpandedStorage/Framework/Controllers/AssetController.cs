@@ -12,13 +12,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
     internal class AssetController : IAssetLoader, IAssetEditor
     {
+        private readonly ExpandedStorage _mod;
+
         /// <summary>Dictionary of Expanded Storage configs</summary>
         internal readonly IDictionary<string, StorageController> Storages = new Dictionary<string, StorageController>();
 
         /// <summary>Dictionary of Expanded Storage tabs</summary>
         internal readonly IDictionary<string, TabController> Tabs = new Dictionary<string, TabController>();
 
-        private readonly ExpandedStorage _mod;
         private bool _isContentLoaded;
 
         internal AssetController(ExpandedStorage mod)
@@ -28,26 +29,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             // Events
             _mod.Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
             _mod.Helper.Events.GameLoop.DayStarted += OnDayStarted;
-        }
-
-        /// <summary>Returns Storage by object context.</summary>
-        internal bool TryGetStorage(object context, out StorageController storage)
-        {
-            storage = Storages
-                .Select(c => c.Value)
-                .FirstOrDefault(c => c.MatchesContext(context));
-            return storage != null;
-        }
-
-        /// <summary>Returns ExpandedStorageTab by tab name.</summary>
-        internal TabController GetTab(string modUniqueId, string tabName)
-        {
-            return Tabs
-                .Where(t => t.Key.EndsWith($"/{tabName}"))
-                .Select(t => t.Value)
-                .OrderByDescending(t => t.ModUniqueId.Equals(modUniqueId))
-                .ThenByDescending(t => t.ModUniqueId.Equals("furyx639.ExpandedStorage"))
-                .FirstOrDefault();
         }
 
         /// <summary>Get whether this instance can load the initial version of the given asset.</summary>
@@ -95,6 +76,26 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             }
 
             throw new InvalidOperationException($"Unexpected asset '{asset.AssetName}'.");
+        }
+
+        /// <summary>Returns Storage by object context.</summary>
+        internal bool TryGetStorage(object context, out StorageController storage)
+        {
+            storage = Storages
+                .Select(c => c.Value)
+                .FirstOrDefault(c => c.MatchesContext(context));
+            return storage != null;
+        }
+
+        /// <summary>Returns ExpandedStorageTab by tab name.</summary>
+        internal TabController GetTab(string modUniqueId, string tabName)
+        {
+            return Tabs
+                .Where(t => t.Key.EndsWith($"/{tabName}"))
+                .Select(t => t.Value)
+                .OrderByDescending(t => t.ModUniqueId.Equals(modUniqueId))
+                .ThenByDescending(t => t.ModUniqueId.Equals("furyx639.ExpandedStorage"))
+                .FirstOrDefault();
         }
 
         /// <summary>Raised after the game is launched, right before the first update tick.</summary>

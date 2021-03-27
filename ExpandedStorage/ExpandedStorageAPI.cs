@@ -14,13 +14,13 @@ namespace ImJustMatt.ExpandedStorage
     public class ExpandedStorageAPI : IExpandedStorageAPI
     {
         private readonly ExpandedStorage _mod;
-        private readonly AssetController _assets;
 
-        internal ExpandedStorageAPI(ExpandedStorage mod, AssetController assets)
+        internal ExpandedStorageAPI(ExpandedStorage mod)
         {
             _mod = mod;
-            _assets = assets;
         }
+
+        private AssetController AssetController => _mod.AssetController;
 
         public void DisableWithModData(string modDataKey)
         {
@@ -35,12 +35,12 @@ namespace ImJustMatt.ExpandedStorage
 
         public IList<string> GetAllStorages()
         {
-            return _assets.Storages.Keys.ToList();
+            return AssetController.Storages.Keys.ToList();
         }
 
         public IList<string> GetOwnedStorages(IManifest manifest)
         {
-            return _assets.Storages
+            return AssetController.Storages
                 .Where(storageConfig => storageConfig.Value.ModUniqueId == manifest.UniqueID)
                 .Select(storageConfig => storageConfig.Key)
                 .ToList();
@@ -48,7 +48,7 @@ namespace ImJustMatt.ExpandedStorage
 
         public bool TryGetStorage(string storageName, out IStorage storage)
         {
-            if (_assets.Storages.TryGetValue(storageName, out var foundStorage))
+            if (AssetController.Storages.TryGetValue(storageName, out var foundStorage))
             {
                 storage = new StorageController(storageName, foundStorage);
                 return true;
@@ -60,7 +60,7 @@ namespace ImJustMatt.ExpandedStorage
 
         public bool AcceptsItem(Chest chest, Item item)
         {
-            return !_assets.TryGetStorage(chest, out var storage) || storage.Filter(item);
+            return !AssetController.TryGetStorage(chest, out var storage) || storage.Filter(item);
         }
 
         public bool LoadContentPack(string path)
@@ -115,7 +115,7 @@ namespace ImJustMatt.ExpandedStorage
             foreach (var expandedStorage in expandedStorages)
             {
                 // Skip duplicate storage configs
-                if (_assets.Storages.ContainsKey(expandedStorage.Key))
+                if (AssetController.Storages.ContainsKey(expandedStorage.Key))
                 {
                     _mod.Monitor.Log($"Duplicate storage {expandedStorage.Key} in {contentPack.Manifest.UniqueID}.", LogLevel.Warn);
                     continue;
@@ -130,7 +130,7 @@ namespace ImJustMatt.ExpandedStorage
                         ? () => contentPack.LoadAsset<Texture2D>($"assets/{expandedStorage.Value.Image}")
                         : null
                 };
-                _assets.Storages.Add(expandedStorage.Key, storage);
+                AssetController.Storages.Add(expandedStorage.Key, storage);
 
                 // Register storage configuration
                 var defaultConfig = new StorageConfigController(expandedStorage.Value)
@@ -170,7 +170,7 @@ namespace ImJustMatt.ExpandedStorage
                             ? () => contentPack.LoadAsset<Texture2D>($"assets/{storageTab.Value.TabImage}")
                             : null
                     };
-                    _assets.Tabs.Add(tabId, tab);
+                    AssetController.Tabs.Add(tabId, tab);
                 }
             }
 

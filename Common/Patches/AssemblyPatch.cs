@@ -14,6 +14,7 @@ namespace ImJustMatt.Common.Patches
         public AssemblyPatch(string name) : this(a => a.FullName.StartsWith($"{name},"))
         {
         }
+
         public AssemblyPatch(Func<Assembly, bool> matcher)
         {
             _assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(matcher);

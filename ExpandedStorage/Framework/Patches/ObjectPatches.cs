@@ -19,11 +19,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
     {
         private static readonly HashSet<string> ExcludeModDataKeys = new();
 
-        internal static void AddExclusion(string modDataKey)
-        {
-            ExcludeModDataKeys.Add(modDataKey);
-        }
-
         public ObjectPatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             harmony.Patch(
@@ -60,6 +55,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 AccessTools.Method(typeof(Object), nameof(Object.placementAction)),
                 new HarmonyMethod(GetType(), nameof(PlacementActionPrefix))
             );
+        }
+
+        internal static void AddExclusion(string modDataKey)
+        {
+            ExcludeModDataKeys.Add(modDataKey);
         }
 
         /// <summary>Trigger primary chest check for action</summary>

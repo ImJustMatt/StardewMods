@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using ImJustMatt.Common.Extensions;
 using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using Netcode;
@@ -31,15 +30,15 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         /// <summary>Expanded Storage Config data for Menu</summary>
         internal readonly StorageController Storage;
 
-        /// <summary>Expanded Storage Tab data for Menu</summary>
-        internal IList<TabController> StorageTabs;
-
         private int _currentTab;
         private string _searchText;
         private int _skippedRows;
 
         /// <summary>Track which menu is being handled and refresh if it changes</summary>
         internal ItemGrabMenu Menu;
+
+        /// <summary>Expanded Storage Tab data for Menu</summary>
+        internal IList<TabController> StorageTabs;
 
         private MenuModel(ItemGrabMenu menu, StorageController storage)
         {

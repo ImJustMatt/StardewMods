@@ -2,7 +2,6 @@
 using System.Reflection.Emit;
 using Harmony;
 using ImJustMatt.Common.Patches;
-using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;

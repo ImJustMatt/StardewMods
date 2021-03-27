@@ -15,6 +15,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
         {
             Assets = assets;
         }
+
         public static Chest ToChest(this Item item, StorageController storage = null, Chest oldChest = null)
         {
             // Get config for chest

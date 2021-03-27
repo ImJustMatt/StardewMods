@@ -18,6 +18,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
     [SuppressMessage("ReSharper", "IdentifierTypo")]
     internal class MenuController : IDisposable
     {
+        private readonly AssetController _assetController;
+        private readonly ConfigModel _config;
+        private readonly IModEvents _events;
+
+        private readonly IInputHelper _input;
+
         //private static ExpandedStorage Mod;
         private readonly MenuModel _model;
 
@@ -25,11 +31,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         private readonly int _screenId;
 
         private readonly MenuView _view;
-
-        private readonly AssetController _assetController;
-        private readonly ConfigModel _config;
-        private readonly IModEvents _events;
-        private readonly IInputHelper _input;
 
         public MenuController(ItemGrabMenu menu, AssetController assetController, ConfigModel config, IModEvents events, IInputHelper input)
         {

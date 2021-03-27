@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 
@@ -27,7 +28,7 @@ namespace ImJustMatt.SlimeFramework.Framework.Controllers
 
         public T Load<T>(IAssetInfo asset)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

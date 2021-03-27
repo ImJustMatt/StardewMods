@@ -12,6 +12,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         private readonly string _path;
         private readonly bool _playerColor;
 
+        private Texture2D _texture;
+
         public StorageSpriteController(StorageController storage)
         {
             _frames = storage.Frames;
@@ -33,13 +35,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 TileHeight = (_depth is { } depth && depth > 0 ? depth : Height - 16) / 16;
                 return _texture;
             }
-        }
-
-        private Texture2D _texture;
-
-        public void InvalidateCache()
-        {
-            _texture = null;
         }
 
         public int Width { get; private set; }
@@ -71,6 +66,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     }
                 };
             }
+        }
+
+        public void InvalidateCache()
+        {
+            _texture = null;
         }
 
         internal void ForEachPos(int x, int y, Action<Vector2> doAction)

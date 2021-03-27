@@ -15,13 +15,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
     internal class ChestController
     {
-        public Chest HeldChest => _heldChest.Value;
-        private readonly PerScreen<Chest> _heldChest = new();
         private readonly AssetController _assetController;
+        private readonly bool _carryChest;
         private readonly ConfigModel _config;
         private readonly IModEvents _events;
+        private readonly PerScreen<Chest> _heldChest = new();
         private readonly IInputHelper _input;
-        private readonly bool _carryChest;
 
         public ChestController(AssetController assetController, ConfigModel config, IModEvents events, IInputHelper input, bool carryChest)
         {
@@ -44,6 +43,8 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 events.Input.ButtonsChanged += OnButtonsChanged;
             }
         }
+
+        public Chest HeldChest => _heldChest.Value;
 
         /// <summary>Raised after the game state is updated (≈60 times per second).</summary>
         private void OnUpdateTicking(object sender, UpdateTickingEventArgs e)

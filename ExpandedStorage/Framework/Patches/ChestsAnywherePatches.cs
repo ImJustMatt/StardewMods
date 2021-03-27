@@ -1,6 +1,5 @@
 ﻿using Harmony;
 using ImJustMatt.Common.Patches;
-using ImJustMatt.ExpandedStorage.Framework.Controllers;
 using StardewModdingAPI;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Patches
@@ -8,6 +7,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
     internal class ChestsAnywherePatches : BasePatch<ExpandedStorage>
     {
         private const string ShippingBinContainerType = "Pathoschild.Stardew.ChestsAnywhere.Framework.Containers.ShippingBinContainer";
+
         public ChestsAnywherePatches(IMod mod, HarmonyInstance harmony) : base(mod, harmony)
         {
             if (!Mod.Helper.ModRegistry.IsLoaded("Pathoschild.ChestsAnywhere")) return;

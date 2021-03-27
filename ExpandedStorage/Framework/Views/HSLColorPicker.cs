@@ -14,12 +14,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Views
 {
     internal class HSLColorPicker : DiscreteColorPicker, IDisposable
     {
-        public static readonly PerScreen<HSLColorPicker> Instance = new();
-
         private const int Height = 598;
         private const int Width = 98;
         private const int Cells = 16;
         private const int Gap = 6;
+        public static readonly PerScreen<HSLColorPicker> Instance = new();
 
         private static int BarHeight;
         private static int CellHeight;
