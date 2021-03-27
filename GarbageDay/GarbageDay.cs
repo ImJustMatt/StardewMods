@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.Common.Patches;
 using ImJustMatt.ExpandedStorage.API;
 using ImJustMatt.GarbageDay.Framework.Controllers;
-using ImJustMatt.GarbageDay.Framework.Models;
 using ImJustMatt.GarbageDay.Framework.Patches;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -98,16 +96,15 @@ namespace ImJustMatt.GarbageDay
             Utility.ForAllLocations(delegate(GameLocation location)
             {
                 var mapPath = PathUtilities.NormalizePath(location.mapPath.Value);
-
                 foreach (var garbageCan in GarbageCans.Where(gc => gc.Value.MapName.Equals(mapPath)))
                 {
+                    if (!Loot.ContainsKey(garbageCan.Key)) Loot.Add(garbageCan.Key, new Dictionary<string, double>());
                     garbageCan.Value.Location = location;
                     if (location.Objects.ContainsKey(garbageCan.Value.Tile)) continue;
                     var chest = new Chest(true, garbageCan.Value.Tile, ObjectId);
                     chest.modData.Add("furyx639.GarbageDay", garbageCan.Key);
                     chest.modData.Add("Pathoschild.ChestsAnywhere/IsIgnored", "true");
                     location.Objects.Add(garbageCan.Value.Tile, chest);
-                    if (!Loot.ContainsKey(garbageCan.Key)) Loot.Add(garbageCan.Key, new Dictionary<string, double>());
                 }
             });
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 
 namespace ImJustMatt.ExpandedStorage.Framework.Controllers
@@ -19,7 +20,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             _frames = storage.Frames;
             _depth = storage.Depth;
             _playerColor = storage.PlayerColor;
-            _path = storage.Path;
+            _path = PathUtilities.NormalizePath(storage.Path);
         }
 
         /// <summary>Property to access the SpriteSheet image.</summary>

@@ -28,9 +28,9 @@ namespace ImJustMatt.CustomBundles.Controllers
                 if (_changed)
                     return true;
 
-                _contentHelper.InvalidateCache("Data//Bundles");
-
-                var bundles = _contentHelper.Load<Dictionary<string, string>>(PathUtilities.NormalizePath("Data\\Bundles"), ContentSource.GameContent);
+                var bundlePath = PathUtilities.NormalizePath("Data/Bundles");
+                _contentHelper.InvalidateCache(bundlePath);
+                var bundles = Game1.content.Load<Dictionary<string, string>>(bundlePath);
                 _changed = !bundles.All(bundle =>
                     Game1.netWorldState.Value.BundleData.ContainsKey(bundle.Key)
                     && bundle.Value.Equals(Game1.netWorldState.Value.BundleData[bundle.Key]));
@@ -43,7 +43,9 @@ namespace ImJustMatt.CustomBundles.Controllers
         /// <param name="asset">Basic metadata about the asset being loaded.</param>
         public bool CanEdit<T>(IAssetInfo asset)
         {
-            return asset.AssetNameEquals("Data\\Bundles");
+            var assetName = PathUtilities.NormalizePath(asset.AssetName);
+            var bundlePath = PathUtilities.NormalizePath("Data/Bundles");
+            return assetName.Equals(bundlePath);
         }
 
         /// <summary>Edit a matched asset.</summary>
@@ -53,9 +55,10 @@ namespace ImJustMatt.CustomBundles.Controllers
             if (!Context.IsWorldReady)
                 return;
 
+            var modPath = PathUtilities.NormalizePath("Mods/furyx639.CustomBundles");
             var bundles = asset.AsDictionary<string, string>().Data;
             var customBundles = _contentHelper
-                .Load<Dictionary<string, Bundle>>("Mods/furyx639.CustomBundles", ContentSource.GameContent)
+                .Load<Dictionary<string, Bundle>>(modPath, ContentSource.GameContent)
                 .Where(bundle => bundle.Value.HasData);
 
             foreach (var bundle in customBundles)
@@ -68,9 +71,9 @@ namespace ImJustMatt.CustomBundles.Controllers
         /// <param name="asset">Basic metadata about the asset being loaded.</param>
         public bool CanLoad<T>(IAssetInfo asset)
         {
-            var assetPrefix = PathUtilities.NormalizePath("Mods/furyx639.CustomBundles");
-
-            return asset.AssetName.StartsWith(assetPrefix);
+            var assetName = PathUtilities.NormalizePath(asset.AssetName);
+            var modPath = PathUtilities.NormalizePath("Mods/furyx639.CustomBundles");
+            return assetName.StartsWith(modPath);
         }
 
         /// <summary>Load a matched asset.</summary>
@@ -90,7 +93,8 @@ namespace ImJustMatt.CustomBundles.Controllers
 
             _monitor.Log("Merging bundles");
 
-            var bundles = _contentHelper.Load<Dictionary<string, string>>(PathUtilities.NormalizePath("Data\\Bundles"), ContentSource.GameContent);
+            var bundlePath = PathUtilities.NormalizePath("Data/Bundles");
+            var bundles = Game1.content.Load<Dictionary<string, string>>(bundlePath);
             Game1.netWorldState.Value.SetBundleData(bundles);
 
             if (!Game1.game1.GetNewGameOption<bool>("YearOneCompletable"))

@@ -223,7 +223,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
 
         private SearchableItem RandomLoot(Random randomizer, string key)
         {
-            var path = PathUtilities.NormalizePath($"Mods/GarbageDay/Loot{key}");
+            var path = PathUtilities.NormalizePath($"Mods/GarbageDay/Loot/{key}");
             var lootTable = Game1.content.Load<Dictionary<string, double>>(path);
             if (!lootTable.Any())
                 return null;

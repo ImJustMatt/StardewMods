@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using ImJustMatt.GarbageDay.API;
-using StardewModdingAPI.Utilities;
 
 namespace ImJustMatt.GarbageDay
 {

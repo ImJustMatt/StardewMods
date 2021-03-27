@@ -9,6 +9,7 @@ namespace ImJustMatt.Common.Integrations.GenericModConfigMenu
         void RegisterModConfig(IManifest mod, Action revertToDefault, Action saveToFile);
 
         void SetDefaultIngameOptinValue(IManifest mod, bool optedIn);
+
         void StartNewPage(IManifest mod, string pageName);
         //void OverridePageDisplayName(IManifest mod, string pageName, string displayName);
 

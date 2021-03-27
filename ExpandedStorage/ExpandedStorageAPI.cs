@@ -6,6 +6,7 @@ using ImJustMatt.ExpandedStorage.Framework.Models;
 using ImJustMatt.ExpandedStorage.Framework.Patches;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Objects;
 
@@ -169,7 +170,7 @@ namespace ImJustMatt.ExpandedStorage
                     var tab = new TabController(storageTab.Value)
                     {
                         ModUniqueId = contentPack.Manifest.UniqueID,
-                        Path = $"Mods/furyx639.ExpandedStorage/Tabs/{tabId}",
+                        Path = PathUtilities.NormalizePath($"Mods/furyx639.ExpandedStorage/Tabs/{tabId}"),
                         TabName = contentPack.Translation.Get(storageTab.Key).Default(storageTab.Key),
                         Texture = !string.IsNullOrWhiteSpace(storageTab.Value.TabImage) && contentPack.HasFile($"assets/{storageTab.Value.TabImage}")
                             ? () => contentPack.LoadAsset<Texture2D>($"assets/{storageTab.Value.TabImage}")

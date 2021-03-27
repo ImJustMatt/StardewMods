@@ -13,8 +13,8 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
 {
     internal class AssetController : IAssetLoader, IAssetEditor
     {
+        private readonly HashSet<string> _excludedAssets = new();
         private readonly GarbageDay _mod;
-        private readonly HashSet<string> _excludedAssets = new(); 
 
         internal AssetController(GarbageDay mod)
         {
@@ -64,7 +64,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
                             edits++;
                         }
 
-                        garbageCan.MapName = asset.AssetName;
+                        garbageCan.MapName = PathUtilities.NormalizePath(asset.AssetName);
                         garbageCan.Tile = new Vector2(x, y);
                     }
 
@@ -92,8 +92,9 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
         /// <summary>Load Data for Mods/GarbageDay/Loot path</summary>
         public bool CanLoad<T>(IAssetInfo asset)
         {
-            return asset.AssetName.StartsWith(PathUtilities.NormalizePath("Mods/GarbageDay/Loot/"))
-                && asset.DataType == typeof(Dictionary<string, double>);
+            var assetName = PathUtilities.NormalizePath(asset.AssetName);
+            var modPath = PathUtilities.NormalizePath("Mods/GarbageDay/Loot/");
+            return assetName.StartsWith(modPath) && asset.DataType == typeof(Dictionary<string, double>);
         }
 
         /// <summary>Provide base versions of GarbageDay loot</summary>

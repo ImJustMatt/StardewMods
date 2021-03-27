@@ -53,7 +53,9 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <summary>Load Data for Mods/furyx639.ExpandedStorage path</summary>
         public bool CanLoad<T>(IAssetInfo asset)
         {
-            return asset.AssetName.StartsWith(PathUtilities.NormalizePath("Mods/furyx639.ExpandedStorage/"));
+            var assetName = PathUtilities.NormalizePath(asset.AssetName);
+            var modPath = PathUtilities.NormalizePath("Mods/furyx639.ExpandedStorage/");
+            return assetName.StartsWith(modPath);
         }
 
         /// <summary>Provide base versions of ExpandedStorage assets</summary>
@@ -120,7 +122,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 var tab = new TabController(storageTab.Value)
                 {
                     ModUniqueId = _mod.ModManifest.UniqueID,
-                    Path = $"Mods/furyx639.ExpandedStorage/Tabs/{tabId}",
+                    Path = PathUtilities.NormalizePath($"Mods/furyx639.ExpandedStorage/Tabs/{tabId}"),
                     TabName = _mod.Helper.Translation.Get(storageTab.Key).Default(storageTab.Key)
                 };
                 Tabs.Add(tabId, tab);
