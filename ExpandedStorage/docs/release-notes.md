@@ -1,6 +1,7 @@
 ﻿# Release Notes
 
 # 1.6.8
+- 64-bit compatible
 - Improve chest matching (fixes Volcano Dungeon chests bugged)
 - Restructure codebase
 - Refactor patches
