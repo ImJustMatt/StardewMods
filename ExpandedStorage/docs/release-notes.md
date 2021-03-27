@@ -1,5 +1,10 @@
 ﻿# Release Notes
 
+# 1.6.8
+- Improve chest matching (fixes Volcano Dungeon chests bugged)
+- Restructure codebase
+- Refactor patches
+
 ## 1.6.7
 - Split off Automate compatibility into its own mod [XSAutomate](https://github.com/ImJustMatt/StardewMods/tree/master/XSAutomate)
 
