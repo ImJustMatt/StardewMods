@@ -1,7 +1,7 @@
 ﻿{
   "Name": "Expanded Storage",
   "Author": "furyx639",
-  "Version": "1.6.8-beta.2",
+  "Version": "1.6.8",
   "Description": "Mod which allows Content Packs to add custom storage.",
   "UniqueID": "furyx639.ExpandedStorage",
   "EntryDll": "ExpandedStorage.dll",
@@ -9,13 +9,9 @@
   "UpdateKeys": [ "Nexus:7431" ],
   "Dependencies": [
     {
-      "UniqueID": "Pathoschild.Automate",
-      "IsRequired": false
-    },
-    {
       "UniqueID": "spacechase0.GenericModConfigMenu",
       "IsRequired": false,
-      "MinimumVersion": "1.3.2"
+      "MinimumVersion": "1.3.3"
     },
     {
       "UniqueID": "spacechase0.JsonAssets",
