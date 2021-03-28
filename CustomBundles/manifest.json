@@ -1,7 +1,7 @@
 ﻿{
   "Name": "Custom Bundles",
   "Author": "furyx639",
-  "Version": "1.0.1",
+  "Version": "1.0.2",
   "Description": "Mod which resets bundles and progress.",
   "UniqueID": "furyx639.CustomBundles",
   "EntryDll": "CustomBundles.dll",
