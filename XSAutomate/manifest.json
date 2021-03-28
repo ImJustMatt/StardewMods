@@ -15,7 +15,7 @@
     {
       "UniqueID": "furyx639.ExpandedStorage",
       "IsRequired": true,
-      "MinimumVersion": "1.6.7"
+      "MinimumVersion": "1.6.8"
     }
   ]
 }
