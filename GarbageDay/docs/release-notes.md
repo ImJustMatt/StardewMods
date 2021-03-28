@@ -1,7 +1,7 @@
 ﻿# Release Notes
 
 ## 2.0.0
-- 64-bit Compatible
+- Preliminary 64-bit support
 - Simplified map integrations
 
 ## 1.0.3
