@@ -103,6 +103,7 @@ namespace ImJustMatt.ExpandedStorage
             {
                 configs = contentPack.ReadJsonFile<Dictionary<string, StorageConfigModel>>("config.json");
             }
+
             configs ??= new Dictionary<string, StorageConfigModel>();
             var playerConfigs = new Dictionary<string, StorageConfigController>();
 

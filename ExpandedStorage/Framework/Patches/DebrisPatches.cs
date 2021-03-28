@@ -22,7 +22,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Collect debris directly into carried chest.</summary>
-        public static bool collect_Prefix(Debris __instance, ref bool __result, Farmer farmer, Chunk chunk)
+        private static bool collect_Prefix(Debris __instance, ref bool __result, Farmer farmer, Chunk chunk)
         {
             chunk ??= __instance.Chunks.FirstOrDefault();
             if (chunk == null || !Mod.VacuumChests.Any())

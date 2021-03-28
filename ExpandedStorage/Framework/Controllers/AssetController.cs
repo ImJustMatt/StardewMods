@@ -92,6 +92,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
         /// <summary>Returns ExpandedStorageTab by tab name.</summary>
         internal TabController GetTab(string modUniqueId, string tabName)
+
         {
             return Tabs
                 .Where(t => t.Key.EndsWith($"/{tabName}"))

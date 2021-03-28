@@ -49,7 +49,7 @@ namespace ImJustMatt.ExpandedStorage
             Config = helper.ReadConfig<ConfigController>();
             Config.DefaultStorage.SetDefault();
             Config.Log(Monitor);
-            
+
             AssetController = new AssetController(this);
             helper.Content.AssetLoaders.Add(AssetController);
             helper.Content.AssetEditors.Add(AssetController);

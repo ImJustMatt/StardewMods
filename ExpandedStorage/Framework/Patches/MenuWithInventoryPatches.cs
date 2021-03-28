@@ -31,7 +31,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             );
         }
 
-        static IEnumerable<CodeInstruction> DrawTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> DrawTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             var patternPatches = new PatternPatches(instructions, Monitor);
 

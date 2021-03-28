@@ -19,7 +19,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             );
         }
 
-        public static void CanStackWithPostfix(Item __instance, ref bool __result, ISalable other)
+        private static void CanStackWithPostfix(Item __instance, ref bool __result, ISalable other)
         {
             if (__instance is Chest
                 || other is Chest

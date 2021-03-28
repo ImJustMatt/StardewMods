@@ -45,6 +45,34 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             return obj;
         }
 
+        public static bool CheckForAction(this Chest chest, StorageController storage, Farmer who, bool heldChest = false)
+        {
+            void OpenChest()
+            {
+                if (storage.Frames > 1) chest.uses.Value = (int) StorageController.Frame;
+                chest.frameCounter.Value = storage.Delay;
+                who.currentLocation.localSound(storage.OpenSound);
+                who.Halt();
+                who.freezePause = 1000;
+            }
+
+            if (storage.OpenNearby > 0 || Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType) && animationType != StorageController.AnimationType.None)
+            {
+                who.currentLocation.playSound(storage.OpenSound);
+                chest.ShowMenu();
+            }
+            else if (heldChest)
+            {
+                OpenChest();
+            }
+            else
+            {
+                chest.GetMutex().RequestLock(OpenChest);
+            }
+
+            return true;
+        }
+
         public static void Draw(this Chest chest, int currentFrame, StorageController storage, SpriteBatch spriteBatch, Vector2 pos, Vector2 origin, float alpha = 1f, float layerDepth = 0.89f, float scaleSize = 4f)
         {
             var drawColored = storage.PlayerColor
@@ -114,57 +142,57 @@ namespace ImJustMatt.ExpandedStorage.Framework.Extensions
             else
             {
                 var baseOffset = GetBaseOffset(chest);
-            var aboveOffset = GetAboveOffset(chest);
+                var aboveOffset = GetAboveOffset(chest);
 
-            // Draw Storage Layer (Colorized)
-            spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
-                pos + ShakeOffset(chest, -1, 2),
-                Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, chest.ParentSheetIndex + baseOffset, 16, 32),
-                chest.playerChoiceColor.Value * alpha,
-                0f,
-                origin,
-                scaleSize,
-                SpriteEffects.None,
-                layerDepth);
+                // Draw Storage Layer (Colorized)
+                spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
+                    pos + ShakeOffset(chest, -1, 2),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, chest.ParentSheetIndex + baseOffset, 16, 32),
+                    chest.playerChoiceColor.Value * alpha,
+                    0f,
+                    origin,
+                    scaleSize,
+                    SpriteEffects.None,
+                    layerDepth);
 
-            // Draw Lid Layer (Colorized)
-            spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
-                pos + ShakeOffset(chest, -1, 2),
-                Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, currentFrame + baseOffset + chest.startingLidFrame.Value, 16, 32),
-                chest.playerChoiceColor.Value * alpha * alpha,
-                0f,
-                origin,
-                scaleSize,
-                SpriteEffects.None,
-                layerDepth + 1E-05f);
+                // Draw Lid Layer (Colorized)
+                spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
+                    pos + ShakeOffset(chest, -1, 2),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, currentFrame + baseOffset + chest.startingLidFrame.Value, 16, 32),
+                    chest.playerChoiceColor.Value * alpha * alpha,
+                    0f,
+                    origin,
+                    scaleSize,
+                    SpriteEffects.None,
+                    layerDepth + 1E-05f);
 
-            // Draw Brace Layer (Non-Colorized)
-            spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
-                pos + ShakeOffset(chest, -1, 2),
-                Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, currentFrame + aboveOffset + chest.startingLidFrame.Value, 16, 32),
-                Color.White * alpha,
-                0f,
-                origin,
-                scaleSize,
-                SpriteEffects.None,
-                layerDepth + 2E-05f);
+                // Draw Brace Layer (Non-Colorized)
+                spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
+                    pos + ShakeOffset(chest, -1, 2),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, currentFrame + aboveOffset + chest.startingLidFrame.Value, 16, 32),
+                    Color.White * alpha,
+                    0f,
+                    origin,
+                    scaleSize,
+                    SpriteEffects.None,
+                    layerDepth + 2E-05f);
 
-            if (!ShowBottomBraceIds.Contains(chest.ParentSheetIndex)) return;
+                if (!ShowBottomBraceIds.Contains(chest.ParentSheetIndex)) return;
 
-            // Draw Bottom Brace Layer (Non-Colorized)
-            var rect = Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, chest.ParentSheetIndex + aboveOffset, 16, 32);
-            rect.Y += 20;
-            rect.Height -= 20;
-            pos.Y += 20 * scaleSize;
-            spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
-                pos,
-                rect,
-                Color.White * alpha,
-                0f,
-                origin,
-                scaleSize,
-                SpriteEffects.None,
-                layerDepth + 3E-05f);
+                // Draw Bottom Brace Layer (Non-Colorized)
+                var rect = Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, chest.ParentSheetIndex + aboveOffset, 16, 32);
+                rect.Y += 20;
+                rect.Height -= 20;
+                pos.Y += 20 * scaleSize;
+                spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
+                    pos,
+                    rect,
+                    Color.White * alpha,
+                    0f,
+                    origin,
+                    scaleSize,
+                    SpriteEffects.None,
+                    layerDepth + 3E-05f);
             }
         }
 

@@ -1,8 +1,12 @@
 ﻿# Release Notes
 
-# 1.6.8
+## 1.6.9
+- Fixed chest opening on host from farmhands in same location
+- Removed configurable controls for carry/access carried chests
+
+## 1.6.8
 - Fixed farmhand being unable to access carried chest
-- Improve chest matching (fixes Volcano Dungeon chests bugged)
+- Improve chest matching (fixes Volcano Dungeon chests)
 - Restructure codebase
 - Refactor patches
 - Preliminary 64-bit support

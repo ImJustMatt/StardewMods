@@ -20,7 +20,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             );
         }
 
-        public static void PlayerCanPlaceItemHerePostfix(ref bool __result, GameLocation location, Item item, int x, int y, Farmer f)
+        private static void PlayerCanPlaceItemHerePostfix(ref bool __result, GameLocation location, Item item, int x, int y, Farmer f)
         {
             if (!Mod.AssetController.TryGetStorage(item, out var storage) || storage.StorageSprite is not {Texture: { }} spriteSheet)
                 return;

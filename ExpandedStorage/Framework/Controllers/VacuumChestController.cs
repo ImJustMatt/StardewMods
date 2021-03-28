@@ -42,6 +42,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 storages = new List<Chest>();
                 return false;
             }
+
             storages = Chests.Value
                 .Where(s => s.Value.Filter(item))
                 .Select(s => s.Key)

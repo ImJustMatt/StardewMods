@@ -60,7 +60,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Returns Offset to lower menu for expanded menus.</summary>
-        public static int GetMenuOffset(MenuWithInventory menu)
+        private protected static int GetMenuOffset(MenuWithInventory menu)
         {
             return Config.ExpandInventoryMenu
                    && menu is ItemGrabMenu {shippingBin: false} igm
@@ -70,19 +70,19 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Returns Padding to top menu for search box.</summary>
-        public static int GetMenuPadding(MenuWithInventory menu)
+        private protected static int GetMenuPadding(MenuWithInventory menu)
         {
             return menu is ItemGrabMenu {shippingBin: false} igm && AssetController.TryGetStorage(igm.context, out var storage) ? storage.Config.Menu.Padding : 0;
         }
 
         /// <summary>Returns Display Capacity of MenuWithInventory.</summary>
-        public static int GetMenuCapacity(object context)
+        private protected static int GetMenuCapacity(object context)
         {
             return Config.ExpandInventoryMenu && AssetController.TryGetStorage(context, out var storage) ? storage.Config.Menu.Capacity : 36;
         }
 
         /// <summary>Returns Displayed Rows of MenuWithInventory.</summary>
-        public static int GetMenuRows(object context)
+        private protected static int GetMenuRows(object context)
         {
             return Config.ExpandInventoryMenu && AssetController.TryGetStorage(context, out var storage) ? storage.Config.Menu.Rows : 3;
         }

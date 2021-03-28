@@ -18,7 +18,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             );
         }
 
-        public static void GrabItemFromContainerImplPostfix()
+        private static void GrabItemFromContainerImplPostfix()
         {
             Mod.ActiveMenu.Value.RefreshItems();
         }

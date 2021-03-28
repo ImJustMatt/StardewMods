@@ -90,7 +90,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Prevent adding item if filtered.</summary>
-        public static bool AddItemPrefix(Chest __instance, ref Item __result, Item item)
+        private static bool AddItemPrefix(Chest __instance, ref Item __result, Item item)
         {
             if (!ReferenceEquals(__instance, item) && (!Mod.AssetController.TryGetStorage(__instance, out var storage) || storage.Filter(item))) return true;
             __result = item;
@@ -123,33 +123,20 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Play custom sound when opening chest</summary>
-        public static bool CheckForActionPrefix(Chest __instance, ref bool __result, Farmer who, bool justCheckingForActivity)
+        private static bool CheckForActionPrefix(Chest __instance, ref bool __result, Farmer who, bool justCheckingForActivity)
         {
             if (justCheckingForActivity
                 || !__instance.playerChest.Value
                 || !Game1.didPlayerJustRightClick(true)
                 || !Mod.AssetController.TryGetStorage(__instance, out var storage))
                 return true;
-            if (storage.OpenNearby > 0 || Enum.TryParse(storage.Animation, out StorageController.AnimationType animationType) && animationType != StorageController.AnimationType.None)
-            {
-                who.currentLocation.playSound(storage.OpenSound);
-                __instance.ShowMenu();
-            }
-            else if (!__instance.GetMutex().IsLockHeld())
-            {
-                if (storage.Frames > 1) __instance.uses.Value = (int) StorageController.Frame;
-                __instance.frameCounter.Value = storage.Delay;
-                who.currentLocation.localSound(storage.OpenSound);
-                Game1.player.Halt();
-                Game1.player.freezePause = 1000;
-            }
 
-            __result = true;
+            __result = __instance.CheckForAction(storage, who);
             return false;
         }
 
         /// <summary>Draw chest with playerChoiceColor and lid animation when placed.</summary>
-        public static bool DrawPrefix(Chest __instance, ref int ____shippingBinFrameCounter, SpriteBatch spriteBatch, int x, int y, float alpha)
+        private static bool DrawPrefix(Chest __instance, ref int ____shippingBinFrameCounter, SpriteBatch spriteBatch, int x, int y, float alpha)
         {
             if (!Mod.AssetController.TryGetStorage(__instance, out var storage) || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
                 return true;
@@ -181,7 +168,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Draw chest with playerChoiceColor and lid animation when held.</summary>
-        public static bool DrawLocalPrefix(Chest __instance, ref int ____shippingBinFrameCounter, SpriteBatch spriteBatch, int x, int y, float alpha, bool local)
+        private static bool DrawLocalPrefix(Chest __instance, ref int ____shippingBinFrameCounter, SpriteBatch spriteBatch, int x, int y, float alpha, bool local)
         {
             if (!Mod.AssetController.TryGetStorage(__instance, out var storage) || !local || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
                 return true;
@@ -197,7 +184,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Draw chest with playerChoiceColor and lid animation in menu.</summary>
-        public static bool DrawInMenuPrefix(Chest __instance, ref int ____shippingBinFrameCounter, SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, StackDrawType drawStackNumber, Color color, bool drawShadow)
+        private static bool DrawInMenuPrefix(Chest __instance, ref int ____shippingBinFrameCounter, SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, StackDrawType drawStackNumber, Color color, bool drawShadow)
         {
             if (!Mod.AssetController.TryGetStorage(__instance, out var storage) || __instance.modData.Keys.Any(ExcludeModDataKeys.Contains))
                 return true;
@@ -238,7 +225,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Returns modded capacity for storage.</summary>
-        public static void GetActualCapacityPostfix(Chest __instance, ref int __result)
+        private static void GetActualCapacityPostfix(Chest __instance, ref int __result)
         {
             if (Mod.AssetController.TryGetStorage(__instance, out var storage) && storage.Config.ActualCapacity != 0)
             {
@@ -247,7 +234,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Get heldItem Chest items.</summary>
-        public static void GetItemsForPlayerPostfix(Chest __instance, ref NetObjectList<Item> __result, long id)
+        private static void GetItemsForPlayerPostfix(Chest __instance, ref NetObjectList<Item> __result, long id)
         {
             if (Mod.AssetController.TryGetStorage(__instance, out var storage) && storage.HeldStorage && __instance.heldObject.Value is Chest chest)
             {
@@ -256,13 +243,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
         }
 
         /// <summary>Refresh inventory after item grabbed from chest.</summary>
-        public static void GrabItemFromChestPostfix()
+        private static void GrabItemFromChestPostfix()
         {
             Mod.ActiveMenu.Value?.RefreshItems();
         }
 
         /// <summary>Refresh inventory after item grabbed from inventory.</summary>
-        public static void GrabItemFromInventoryPostfix()
+        private static void GrabItemFromInventoryPostfix()
         {
             Mod.ActiveMenu.Value?.RefreshItems();
         }
@@ -276,7 +263,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             return false;
         }
 
-        public static bool UpdateWhenCurrentLocationPrefix(Chest __instance, ref int ___health, ref int ____shippingBinFrameCounter, ref bool ____farmerNearby, ref int ___currentLidFrame, GameTime time, GameLocation environment)
+        private static bool UpdateWhenCurrentLocationPrefix(Chest __instance, ref int ___health, ref int ____shippingBinFrameCounter, ref bool ____farmerNearby, ref int ___currentLidFrame, GameTime time, GameLocation environment)
         {
             if (!Mod.AssetController.TryGetStorage(__instance, out var storage)) return true;
 
@@ -360,7 +347,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             else if (__instance.frameCounter.Value > -1)
             {
                 __instance.frameCounter.Value--;
-                if (__instance.frameCounter.Value >= 0) return false;
+                if (__instance.frameCounter.Value >= 0 || !__instance.GetMutex().IsLockHeld() && __instance.owner.Value != Game1.player.UniqueMultiplayerID) return false;
                 __instance.ShowMenu();
                 ____shippingBinFrameCounter = 0;
             }

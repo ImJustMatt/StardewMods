@@ -15,9 +15,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
             new("ScrollUp", "Button for scrolling the item storage menu up one row"),
             new("ScrollDown", "Button for scrolling the item storage menu down one row"),
             new("PreviousTab", "Button for switching to the previous tab"),
-            new("NextTab", "Button for switching to the next tab"),
-            new("CarryChest", "Pick up a placed storage"),
-            new("AccessCarriedChest", "Open the menu for a held storage")
+            new("NextTab", "Button for switching to the next tab")
         });
 
         public KeybindList OpenCrafting { get; set; } = new(SButton.K);
@@ -25,7 +23,5 @@ namespace ImJustMatt.ExpandedStorage.Framework.Models
         public KeybindList ScrollDown { get; set; } = new(SButton.DPadDown);
         public KeybindList PreviousTab { get; set; } = new(SButton.DPadLeft);
         public KeybindList NextTab { get; set; } = new(SButton.DPadRight);
-        public KeybindList CarryChest { get; set; } = new(SButton.ControllerA);
-        public KeybindList AccessCarriedChest { get; set; } = new(SButton.ControllerX);
     }
 }

@@ -31,12 +31,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             _carryChest = carryChest;
 
             events.GameLoop.UpdateTicking += OnUpdateTicking;
-            
+
             if (Context.IsMainPlayer)
             {
                 events.World.ObjectListChanged += OnObjectListChanged;
             }
-            
+
             if (!carryChest)
             {
                 events.Input.ButtonPressed += OnButtonPressed;
@@ -108,6 +108,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     });
                 }
             }
+
             _events.World.ObjectListChanged += OnObjectListChanged;
         }
 
@@ -145,18 +146,6 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             if (_config.Controls.OpenCrafting.JustPressed())
             {
                 if (OpenCrafting()) _input.SuppressActiveKeybinds(_config.Controls.OpenCrafting);
-                return;
-            }
-
-            if (obj != null && _config.Controls.CarryChest.JustPressed() && Utility.withinRadiusOfPlayer((int) (64 * pos.X), (int) (64 * pos.Y), 1, Game1.player))
-            {
-                if (CarryChest(obj, Game1.currentLocation, pos)) _input.SuppressActiveKeybinds(_config.Controls.CarryChest);
-                return;
-            }
-
-            if (obj == null && _heldChest.Value != null && _config.Controls.AccessCarriedChest.JustPressed())
-            {
-                if (AccessCarriedChest(_heldChest.Value)) _input.SuppressActiveKeybinds(_config.Controls.AccessCarriedChest);
             }
         }
 
@@ -176,10 +165,10 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             return true;
         }
 
-        private bool AccessCarriedChest(Object chest)
+        private bool AccessCarriedChest(Chest chest)
         {
             if (!_assetController.TryGetStorage(chest, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable) return false;
-            return chest.checkForAction(Game1.player);
+            return chest.CheckForAction(storage, Game1.player, true);
         }
 
         private bool OpenCrafting()
