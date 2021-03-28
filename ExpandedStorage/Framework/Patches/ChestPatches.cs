@@ -135,16 +135,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                 who.currentLocation.playSound(storage.OpenSound);
                 __instance.ShowMenu();
             }
-            else
+            else if (!__instance.GetMutex().IsLockHeld())
             {
-                __instance.GetMutex().RequestLock(delegate
-                {
-                    if (storage.Frames > 1) __instance.uses.Value = (int) StorageController.Frame;
-                    __instance.frameCounter.Value = storage.Delay;
-                    who.currentLocation.localSound(storage.OpenSound);
-                    Game1.player.Halt();
-                    Game1.player.freezePause = 1000;
-                });
+                if (storage.Frames > 1) __instance.uses.Value = (int) StorageController.Frame;
+                __instance.frameCounter.Value = storage.Delay;
+                who.currentLocation.localSound(storage.OpenSound);
+                Game1.player.Halt();
+                Game1.player.freezePause = 1000;
             }
 
             __result = true;
@@ -363,7 +360,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             else if (__instance.frameCounter.Value > -1)
             {
                 __instance.frameCounter.Value--;
-                if (__instance.frameCounter.Value >= 0 || !__instance.GetMutex().IsLockHeld()) return false;
+                if (__instance.frameCounter.Value >= 0) return false;
                 __instance.ShowMenu();
                 ____shippingBinFrameCounter = 0;
             }
