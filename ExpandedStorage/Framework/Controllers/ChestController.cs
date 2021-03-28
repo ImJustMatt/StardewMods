@@ -62,11 +62,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             if (Game1.player.CurrentItem is Chest activeChest && _assetController.TryGetStorage(activeChest, out storage))
             {
                 if (ReferenceEquals(_heldChest.Value, activeChest)) return;
-                _heldChest.Value = activeChest;
+                activeChest.owner.Value = Game1.player.UniqueMultiplayerID;
                 activeChest.fixLidFrame();
+                _heldChest.Value = activeChest;
             }
-            else if (storage == null)
+            else if (storage == null && _heldChest.Value != null)
             {
+                _heldChest.Value.owner.Value = -1;
                 _heldChest.Value = null;
             }
         }
