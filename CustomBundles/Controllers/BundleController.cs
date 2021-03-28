@@ -55,7 +55,7 @@ namespace ImJustMatt.CustomBundles.Controllers
             if (!Context.IsWorldReady)
                 return;
 
-            var modPath = PathUtilities.NormalizePath("Mods/furyx639.CustomBundles");
+            var modPath = PathUtilities.NormalizePath("Mods/CustomBundles");
             var bundles = asset.AsDictionary<string, string>().Data;
             var customBundles = _contentHelper
                 .Load<Dictionary<string, Bundle>>(modPath, ContentSource.GameContent)
@@ -72,7 +72,7 @@ namespace ImJustMatt.CustomBundles.Controllers
         public bool CanLoad<T>(IAssetInfo asset)
         {
             var assetName = PathUtilities.NormalizePath(asset.AssetName);
-            var modPath = PathUtilities.NormalizePath("Mods/furyx639.CustomBundles");
+            var modPath = PathUtilities.NormalizePath("Mods/CustomBundles");
             return assetName.StartsWith(modPath);
         }
 
