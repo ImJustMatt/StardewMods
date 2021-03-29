@@ -59,24 +59,13 @@ namespace ImJustMatt.ExpandedStorage
             ExpandedStorageAPI.DisableWithModData("aedenthorn.AdvancedLootFramework/IsAdvancedLootFrameworkChest");
             ExpandedStorageAPI.DisableDrawWithModData("aedenthorn.CustomChestTypes/IsCustomChest");
 
-            VacuumChests = new VacuumChestController(AssetController, Monitor, helper.Events, Config.VacuumToFirstRow);
-            ChestController = new ChestController(
-                AssetController,
-                Config,
-                helper.Events,
-                helper.Input,
-                helper.ModRegistry.IsLoaded("spacechase0.CarryChest")
-            );
+            VacuumChests = new VacuumChestController(this);
+            ChestController = new ChestController(this);
 
             ItemExtensions.Init(AssetController);
             FarmerExtensions.Init(VacuumChests);
             StorageController.Init(helper.Events);
             HSLColorPicker.Init(helper.Content);
-
-            if (helper.ModRegistry.IsLoaded("spacechase0.CarryChest"))
-            {
-                Monitor.Log("Do not run Expanded Storage with Carry Chest!", LogLevel.Warn);
-            }
 
             // Events
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;

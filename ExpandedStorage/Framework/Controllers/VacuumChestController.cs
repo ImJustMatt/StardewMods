@@ -13,37 +13,32 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
     {
         private const string ChestsAnywhereOrderKey = "Pathoschild.ChestsAnywhere/Order";
 
-        private readonly AssetController _assetController;
-        private readonly bool _firstRow;
-        private readonly IMonitor _monitor;
+        private readonly ExpandedStorage _mod;
 
         /// <summary>Tracks all chests that may be used for vacuum items.</summary>
-        private readonly PerScreen<IDictionary<Chest, StorageController>> Chests = new();
+        private readonly PerScreen<IDictionary<Chest, StorageController>> _chests = new();
 
-        public VacuumChestController(AssetController assetController, IMonitor monitor, IModEvents events, bool firstRow)
+        public VacuumChestController(ExpandedStorage mod)
         {
-            _assetController = assetController;
-            _monitor = monitor;
-            _firstRow = firstRow;
-
-            events.GameLoop.SaveLoaded += OnSaveLoaded;
-            events.Player.InventoryChanged += OnInventoryChanged;
+            _mod = mod;
+            _mod.Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
+            _mod.Helper.Events.Player.InventoryChanged += OnInventoryChanged;
         }
 
         public bool Any()
         {
-            return Chests.Value != null && Chests.Value.Any();
+            return _chests.Value != null && _chests.Value.Any();
         }
 
         public bool TryGetPrioritized(Item item, out IList<Chest> storages)
         {
-            if (Chests.Value == null)
+            if (_chests.Value == null)
             {
                 storages = new List<Chest>();
                 return false;
             }
 
-            storages = Chests.Value
+            storages = _chests.Value
                 .Where(s => s.Value.Filter(item))
                 .Select(s => s.Key)
                 .OrderByDescending(s => s.modData.TryGetValue(ChestsAnywhereOrderKey, out var order) ? Convert.ToInt32(order) : 0)
@@ -69,13 +64,13 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
         private void RefreshChests(Farmer who)
         {
-            Chests.Value = who.Items
-                .Take(_firstRow ? 12 : who.MaxItems)
+            _chests.Value = who.Items
+                .Take(_mod.Config.VacuumToFirstRow ? 12 : who.MaxItems)
                 .OfType<Chest>()
-                .ToDictionary(i => i, i => _assetController.TryGetStorage(i, out var storage) ? storage : null)
+                .ToDictionary(i => i, i => _mod.AssetController.TryGetStorage(i, out var storage) ? storage : null)
                 .Where(s => s.Value?.Config.Option("VacuumItems", true) == StorageConfigController.Choice.Enable)
                 .ToDictionary(s => s.Key, s => s.Value);
-            _monitor.VerboseLog($"Found {Chests.Value.Count} For Vacuum:\n" + string.Join("\n", Chests.Value.Select(s => $"\t{s.Key}")));
+            _mod.Monitor.VerboseLog($"Found {_chests.Value.Count} For Vacuum:\n" + string.Join("\n", _chests.Value.Select(s => $"\t{s.Key}")));
         }
     }
 }

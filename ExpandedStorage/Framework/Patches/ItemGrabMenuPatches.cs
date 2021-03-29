@@ -58,6 +58,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             );
 
             harmony.Patch(
+                AccessTools.Method(typeof(ItemGrabMenu), nameof(ItemGrabMenu.FillOutStacks)),
+                postfix: new HarmonyMethod(GetType(), nameof(FillOutStacksPostfix))
+            );
+
+            harmony.Patch(
                 AccessTools.Method(typeof(ItemGrabMenu), nameof(ItemGrabMenu.gameWindowSizeChanged)),
                 postfix: new HarmonyMethod(GetType(), nameof(GameWindowSizeChangedPostfix))
             );
@@ -151,17 +156,17 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
             if (__instance.context is not Chest chest)
                 chest = null;
 
-            if (Mod.ChestController?.HeldChest != null
+            if (Mod.ChestController.HeldChest != null
                 && chest != null
-                && !ReferenceEquals(Mod.ChestController?.HeldChest, chest))
+                && !ReferenceEquals(Mod.ChestController.HeldChest, chest))
             {
                 ___behaviorFunction = delegate(Item item, Farmer who)
                 {
                     var tmp = chest.addItem(item);
                     if (tmp == null)
                     {
-                        Mod.ChestController?.HeldChest.GetItemsForPlayer(who.UniqueMultiplayerID).Remove(item);
-                        Mod.ChestController?.HeldChest.clearNulls();
+                        Mod.ChestController.HeldChest?.GetItemsForPlayer(who.UniqueMultiplayerID).Remove(item);
+                        Mod.ChestController.HeldChest?.clearNulls();
                         Mod.ActiveMenu.Value.RefreshItems();
                     }
 
@@ -185,7 +190,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     __instance.xPositionOnScreen + IClickableMenu.spaceToClearSideBorder + IClickableMenu.borderWidth / 2,
                     __instance.yPositionOnScreen + IClickableMenu.spaceToClearTopBorder + IClickableMenu.borderWidth + 192 - 16,
                     false,
-                    Mod.ChestController?.HeldChest.GetItemsForPlayer(Game1.player.UniqueMultiplayerID),
+                    Mod.ChestController.HeldChest.GetItemsForPlayer(Game1.player.UniqueMultiplayerID),
                     chest.HighlightMethod(storage));
             }
             else
@@ -245,6 +250,12 @@ namespace ImJustMatt.ExpandedStorage.Framework.Patches
                     __instance.dropItemInvisibleButton.bounds.Y += menuConfig.Offset;
                 __instance.RepositionSideButtons();
             }
+        }
+
+        /// <summary>Refresh Items when Stacks are filled</summary>
+        private static void FillOutStacksPostfix()
+        {
+            Mod.ChestController.HeldChest?.clearNulls(); 
         }
 
         /// <summary>Set color picker to HSL Color Picker.</summary>

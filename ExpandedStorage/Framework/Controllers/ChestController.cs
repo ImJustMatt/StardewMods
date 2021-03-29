@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Linq;
 using ImJustMatt.ExpandedStorage.Framework.Extensions;
-using ImJustMatt.ExpandedStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -15,33 +14,30 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 {
     internal class ChestController
     {
-        private readonly AssetController _assetController;
-        private readonly bool _carryChest;
-        private readonly ConfigModel _config;
-        private readonly IModEvents _events;
+        private readonly ExpandedStorage _mod;
         private readonly PerScreen<Chest> _heldChest = new();
-        private readonly IInputHelper _input;
+        private readonly bool _carryChest;
 
-        public ChestController(AssetController assetController, ConfigModel config, IModEvents events, IInputHelper input, bool carryChest)
+        public ChestController(ExpandedStorage mod)
         {
-            _assetController = assetController;
-            _config = config;
-            _events = events;
-            _input = input;
-            _carryChest = carryChest;
-
-            events.GameLoop.UpdateTicking += OnUpdateTicking;
+            _mod = mod;
+            _carryChest = _mod.Helper.ModRegistry.IsLoaded("spacechase0.CarryChest");
+            if (_carryChest)
+            {
+                _mod.Monitor.Log("Do not run Expanded Storage with Carry Chest!", LogLevel.Warn);
+            }
+            else
+            {
+                _mod.Helper.Events.Input.ButtonPressed += OnButtonPressed;
+                _mod.Helper.Events.Input.ButtonsChanged += OnButtonsChanged;
+            }
 
             if (Context.IsMainPlayer)
             {
-                events.World.ObjectListChanged += OnObjectListChanged;
+                _mod.Helper.Events.World.ObjectListChanged += OnObjectListChanged;
             }
 
-            if (!carryChest)
-            {
-                events.Input.ButtonPressed += OnButtonPressed;
-                events.Input.ButtonsChanged += OnButtonsChanged;
-            }
+            _mod.Helper.Events.GameLoop.UpdateTicking += OnUpdateTicking;
         }
 
         public Chest HeldChest => _heldChest.Value;
@@ -59,7 +55,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
             if (_carryChest || ReferenceEquals(_heldChest.Value, Game1.player.CurrentItem)) return;
             StorageController storage = null;
-            if (Game1.player.CurrentItem is Chest activeChest && _assetController.TryGetStorage(activeChest, out storage))
+            if (Game1.player.CurrentItem is Chest activeChest && _mod.AssetController.TryGetStorage(activeChest, out storage))
             {
                 if (ReferenceEquals(_heldChest.Value, activeChest)) return;
                 activeChest.owner.Value = Game1.player.UniqueMultiplayerID;
@@ -76,11 +72,11 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         /// <summary>Raised after objects are added/removed in any location (including machines, furniture, fences, etc).</summary>
         private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
         {
-            _events.World.ObjectListChanged -= OnObjectListChanged;
-            var removed = e.Removed.FirstOrDefault(r => _assetController.TryGetStorage(r.Value, out _));
-            var added = e.Added.FirstOrDefault(a => _assetController.TryGetStorage(a.Value, out _));
+            _mod.Helper.Events.World.ObjectListChanged -= OnObjectListChanged;
+            var removed = e.Removed.FirstOrDefault(r => _mod.AssetController.TryGetStorage(r.Value, out _));
+            var added = e.Added.FirstOrDefault(a => _mod.AssetController.TryGetStorage(a.Value, out _));
 
-            if (removed.Value != null && _assetController.TryGetStorage(removed.Value, out var storage))
+            if (removed.Value != null && _mod.AssetController.TryGetStorage(removed.Value, out var storage))
             {
                 var x = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
                 var y = removed.Value.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
@@ -94,7 +90,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                     });
                 }
             }
-            else if (added.Value is Chest chest && _assetController.TryGetStorage(chest, out storage))
+            else if (added.Value is Chest chest && _mod.AssetController.TryGetStorage(chest, out storage))
             {
                 chest.modData["furyx639.ExpandedStorage/X"] = added.Key.X.ToString(CultureInfo.InvariantCulture);
                 chest.modData["furyx639.ExpandedStorage/Y"] = added.Key.Y.ToString(CultureInfo.InvariantCulture);
@@ -109,14 +105,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
                 }
             }
 
-            _events.World.ObjectListChanged += OnObjectListChanged;
+            _mod.Helper.Events.World.ObjectListChanged += OnObjectListChanged;
         }
 
         /// <summary>Raised after the player pressed a keyboard, mouse, or controller button.</summary>
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             if (!Context.IsPlayerFree) return;
-            var pos = _config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
+            var pos = _mod.Config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
             pos.X = (int) pos.X;
             pos.Y = (int) pos.Y;
             Game1.currentLocation.objects.TryGetValue(pos, out var obj);
@@ -124,14 +120,14 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             // Carry Chest
             if (obj != null && e.Button.IsUseToolButton() && Utility.withinRadiusOfPlayer((int) (64 * pos.X), (int) (64 * pos.Y), 1, Game1.player))
             {
-                if (CarryChest(obj, Game1.currentLocation, pos)) _input.Suppress(e.Button);
+                if (CarryChest(obj, Game1.currentLocation, pos)) _mod.Helper.Input.Suppress(e.Button);
                 return;
             }
 
             // Access Carried Chest
             if (obj == null && _heldChest.Value != null && e.Button.IsActionButton())
             {
-                if (AccessCarriedChest(_heldChest.Value)) _input.Suppress(e.Button);
+                if (AccessCarriedChest(_heldChest.Value)) _mod.Helper.Input.Suppress(e.Button);
             }
         }
 
@@ -139,19 +135,19 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         private void OnButtonsChanged(object sender, ButtonsChangedEventArgs e)
         {
             if (!Context.IsPlayerFree) return;
-            var pos = _config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
+            var pos = _mod.Config.Controller ? Game1.player.GetToolLocation() / 64f : e.Cursor.Tile;
             pos.X = (int) pos.X;
             pos.Y = (int) pos.Y;
             Game1.currentLocation.objects.TryGetValue(pos, out var obj);
-            if (_config.Controls.OpenCrafting.JustPressed())
+            if (_mod.Config.Controls.OpenCrafting.JustPressed())
             {
-                if (OpenCrafting()) _input.SuppressActiveKeybinds(_config.Controls.OpenCrafting);
+                if (OpenCrafting()) _mod.Helper.Input.SuppressActiveKeybinds(_mod.Config.Controls.OpenCrafting);
             }
         }
 
         private bool CarryChest(Object obj, GameLocation location, Vector2 pos)
         {
-            if (!_assetController.TryGetStorage(obj, out var storage) || storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable) return false;
+            if (!_mod.AssetController.TryGetStorage(obj, out var storage) || storage.Config.Option("CanCarry", true) != StorageConfigController.Choice.Enable) return false;
             var x = obj.modData.TryGetValue("furyx639.ExpandedStorage/X", out var xStr) ? int.Parse(xStr) : 0;
             var y = obj.modData.TryGetValue("furyx639.ExpandedStorage/Y", out var yStr) ? int.Parse(yStr) : 0;
             if (!location.Objects.TryGetValue(new Vector2(x, y), out obj)) return false;
@@ -167,7 +163,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
 
         private bool AccessCarriedChest(Chest chest)
         {
-            if (!_assetController.TryGetStorage(chest, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable) return false;
+            if (!_mod.AssetController.TryGetStorage(chest, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable) return false;
             return chest.CheckForAction(storage, Game1.player, true);
         }
 
@@ -175,7 +171,7 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
         {
             if (_heldChest.Value == null || Game1.activeClickableMenu != null)
                 return false;
-            if (!_assetController.TryGetStorage(_heldChest.Value, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable)
+            if (!_mod.AssetController.TryGetStorage(_heldChest.Value, out var storage) || storage.Config.Option("AccessCarried", true) != StorageConfigController.Choice.Enable)
                 return false;
             _heldChest.Value.GetMutex().RequestLock(delegate
             {
