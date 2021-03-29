@@ -66,6 +66,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
 
                         garbageCan.MapName = PathUtilities.NormalizePath(asset.AssetName);
                         garbageCan.Tile = new Vector2(x, y);
+                        map.GetLayer("Back").PickTile(new Location(x, y) * Game1.tileSize, Game1.viewport.Size)?.Properties.Add("NoPath", "");
                     }
 
                     // Remove Base
