@@ -18,8 +18,8 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
 {
     internal class GarbageCanController : GarbageCanModel
     {
+        private readonly GarbageDay _mod;
         private static IEnumerable<SearchableItem> _items;
-        private readonly ConfigController _config;
         private readonly Multiplayer _multiplayer;
         private Chest _chest;
         private bool _doubleMega;
@@ -28,13 +28,11 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
         private bool _mega;
         private NPC _npc;
 
-        internal GarbageCanController(IModEvents modEvents, IReflectionHelper reflection, ConfigController config)
+        internal GarbageCanController(GarbageDay mod)
         {
-            _config = config;
-            _multiplayer = reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
-
-            // Events
-            modEvents.Display.MenuChanged += OnMenuChanged;
+            _mod = mod;
+            _multiplayer = _mod.Helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+            _mod.Helper.Events.Display.MenuChanged += OnMenuChanged;
         }
 
         internal Chest Chest => _chest ??= Location.Objects.TryGetValue(Tile, out var obj) && obj is Chest chest ? chest : null;
@@ -118,6 +116,26 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
             return true;
         }
 
+        internal void Add(string key)
+        {
+            if (Chest == null && Location.Objects.ContainsKey(Tile)) return;
+            var chest = new Chest(true, Tile, GarbageDay.ObjectId);
+            chest.playerChoiceColor.Value = Color.DarkGray;
+            chest.modData.Add("furyx639.GarbageDay", key);
+            chest.modData.Add("Pathoschild.ChestsAnywhere/IsIgnored", "true");
+            if (Chest != null)
+            {
+                chest.items.CopyFrom(Chest.items);
+                Remove();
+            }
+            Location.Objects.Add(Tile, chest);
+        }
+
+        internal void Remove()
+        {
+            if (Chest != null) Location.Objects.Remove(Tile);
+        }
+
         internal void DayStart(float luck = 0)
         {
             if (Chest == null) return;
@@ -126,9 +144,9 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
             _garbageChecked = false;
             _dropQiBeans = false;
             Chest.playerChoiceColor.Value = Color.DarkGray;
-            if (_config.HideFromChestsAnywhere) Chest.modData["Pathoschild.ChestsAnywhere/IsIgnored"] = "true";
+            if (_mod.Config.HideFromChestsAnywhere) Chest.modData["Pathoschild.ChestsAnywhere/IsIgnored"] = "true";
             if (!Chest.modData.TryGetValue("furyx639.GarbageDay", out var whichCan)) whichCan = "0";
-            if (Game1.dayOfMonth % 7 == _config.GarbageDay) Chest.items.Clear();
+            if (Game1.dayOfMonth % 7 == _mod.Config.GarbageDay) Chest.items.Clear();
 
             // Seed Random
             if (!int.TryParse(whichCan, out var vanillaCanNumber)) vanillaCanNumber = 0;
@@ -172,7 +190,7 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
             }
 
             // Global Loot
-            if (garbageRandom.NextDouble() < _config.GetRandomItemFromSeason)
+            if (garbageRandom.NextDouble() < _mod.Config.GetRandomItemFromSeason)
             {
                 var globalLoot = Utility.getRandomItemFromSeason(Game1.currentSeason, (int) (Tile.X * 653 + Tile.Y * 777), false);
                 if (globalLoot != -1)

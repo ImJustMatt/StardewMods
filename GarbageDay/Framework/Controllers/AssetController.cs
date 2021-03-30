@@ -43,20 +43,30 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
                 for (var y = 0; y < map.Layers[0].LayerHeight; y++)
                 {
                     var layer = map.GetLayer("Buildings");
-
-                    // Look for Action: Garbage
                     PropertyValue property = null;
+                    string whichCan = "";
                     var tile = layer.PickTile(new Location(x, y) * Game1.tileSize, Game1.viewport.Size);
-                    tile?.Properties.TryGetValue("Action", out property);
-                    var parts = property?.ToString().Split(' ');
 
-                    // Add to list
-                    if (parts?.ElementAtOrDefault(0) == "Garbage" && !string.IsNullOrWhiteSpace(parts.ElementAtOrDefault(1)))
+                    // Look for Garbage: WhichCan
+                    tile?.Properties.TryGetValue("Garbage", out property);
+                    whichCan = property?.ToString();
+                    if (string.IsNullOrWhiteSpace(whichCan))
                     {
-                        if (!GarbageDay.GarbageCans.TryGetValue(parts[1], out var garbageCan))
+                        // Look for Action: Garbage
+                        tile?.Properties.TryGetValue("Action", out property);
+                        var parts = property?.ToString().Split(' ');
+                        if (parts?.ElementAtOrDefault(0) == "Garbage")
                         {
-                            garbageCan = new GarbageCanController(_mod.Helper.Events, _mod.Helper.Reflection, _mod.Config);
-                            GarbageDay.GarbageCans.Add(parts[1], garbageCan);
+                            whichCan = parts.ElementAtOrDefault(1);
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(whichCan))
+                    {
+                        if (!GarbageDay.GarbageCans.TryGetValue(whichCan, out var garbageCan))
+                        {
+                            garbageCan = new GarbageCanController(_mod);
+                            GarbageDay.GarbageCans.Add(whichCan, garbageCan);
                             additions++;
                         }
                         else

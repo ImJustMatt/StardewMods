@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Harmony;
 using Microsoft.Xna.Framework;
 using StardewValley.Objects;
 
@@ -31,37 +33,18 @@ namespace ImJustMatt.GarbageDay.Framework.Controllers
 
         private static void FillGarbageCans(string command, string[] args)
         {
-            var luck = float.TryParse(args?[0], out var luckFloat) ? luckFloat : 0;
-            foreach (var garbageCan in GarbageDay.GarbageCans)
-            {
-                garbageCan.Value.DayStart(luck);
-            }
+            var luck = float.TryParse(args.ElementAtOrDefault(0), out var luckFloat) ? luckFloat : 0;
+            GarbageDay.GarbageCans.Values.Do(garbageCan => garbageCan.DayStart(luck));
         }
 
         private static void RemoveGarbageCans(string command, string[] args)
         {
-            foreach (var garbageCan in GarbageDay.GarbageCans.Values)
-            {
-                if (garbageCan.Chest != null) garbageCan.Location.Objects.Remove(garbageCan.Tile);
-            }
+            GarbageDay.GarbageCans.Values.Do(garbageCan => garbageCan.Remove());
         }
 
         private static void ResetGarbageCans(string command, string[] args)
         {
-            foreach (var garbageCan in GarbageDay.GarbageCans)
-            {
-                var chest = new Chest(true, garbageCan.Value.Tile, GarbageDay.ObjectId);
-                chest.playerChoiceColor.Value = Color.DarkGray;
-                chest.modData.Add("furyx639.GarbageDay", garbageCan.Key);
-                chest.modData.Add("Pathoschild.ChestsAnywhere/IsIgnored", "true");
-                if (garbageCan.Value.Chest != null)
-                {
-                    chest.items.CopyFrom(garbageCan.Value.Chest.items);
-                    garbageCan.Value.Location.Objects.Remove(garbageCan.Value.Tile);
-                }
-
-                garbageCan.Value.Location.Objects.Add(garbageCan.Value.Tile, chest);
-            }
+            GarbageDay.GarbageCans.Do(garbageCan => garbageCan.Value.Add(garbageCan.Key));
         }
 
         internal class Command

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Harmony;
 using ImJustMatt.Common.Integrations.GenericModConfigMenu;
 using ImJustMatt.Common.Integrations.JsonAssets;
 using ImJustMatt.Common.Patches;
@@ -100,13 +101,9 @@ namespace ImJustMatt.GarbageDay
                 {
                     if (!Loot.ContainsKey(garbageCan.Key)) Loot.Add(garbageCan.Key, new Dictionary<string, double>());
                     garbageCan.Value.Location = location;
-                    if (location.Objects.ContainsKey(garbageCan.Value.Tile)) continue;
-                    var chest = new Chest(true, garbageCan.Value.Tile, ObjectId);
-                    chest.modData.Add("furyx639.GarbageDay", garbageCan.Key);
-                    chest.modData.Add("Pathoschild.ChestsAnywhere/IsIgnored", "true");
-                    location.Objects.Add(garbageCan.Value.Tile, chest);
                 }
             });
+            GarbageCans.Do(garbageCan => garbageCan.Value.Add(garbageCan.Key));
 
             Monitor.Log(string.Join("\n",
                 "Garbage Can Report",
@@ -138,10 +135,7 @@ namespace ImJustMatt.GarbageDay
         /// <param name="e">The event arguments.</param>
         private static void OnDayStarted(object sender, DayStartedEventArgs e)
         {
-            foreach (var garbageCan in GarbageCans.Values)
-            {
-                garbageCan.DayStart();
-            }
+            GarbageCans.Values.Do(garbageCan => garbageCan.DayStart());
         }
     }
 }

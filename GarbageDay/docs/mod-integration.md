@@ -4,9 +4,9 @@ You must edit or add a map to add Garbage Cans to them. The mod automatically
 removes garbage cans on the Town TileSheet from the Buildings and Front layers.
 
 Where a storage Garbage Can is placed will be based on the Tile Property of
-`"Action": "Garbage {UniqueID}"` from the `"Buildings"` layer, where
-`{UniqueID}` is a name that uniquely identifies the garbage can. This is used
-later to customize the garbage can's loot table.
+`"Garbage": "{UniqueID}"` from the `"Buildings"` layer, where `{UniqueID}` is
+the name that uniquely identifies the garbage can. This is used later to
+customize the garbage can's loot table.
 
 ### Maps
 
