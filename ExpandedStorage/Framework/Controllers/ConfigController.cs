@@ -40,42 +40,42 @@ namespace ImJustMatt.ExpandedStorage.Framework.Controllers
             ), LogLevelProperty);
         }
 
-        internal void RegisterModConfig(IModHelper helper, IManifest manifest, GenericModConfigMenuIntegration modConfigMenu)
+        internal void RegisterModConfig(ExpandedStorage mod)
         {
-            if (!modConfigMenu.IsLoaded)
+            if (!mod.ModConfigMenu.IsLoaded)
                 return;
 
             void DefaultConfig()
             {
-                modConfigMenu.RevertToDefault(ConfigHelper, this).Invoke();
-                modConfigMenu.RevertToDefault(ControlsModel.ConfigHelper, Controls).Invoke();
+                mod.ModConfigMenu.RevertToDefault(ConfigHelper, this).Invoke();
+                mod.ModConfigMenu.RevertToDefault(ControlsModel.ConfigHelper, Controls).Invoke();
             }
 
             void SaveConfig()
             {
-                helper.WriteConfig(this);
+                mod.Helper.WriteConfig(this);
             }
 
-            modConfigMenu.API.RegisterModConfig(manifest, DefaultConfig, SaveConfig);
-            modConfigMenu.API.SetDefaultIngameOptinValue(manifest, true);
-            modConfigMenu.API.RegisterPageLabel(manifest, "Controls", "Controller/Keyboard controls", "Controls");
-            modConfigMenu.API.RegisterPageLabel(manifest, "Tweaks", "Modify behavior for certain features", "Tweaks");
-            modConfigMenu.API.RegisterPageLabel(manifest, "Default Storage", "Global default storage config", "Default Storage");
+            mod.ModConfigMenu.API.RegisterModConfig(mod.ModManifest, DefaultConfig, SaveConfig);
+            mod.ModConfigMenu.API.SetDefaultIngameOptinValue(mod.ModManifest, true);
+            mod.ModConfigMenu.API.RegisterPageLabel(mod.ModManifest, "Controls", "Controller/Keyboard controls", "Controls");
+            mod.ModConfigMenu.API.RegisterPageLabel(mod.ModManifest, "Tweaks", "Modify behavior for certain features", "Tweaks");
+            mod.ModConfigMenu.API.RegisterPageLabel(mod.ModManifest, "Default Storage", "Global default storage config", "Default Storage");
 
-            modConfigMenu.API.StartNewPage(manifest, "Controls");
-            modConfigMenu.API.RegisterLabel(manifest, "Controls", "Controller/Keyboard controls");
-            modConfigMenu.RegisterConfigOptions(manifest, ControlsModel.ConfigHelper, Controls);
-            modConfigMenu.API.RegisterPageLabel(manifest, "Go Back", "", "");
+            mod.ModConfigMenu.API.StartNewPage(mod.ModManifest, "Controls");
+            mod.ModConfigMenu.API.RegisterLabel(mod.ModManifest, "Controls", "Controller/Keyboard controls");
+            mod.ModConfigMenu.RegisterConfigOptions(mod.ModManifest, ControlsModel.ConfigHelper, Controls);
+            mod.ModConfigMenu.API.RegisterPageLabel(mod.ModManifest, "Go Back", "", "");
 
-            modConfigMenu.API.StartNewPage(manifest, "Tweaks");
-            modConfigMenu.API.RegisterLabel(manifest, "Tweaks", "Modify behavior for certain features");
-            modConfigMenu.RegisterConfigOptions(manifest, ConfigHelper, this);
-            modConfigMenu.API.RegisterPageLabel(manifest, "Go Back", "", "");
+            mod.ModConfigMenu.API.StartNewPage(mod.ModManifest, "Tweaks");
+            mod.ModConfigMenu.API.RegisterLabel(mod.ModManifest, "Tweaks", "Modify behavior for certain features");
+            mod.ModConfigMenu.RegisterConfigOptions(mod.ModManifest, ConfigHelper, this);
+            mod.ModConfigMenu.API.RegisterPageLabel(mod.ModManifest, "Go Back", "", "");
 
-            modConfigMenu.API.StartNewPage(manifest, "Default Storage");
-            modConfigMenu.API.RegisterLabel(manifest, "Default Storage", "Global default storage config");
-            modConfigMenu.RegisterConfigOptions(manifest, StorageConfigController.ConfigHelper, DefaultStorage);
-            modConfigMenu.API.RegisterPageLabel(manifest, "Go Back", "", "");
+            mod.ModConfigMenu.API.StartNewPage(mod.ModManifest, "Default Storage");
+            mod.ModConfigMenu.API.RegisterLabel(mod.ModManifest, "Default Storage", "Global default storage config");
+            mod.ModConfigMenu.RegisterConfigOptions(mod.ModManifest, StorageConfigController.ConfigHelper, DefaultStorage);
+            mod.ModConfigMenu.API.RegisterPageLabel(mod.ModManifest, "Go Back", "", "");
         }
 
         private class FieldHandler : BaseFieldHandler

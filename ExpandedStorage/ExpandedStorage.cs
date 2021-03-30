@@ -90,7 +90,7 @@ namespace ImJustMatt.ExpandedStorage
         /// <summary>Raised after the game is launched, right before the first update tick.</summary>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            Config.RegisterModConfig(Helper, ModManifest, ModConfigMenu);
+            Config.RegisterModConfig(this);
         }
 
         /// <summary>Resets scrolling/overlay when chest menu exits or context changes.</summary>
